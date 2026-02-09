@@ -1,0 +1,612 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.5"
+  }
+  public: {
+    Tables: {
+      client_list_items: {
+        Row: {
+          card_image_url: string | null
+          created_at: string
+          grade: string | null
+          grading_company: string
+          id: string
+          inventory_item_id: string | null
+          item_name: string
+          list_id: string
+          market_price: number | null
+          quantity: number
+          set_name: string
+        }
+        Insert: {
+          card_image_url?: string | null
+          created_at?: string
+          grade?: string | null
+          grading_company?: string
+          id?: string
+          inventory_item_id?: string | null
+          item_name: string
+          list_id: string
+          market_price?: number | null
+          quantity?: number
+          set_name: string
+        }
+        Update: {
+          card_image_url?: string | null
+          created_at?: string
+          grade?: string | null
+          grading_company?: string
+          id?: string
+          inventory_item_id?: string | null
+          item_name?: string
+          list_id?: string
+          market_price?: number | null
+          quantity?: number
+          set_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_list_items_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_list_items_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "client_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_lists: {
+        Row: {
+          created_at: string
+          id: string
+          list_name: string
+          notes: string | null
+          share_token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          list_name: string
+          notes?: string | null
+          share_token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          list_name?: string
+          notes?: string | null
+          share_token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      feedback: {
+        Row: {
+          created_at: string
+          feedback_type: string
+          id: string
+          message: string
+          page_url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          feedback_type?: string
+          id?: string
+          message: string
+          page_url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          feedback_type?: string
+          id?: string
+          message?: string
+          page_url?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      inventory_items: {
+        Row: {
+          bgs_centering: number | null
+          bgs_corners: number | null
+          bgs_edges: number | null
+          bgs_surface: number | null
+          card_image_url: string | null
+          card_number: string | null
+          category: string | null
+          condition: Database["public"]["Enums"]["card_condition"]
+          created_at: string
+          grade: string | null
+          grading_company: Database["public"]["Enums"]["grading_company"]
+          id: string
+          language: string | null
+          lowest_listed: number | null
+          market_price: number | null
+          name: string
+          notes: string | null
+          platform_sold: string | null
+          purchase_price: number
+          quantity: number
+          raw_condition: string | null
+          sale_price: number | null
+          set_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bgs_centering?: number | null
+          bgs_corners?: number | null
+          bgs_edges?: number | null
+          bgs_surface?: number | null
+          card_image_url?: string | null
+          card_number?: string | null
+          category?: string | null
+          condition?: Database["public"]["Enums"]["card_condition"]
+          created_at?: string
+          grade?: string | null
+          grading_company?: Database["public"]["Enums"]["grading_company"]
+          id?: string
+          language?: string | null
+          lowest_listed?: number | null
+          market_price?: number | null
+          name: string
+          notes?: string | null
+          platform_sold?: string | null
+          purchase_price: number
+          quantity?: number
+          raw_condition?: string | null
+          sale_price?: number | null
+          set_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bgs_centering?: number | null
+          bgs_corners?: number | null
+          bgs_edges?: number | null
+          bgs_surface?: number | null
+          card_image_url?: string | null
+          card_number?: string | null
+          category?: string | null
+          condition?: Database["public"]["Enums"]["card_condition"]
+          created_at?: string
+          grade?: string | null
+          grading_company?: Database["public"]["Enums"]["grading_company"]
+          id?: string
+          language?: string | null
+          lowest_listed?: number | null
+          market_price?: number | null
+          name?: string
+          notes?: string | null
+          platform_sold?: string | null
+          purchase_price?: number
+          quantity?: number
+          raw_condition?: string | null
+          sale_price?: number | null
+          set_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      newsletter_signups: {
+        Row: {
+          created_at: string
+          id: string
+          phone_number: string
+          subscribed: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          phone_number: string
+          subscribed?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          phone_number?: string
+          subscribed?: boolean
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          artist: string | null
+          barcode: string | null
+          card_number: string | null
+          category: Database["public"]["Enums"]["product_category"]
+          created_at: string
+          id: string
+          image_url: string | null
+          last_price_update: string | null
+          market_price: number | null
+          name: string
+          pokemon_tcg_id: string | null
+          rarity: string | null
+          set_name: string | null
+          subtypes: string[] | null
+          tcgplayer_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          artist?: string | null
+          barcode?: string | null
+          card_number?: string | null
+          category?: Database["public"]["Enums"]["product_category"]
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          last_price_update?: string | null
+          market_price?: number | null
+          name: string
+          pokemon_tcg_id?: string | null
+          rarity?: string | null
+          set_name?: string | null
+          subtypes?: string[] | null
+          tcgplayer_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          artist?: string | null
+          barcode?: string | null
+          card_number?: string | null
+          category?: Database["public"]["Enums"]["product_category"]
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          last_price_update?: string | null
+          market_price?: number | null
+          name?: string
+          pokemon_tcg_id?: string | null
+          rarity?: string | null
+          set_name?: string | null
+          subtypes?: string[] | null
+          tcgplayer_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      purchase_entries: {
+        Row: {
+          created_at: string
+          id: string
+          inventory_item_id: string | null
+          item_name: string
+          notes: string | null
+          purchase_date: string
+          purchase_price: number
+          quantity: number
+          set_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inventory_item_id?: string | null
+          item_name: string
+          notes?: string | null
+          purchase_date?: string
+          purchase_price: number
+          quantity?: number
+          set_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inventory_item_id?: string | null
+          item_name?: string
+          notes?: string | null
+          purchase_date?: string
+          purchase_price?: number
+          quantity?: number
+          set_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_entries_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales: {
+        Row: {
+          bgs_centering: number | null
+          bgs_corners: number | null
+          bgs_edges: number | null
+          bgs_surface: number | null
+          card_image_url: string | null
+          client_name: string | null
+          condition: string | null
+          created_at: string
+          event_name: string | null
+          grade: string | null
+          grading_company: string | null
+          id: string
+          inventory_item_id: string | null
+          item_name: string
+          notes: string | null
+          platform: string | null
+          profit: number | null
+          purchase_price: number
+          quantity_sold: number
+          raw_condition: string | null
+          sale_date: string
+          sale_group_id: string | null
+          sale_price: number
+          set_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bgs_centering?: number | null
+          bgs_corners?: number | null
+          bgs_edges?: number | null
+          bgs_surface?: number | null
+          card_image_url?: string | null
+          client_name?: string | null
+          condition?: string | null
+          created_at?: string
+          event_name?: string | null
+          grade?: string | null
+          grading_company?: string | null
+          id?: string
+          inventory_item_id?: string | null
+          item_name: string
+          notes?: string | null
+          platform?: string | null
+          profit?: number | null
+          purchase_price: number
+          quantity_sold?: number
+          raw_condition?: string | null
+          sale_date?: string
+          sale_group_id?: string | null
+          sale_price: number
+          set_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bgs_centering?: number | null
+          bgs_corners?: number | null
+          bgs_edges?: number | null
+          bgs_surface?: number | null
+          card_image_url?: string | null
+          client_name?: string | null
+          condition?: string | null
+          created_at?: string
+          event_name?: string | null
+          grade?: string | null
+          grading_company?: string | null
+          id?: string
+          inventory_item_id?: string | null
+          item_name?: string
+          notes?: string | null
+          platform?: string | null
+          profit?: number | null
+          purchase_price?: number
+          quantity_sold?: number
+          raw_condition?: string | null
+          sale_date?: string
+          sale_group_id?: string | null
+          sale_price?: number
+          set_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      search_products_prioritized: {
+        Args: {
+          exact_card_num: string
+          result_limit?: number
+          search_query: string
+        }
+        Returns: {
+          artist: string
+          card_number: string
+          id: string
+          image_url: string
+          market_price: number
+          name: string
+          pokemon_tcg_id: string
+          rarity: string
+          set_name: string
+          subtypes: string[]
+        }[]
+      }
+    }
+    Enums: {
+      card_condition:
+        | "mint"
+        | "near-mint"
+        | "lightly-played"
+        | "moderately-played"
+        | "heavily-played"
+        | "damaged"
+      grading_company: "raw" | "psa" | "bgs" | "cgc" | "ace" | "sgc" | "tag"
+      product_category: "raw" | "graded" | "sealed"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      card_condition: [
+        "mint",
+        "near-mint",
+        "lightly-played",
+        "moderately-played",
+        "heavily-played",
+        "damaged",
+      ],
+      grading_company: ["raw", "psa", "bgs", "cgc", "ace", "sgc", "tag"],
+      product_category: ["raw", "graded", "sealed"],
+    },
+  },
+} as const

@@ -1,0 +1,581 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Card Ledger iOS Design System
+   - Primary: Blue (#0074fb)
+   - Feel: Premium/Luxury
+   - Style: Glassmorphism
+   - Corners: Very rounded (20-24pt)
+   - Both light and dark mode support
+*/
+
+@layer base {
+  /* ===== LIGHT MODE (Default) ===== */
+  :root {
+    /* iOS-style light backgrounds */
+    --background: 0 0% 96%;
+    --foreground: 222 47% 11%;
+
+    /* Glassmorphism card surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Logo Blue Primary (#0074fb) */
+    --primary: 212 100% 49%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Light secondary */
+    --secondary: 210 20% 93%;
+    --secondary-foreground: 222 47% 11%;
+
+    /* Muted light backgrounds */
+    --muted: 210 20% 93%;
+    --muted-foreground: 215 16% 47%;
+
+    /* Blue accent */
+    --accent: 212 100% 49%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive states */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Success states */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning states */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Borders - subtle in light mode */
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 212 100% 49%;
+
+    /* iOS 18 style - very rounded */
+    --radius: 1.25rem;
+    --radius-sm: 0.75rem;
+    --radius-lg: 1.5rem;
+    --radius-xl: 2rem;
+
+    /* Chart colors */
+    --chart-1: 212 100% 49%;
+    --chart-2: 142 76% 36%;
+    --chart-3: 0 84% 60%;
+    --chart-4: 271 81% 56%;
+    --chart-5: 38 92% 50%;
+
+    /* Glassmorphism effects - light mode (reduced for cleaner look) */
+    --glass-bg: 0 0% 100% / 0.85;
+    --glass-border: 0 0% 100% / 0.4;
+    --glass-blur: 12px;
+
+    /* Shadows - softer for light mode */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
+    --shadow-card: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -2px hsl(0 0% 0% / 0.1);
+    --shadow-card-hover: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -4px hsl(0 0% 0% / 0.1);
+    --shadow-glow: 0 0 0 3px hsl(212 100% 49% / 0.15);
+    --shadow-glass: 0 8px 32px hsl(0 0% 0% / 0.1);
+
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Navigation */
+    --nav-height: 5rem;
+    --nav-blur: 24px;
+  }
+
+  /* ===== DARK MODE ===== */
+  .dark {
+    /* iOS-style dark backgrounds (#1c1c1e range) */
+    --background: 220 17% 9%;
+    --foreground: 210 40% 98%;
+
+    /* Glassmorphism card surfaces - dark */
+    --card: 217 19% 13%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 217 19% 13%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Logo Blue Primary (#0074fb) */
+    --primary: 212 100% 49%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Dark secondary */
+    --secondary: 215 19% 18%;
+    --secondary-foreground: 210 40% 98%;
+
+    /* Muted dark backgrounds */
+    --muted: 215 19% 16%;
+    --muted-foreground: 217 10% 64%;
+
+    /* Blue accent */
+    --accent: 212 100% 49%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive states */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Success states */
+    --success: 142 76% 45%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning states */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Borders - visible in dark mode */
+    --border: 215 19% 20%;
+    --input: 215 19% 18%;
+    --ring: 212 100% 49%;
+
+    /* Chart colors - same */
+    --chart-1: 212 100% 49%;
+    --chart-2: 142 76% 45%;
+    --chart-3: 0 84% 60%;
+    --chart-4: 271 81% 56%;
+    --chart-5: 38 92% 50%;
+
+    /* Glassmorphism effects - dark mode (reduced for cleaner look) */
+    --glass-bg: 217 19% 13% / 0.9;
+    --glass-border: 215 19% 25% / 0.4;
+    --glass-blur: 12px;
+
+    /* Shadows - stronger for dark mode */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 4px 6px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
+    --shadow-card-hover: 0 10px 15px -3px hsl(212 100% 49% / 0.15), 0 4px 6px -4px hsl(0 0% 0% / 0.4);
+    --shadow-glow: 0 0 0 3px hsl(212 100% 49% / 0.2);
+    --shadow-glass: 0 8px 32px hsl(0 0% 0% / 0.3);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Prevent pull-to-refresh on body, allow on scroll containers */
+    overscroll-behavior-y: none;
+  }
+
+  /* Safe area support for mobile (iOS notch, Android nav bars) */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom), 1.5rem);
+  }
+
+  .pt-safe {
+    padding-top: calc(env(safe-area-inset-top) + 12px);
+  }
+
+  /* Remove number input spinner arrows */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+}
+
+/* ===== GLASSMORPHISM COMPONENTS ===== */
+@layer components {
+  /* Glass card - primary glassmorphism effect */
+  .glass {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid hsl(var(--glass-border));
+  }
+
+  .glass-card {
+    @apply glass rounded-2xl;
+    box-shadow: var(--shadow-glass);
+  }
+
+  .glass-subtle {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Glass navigation bar */
+  .glass-nav {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(var(--nav-blur));
+    -webkit-backdrop-filter: blur(var(--nav-blur));
+    border-top: 1px solid hsl(var(--glass-border));
+  }
+
+  /* iOS-style card with subtle depth */
+  .ios-card {
+    @apply rounded-2xl bg-card;
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-smooth);
+  }
+
+  .ios-card:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-1px);
+  }
+
+  .ios-card:active {
+    transform: scale(0.98);
+  }
+
+  /* Floating card - borderless with layered shadows */
+  .card-float {
+    @apply rounded-3xl bg-card;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.05),
+      0 10px 15px -3px rgba(0, 0, 0, 0.05),
+      0 20px 25px -5px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+  }
+
+  .dark .card-float {
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.2),
+      0 10px 15px -3px rgba(0, 0, 0, 0.15),
+      0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-float:hover {
+    box-shadow:
+      0 10px 15px -3px rgba(0, 0, 0, 0.08),
+      0 20px 25px -5px rgba(0, 0, 0, 0.05),
+      0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .dark .card-float:hover {
+    box-shadow:
+      0 10px 15px -3px rgba(0, 0, 0, 0.25),
+      0 20px 25px -5px rgba(0, 0, 0, 0.2),
+      0 25px 50px -12px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Premium stat card */
+  .stat-card {
+    @apply glass-card p-4;
+    transition: var(--transition-spring);
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  /* iOS segmented control style */
+  .ios-segment {
+    @apply flex gap-1 p-1 rounded-xl bg-secondary/50;
+  }
+
+  .ios-segment-item {
+    @apply flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-all;
+    @apply text-muted-foreground hover:text-foreground;
+  }
+
+  .ios-segment-item[data-active="true"] {
+    @apply bg-card text-foreground shadow-sm;
+  }
+
+  /* iOS-style button */
+  .ios-button {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply px-6 py-3 rounded-xl font-semibold;
+    @apply transition-all active:scale-95;
+    min-height: 44px; /* iOS minimum tap target */
+  }
+
+  .ios-button-primary {
+    @apply ios-button bg-primary text-primary-foreground;
+    @apply hover:bg-primary/90 active:bg-primary/80;
+  }
+
+  .ios-button-secondary {
+    @apply ios-button bg-secondary text-secondary-foreground;
+    @apply hover:bg-secondary/80 active:bg-secondary/70;
+  }
+
+  .ios-button-ghost {
+    @apply ios-button bg-transparent text-foreground;
+    @apply hover:bg-secondary/50 active:bg-secondary/70;
+  }
+
+  /* iOS-style input */
+  .ios-input {
+    @apply w-full px-4 py-3 rounded-xl;
+    @apply bg-secondary/50 border border-border/50;
+    @apply text-foreground placeholder:text-muted-foreground;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary;
+    @apply transition-all;
+    min-height: 44px;
+  }
+
+  /* Search bar with icon */
+  .ios-search {
+    @apply relative;
+  }
+
+  .ios-search-input {
+    @apply ios-input pl-12 pr-4;
+    @apply bg-secondary/30;
+  }
+
+  .ios-search-icon {
+    @apply absolute left-4 top-1/2 -translate-y-1/2 z-10;
+    @apply text-muted-foreground pointer-events-none;
+  }
+
+  /* Large hero search for home screen */
+  .search-hero {
+    @apply glass-card p-1;
+  }
+
+  .search-hero-input {
+    @apply w-full px-5 py-4 text-lg;
+    @apply bg-transparent border-0;
+    @apply text-foreground placeholder:text-muted-foreground;
+    @apply focus:outline-none;
+  }
+
+  /* Badge styles */
+  .ios-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .ios-badge-primary {
+    @apply ios-badge bg-primary/15 text-primary;
+  }
+
+  .ios-badge-success {
+    @apply ios-badge bg-success/15 text-success;
+  }
+
+  .ios-badge-destructive {
+    @apply ios-badge bg-destructive/15 text-destructive;
+  }
+
+  .ios-badge-warning {
+    @apply ios-badge bg-warning/15 text-warning;
+  }
+
+  /* Profit/Loss colors - semantic only */
+  .text-profit {
+    @apply text-success;
+  }
+
+  .text-loss {
+    @apply text-destructive;
+  }
+
+  .bg-profit {
+    @apply bg-success/15;
+  }
+
+  .bg-loss {
+    @apply bg-destructive/15;
+  }
+
+  /* ===== ROBINHOOD-INSPIRED CLEAN UI ===== */
+
+  /* Clean card - minimal design without heavy blur */
+  .card-clean {
+    @apply rounded-2xl bg-card border border-border/30;
+    box-shadow: none;
+  }
+
+  .card-clean-elevated {
+    @apply rounded-2xl bg-card border border-border/20;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  }
+
+  .dark .card-clean-elevated {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.15), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+
+  /* Display typography for financial figures */
+  .text-display {
+    @apply text-5xl font-bold tracking-tight;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .text-display-lg {
+    @apply text-6xl font-bold tracking-tight;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .text-display-sm {
+    @apply text-3xl font-bold tracking-tight;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .text-display-xs {
+    @apply text-2xl font-bold tracking-tight;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Metric label styling */
+  .label-metric {
+    @apply text-xs uppercase tracking-wider text-muted-foreground font-medium;
+  }
+
+  /* Financial value with tabular numbers */
+  .value-financial {
+    @apply font-semibold;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Change indicator (gains/losses) */
+  .change-positive {
+    @apply text-success font-medium;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .change-negative {
+    @apply text-destructive font-medium;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .change-neutral {
+    @apply text-muted-foreground font-medium;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Compact stat display */
+  .stat-compact {
+    @apply flex flex-col gap-0.5;
+  }
+
+  .stat-compact-value {
+    @apply text-xl font-bold;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-compact-label {
+    @apply text-xs text-muted-foreground;
+  }
+
+  /* Inline metric (value + label on same line) */
+  .metric-inline {
+    @apply flex items-baseline gap-1.5;
+  }
+
+  .metric-inline-value {
+    @apply text-lg font-semibold;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .metric-inline-label {
+    @apply text-sm text-muted-foreground;
+  }
+}
+
+/* ===== ANIMATIONS ===== */
+@layer utilities {
+  /* Smooth spring animation for cards */
+  .animate-spring {
+    transition: var(--transition-spring);
+  }
+
+  /* Tap feedback */
+  .tap-highlight {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .tap-scale:active {
+    transform: scale(0.97);
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary to-accent;
+  }
+
+  /* Hide scrollbar but allow scrolling */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Shimmer animation for loading states */
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* iOS-style large title */
+  .ios-title {
+    @apply text-3xl font-bold tracking-tight;
+  }
+
+  .ios-title-large {
+    @apply text-4xl font-bold tracking-tight;
+  }
+
+  /* Ensure minimum touch targets */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* ===== BARCODE SCANNER ===== */
+/* Make camera visible behind WebView during barcode scanning */
+body.barcode-scanner-active {
+  background: transparent !important;
+}
+
+body.barcode-scanner-active .scanner-hide {
+  display: none !important;
+}
+
+body.barcode-scanner-active ion-app,
+body.barcode-scanner-active #root {
+  background: transparent !important;
+}
+
+body.barcode-scanner-active #root > *:not(.scanner-visible) {
+  visibility: hidden;
+}

@@ -1,0 +1,23 @@
+project_id = "vbedydaozlvujkpcojct"
+
+[functions.search-products]
+verify_jwt = false
+
+[functions.fetch-graded-prices]
+verify_jwt = false
+
+[functions.products-search]
+verify_jwt = false
+
+[functions.index-products]
+verify_jwt = false
+
+[functions.index-sealed-products]
+verify_jwt = false
+
+[functions.index-pokemon-sealed]
+verify_jwt = false
+
+[functions.scrydex-price]
+verify_jwt = false
+
