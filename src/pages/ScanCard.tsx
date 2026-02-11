@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -13,7 +13,11 @@ import {
   Eye,
   X,
   Clock,
-  Trash2
+  Trash2,
+  ArrowUpDown,
+  ChevronDown,
+  Flame,
+  Loader2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -24,10 +28,46 @@ import { AddToInventoryDialog } from "@/components/AddToInventoryDialog";
 import { PageTransition } from "@/components/PageTransition";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useRecentSearches } from "@/hooks/useRecentSearches";
+import { useSearchCache } from "@/hooks/useSearchCache";
 import { PortfolioPreview } from "@/components/PortfolioPreview";
+import { SkeletonGrid } from "@/components/SkeletonCard";
 
 // Filter types
 type CategoryFilter = "all" | "raw" | "sealed";
+type TCGFilter = "all" | "pokemon" | "sports" | "onepiece" | "yugioh" | "mtg";
+type SortOption = "relevance" | "price_low" | "price_high" | "name_asc";
+
+// Popular searches - trending cards
+const POPULAR_SEARCHES = [
+  { query: "Charizard", icon: "🔥" },
+  { query: "Pikachu VMAX", icon: "⚡" },
+  { query: "Mew ex", icon: "✨" },
+  { query: "PSA 10", icon: "💎" },
+  { query: "Elite Trainer Box", icon: "📦" },
+  { query: "Lugia", icon: "🌊" },
+  { query: "Eevee", icon: "🦊" },
+  { query: "Gengar", icon: "👻" },
+];
+
+// TCG type chips
+const TCG_FILTERS: { value: TCGFilter; label: string; icon?: string }[] = [
+  { value: "all", label: "All" },
+  { value: "pokemon", label: "Pokémon", icon: "⚡" },
+  { value: "sports", label: "Sports", icon: "🏀" },
+  { value: "onepiece", label: "One Piece", icon: "🏴‍☠️" },
+  { value: "yugioh", label: "Yu-Gi-Oh!", icon: "🎴" },
+  { value: "mtg", label: "MTG", icon: "🧙" },
+];
+
+// Sort options
+const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: "relevance", label: "Relevance" },
+  { value: "price_low", label: "Price: Low → High" },
+  { value: "price_high", label: "Price: High → Low" },
+  { value: "name_asc", label: "Name: A → Z" },
+];
+
+const ITEMS_PER_PAGE = 20;
 
 const ScanCard = () => {
   const navigate = useNavigate();
@@ -40,14 +80,22 @@ const ScanCard = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showRecentSearches, setShowRecentSearches] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const currentSearchRef = useRef<string>("");
+  const abortControllerRef = useRef<AbortController | null>(null);
   const { items: watchlistItems, removeFromWatchlist } = useWatchlist();
   const { recentSearches, addSearch, removeSearch, clearSearches } = useRecentSearches();
+  const { getCached, setCache } = useSearchCache();
 
   // Filter states
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
+  const [tcgFilter, setTcgFilter] = useState<TCGFilter>("all");
+  const [sortOption, setSortOption] = useState<SortOption>("relevance");
   const [setFilter, setSetFilter] = useState<string>("all");
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   // Get unique sets from search results for dynamic filter
   const availableSets = useMemo(() => {
@@ -60,10 +108,45 @@ const ScanCard = () => {
     return Array.from(sets).sort();
   }, [searchResults]);
 
-  // Filter search results
+  // Generate autocomplete suggestions from results and recent searches
+  const suggestions = useMemo(() => {
+    if (searchQuery.length < 2) return [];
+    
+    const query = searchQuery.toLowerCase();
+    const suggestionSet = new Set<string>();
+    
+    // Add from recent searches
+    recentSearches.forEach(s => {
+      if (s.query.toLowerCase().includes(query) && s.query.toLowerCase() !== query) {
+        suggestionSet.add(s.query);
+      }
+    });
+    
+    // Add from current results (product names)
+    localResults.slice(0, 10).forEach(product => {
+      const name = product.name?.toLowerCase() || "";
+      if (name.includes(query) && name !== query) {
+        // Extract a reasonable suggestion from the name
+        const words = product.name.split(' ').slice(0, 4).join(' ');
+        suggestionSet.add(words);
+      }
+    });
+    
+    // Add from popular searches
+    POPULAR_SEARCHES.forEach(p => {
+      if (p.query.toLowerCase().includes(query)) {
+        suggestionSet.add(p.query);
+      }
+    });
+    
+    return Array.from(suggestionSet).slice(0, 5);
+  }, [searchQuery, recentSearches, localResults]);
+
+  // Filter and sort search results
   const filteredResults = useMemo(() => {
-    return searchResults.filter(product => {
+    let results = searchResults.filter(product => {
       const productCategory = product.category?.toLowerCase() || "raw";
+      const productTcg = product.tcg_type?.toLowerCase() || "pokemon";
 
       // Category filter (Raw vs Sealed)
       if (categoryFilter !== "all") {
@@ -71,20 +154,58 @@ const ScanCard = () => {
         if (categoryFilter === "raw" && productCategory === "sealed") return false;
       }
 
+      // TCG filter
+      if (tcgFilter !== "all" && productTcg !== tcgFilter) return false;
+
       // Set filter
       if (setFilter !== "all" && product.set_name !== setFilter) return false;
 
       return true;
     });
-  }, [searchResults, categoryFilter, setFilter]);
+
+    // Sort results
+    switch (sortOption) {
+      case "price_low":
+        results = [...results].sort((a, b) => (a.market_price || 0) - (b.market_price || 0));
+        break;
+      case "price_high":
+        results = [...results].sort((a, b) => (b.market_price || 0) - (a.market_price || 0));
+        break;
+      case "name_asc":
+        results = [...results].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        break;
+      // relevance - keep original order from API
+    }
+
+    return results;
+  }, [searchResults, categoryFilter, tcgFilter, setFilter, sortOption]);
+
+  // Paginated results for display
+  const displayedResults = useMemo(() => {
+    return filteredResults.slice(0, displayCount);
+  }, [filteredResults, displayCount]);
+
+  const hasMoreResults = displayCount < filteredResults.length;
 
   // Clear all filters
   const clearFilters = () => {
     setCategoryFilter("all");
+    setTcgFilter("all");
     setSetFilter("all");
+    setSortOption("relevance");
   };
 
-  const hasActiveFilters = categoryFilter !== "all" || setFilter !== "all";
+  const hasActiveFilters = categoryFilter !== "all" || tcgFilter !== "all" || setFilter !== "all" || sortOption !== "relevance";
+
+  // Clear search input
+  const clearSearch = useCallback(() => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setLocalResults([]);
+    setDisplayCount(ITEMS_PER_PAGE);
+    clearFilters();
+    searchInputRef.current?.focus();
+  }, []);
 
   // Handle scroll to show/hide scroll-to-top button
   useEffect(() => {
@@ -95,9 +216,24 @@ const ScanCard = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Reset display count when results change
+  useEffect(() => {
+    setDisplayCount(ITEMS_PER_PAGE);
+  }, [searchResults]);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Load more results
+  const loadMore = useCallback(() => {
+    setIsLoadingMore(true);
+    // Simulate a small delay for UX
+    setTimeout(() => {
+      setDisplayCount(prev => prev + ITEMS_PER_PAGE);
+      setIsLoadingMore(false);
+    }, 300);
+  }, []);
 
   // Progressive search: local first (immediate), then API (debounced)
   useEffect(() => {
@@ -109,6 +245,22 @@ const ScanCard = () => {
     if (trimmedQuery.length < 2) {
       setSearchResults([]);
       setLocalResults([]);
+      setIsSearching(false);
+      setIsLocalSearching(false);
+      setShowSuggestions(false);
+      return;
+    }
+
+    // Cancel any pending API request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Check cache first
+    const cached = getCached(trimmedQuery);
+    if (cached) {
+      setSearchResults(cached);
+      setLocalResults(cached);
       setIsSearching(false);
       setIsLocalSearching(false);
       return;
@@ -134,6 +286,7 @@ const ScanCard = () => {
         if (!error && data) {
           setLocalResults(data);
           setSearchResults(data);
+          setShowSuggestions(true);
         }
       } catch (err) {
         console.error('Local search error:', err);
@@ -157,6 +310,9 @@ const ScanCard = () => {
         return;
       }
 
+      // Create new abort controller for this request
+      abortControllerRef.current = new AbortController();
+
       try {
         const { data, error } = await supabase.functions.invoke('products-search', {
           body: { query: queryForApi }
@@ -171,17 +327,21 @@ const ScanCard = () => {
 
         const products = data?.products || [];
         setSearchResults(products);
+        setShowSuggestions(false);
+
+        // Cache results
+        setCache(queryForApi, products);
 
         // Save to recent searches when we get API results
         if (products.length > 0) {
           addSearch(queryForApi);
         }
       } catch (error: any) {
-        console.error('API search error:', error);
-        // Only fall back to local results if this is still the current search
-        if (currentSearchRef.current === queryForApi) {
-          // Keep whatever results we have
+        if (error.name === 'AbortError') {
+          return; // Request was cancelled
         }
+        console.error('API search error:', error);
+        // Keep whatever results we have
       } finally {
         if (currentSearchRef.current === queryForApi) {
           setIsSearching(false);
@@ -191,14 +351,29 @@ const ScanCard = () => {
 
     return () => {
       clearTimeout(debounceTimer);
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
     };
-  }, [searchQuery, addSearch]);
+  }, [searchQuery, addSearch, getCached, setCache]);
 
   // Handle recent search selection
   const handleRecentSearchClick = (query: string) => {
     setSearchQuery(query);
     setShowRecentSearches(false);
-    // Don't refocus - it triggers onFocus which shows recent searches again
+    setShowSuggestions(false);
+  };
+
+  // Handle popular search click
+  const handlePopularSearchClick = (query: string) => {
+    setSearchQuery(query);
+    setShowRecentSearches(false);
+  };
+
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchQuery(suggestion);
+    setShowSuggestions(false);
   };
 
   const handleAddToInventory = (product: any) => {
@@ -230,8 +405,9 @@ const ScanCard = () => {
     },
   ];
 
-  const hasResults = filteredResults.length > 0;
+  const hasResults = displayedResults.length > 0;
   const showWelcome = searchResults.length === 0 && !searchQuery;
+  const showSkeletons = isSearching && searchResults.length === 0 && searchQuery.length >= 2;
 
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
@@ -272,23 +448,60 @@ const ScanCard = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setShowRecentSearches(true)}
-                  onBlur={() => setTimeout(() => setShowRecentSearches(false), 200)}
-                  className="search-hero-input pl-14"
+                  onBlur={() => setTimeout(() => {
+                    setShowRecentSearches(false);
+                    setShowSuggestions(false);
+                  }, 200)}
+                  className="search-hero-input pl-14 pr-24"
                   autoComplete="off"
                   autoCorrect="off"
                   autoCapitalize="off"
                   spellCheck="false"
                 />
-                {(isSearching || isLocalSearching) && (
-                  <div className="absolute right-5 flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
-                      {isLocalSearching && !isSearching ? 'Quick search...' : 'Searching...'}
-                    </span>
+                <div className="absolute right-4 flex items-center gap-2">
+                  {/* Loading indicator */}
+                  {(isSearching || isLocalSearching) && (
                     <div className="h-4 w-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                  </div>
-                )}
+                  )}
+                  {/* Clear button */}
+                  {searchQuery && (
+                    <button
+                      onClick={clearSearch}
+                      className="h-7 w-7 rounded-full bg-secondary/80 hover:bg-secondary flex items-center justify-center transition-colors"
+                      aria-label="Clear search"
+                    >
+                      <X className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
+
+            {/* Autocomplete Suggestions */}
+            <AnimatePresence>
+              {showSuggestions && suggestions.length > 0 && searchQuery.length >= 2 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="mt-2 bg-card border border-border rounded-xl shadow-lg overflow-hidden"
+                >
+                  {suggestions.map((suggestion, index) => (
+                    <button
+                      key={suggestion}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleSuggestionClick(suggestion);
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm hover:bg-secondary/50 transition-colors flex items-center gap-3 border-b border-border/50 last:border-0"
+                    >
+                      <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <span className="truncate">{suggestion}</span>
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Recent Searches - show when input focused and empty */}
             <AnimatePresence>
@@ -344,79 +557,151 @@ const ScanCard = () => {
               )}
             </AnimatePresence>
 
-            {/* Search hint */}
+            {/* Popular Searches - show when no search query */}
             {showWelcome && !showRecentSearches && (
-              <p className="text-xs text-muted-foreground mt-3 ml-1">
-                Try: "Charizard ex", "Stellar Crown #199", "Elite Trainer Box"
-              </p>
-            )}
-
-            {/* Filter Chips - show when there are search results */}
-            {searchResults.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-4 space-y-3"
+                transition={{ delay: 0.1 }}
+                className="mt-4"
               >
-                {/* Filter row with horizontal scroll */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                  {/* Category Filter (Cards vs Sealed) */}
-                  <div className="flex-shrink-0">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+                  <Flame className="h-3.5 w-3.5 text-orange-500" />
+                  Popular searches
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {POPULAR_SEARCHES.map((search) => (
+                    <button
+                      key={search.query}
+                      onClick={() => handlePopularSearchClick(search.query)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-secondary/50 to-secondary/30 text-sm font-medium hover:from-secondary/80 hover:to-secondary/50 transition-all border border-border/30"
+                    >
+                      <span>{search.icon}</span>
+                      {search.query}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Filter Chips - show when there are search results (STICKY) */}
+            {(searchResults.length > 0 || showSkeletons) && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="sticky top-0 z-20 -mx-4 px-4 py-3 bg-background/95 backdrop-blur-sm border-b border-border/30 mt-4"
+              >
+                <div className="space-y-3">
+                  {/* TCG Type Filter Chips */}
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                    {TCG_FILTERS.map((filter) => (
+                      <button
+                        key={filter.value}
+                        onClick={() => setTcgFilter(filter.value)}
+                        className={`flex-shrink-0 h-8 px-3 rounded-full text-sm font-medium border transition-all flex items-center gap-1.5 ${
+                          tcgFilter === filter.value
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-secondary/50 text-foreground border-border/50 hover:border-primary/50"
+                        }`}
+                      >
+                        {filter.icon && <span className="text-xs">{filter.icon}</span>}
+                        {filter.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Second row: Category, Set, Sort */}
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                    {/* Category Filter (Cards vs Sealed) */}
                     <select
                       value={categoryFilter}
                       onChange={(e) => setCategoryFilter(e.target.value as CategoryFilter)}
-                      className={`h-9 px-3 pr-8 rounded-xl text-sm font-medium border transition-all appearance-none bg-no-repeat bg-right cursor-pointer ${
+                      className={`h-8 px-3 pr-7 rounded-xl text-sm font-medium border transition-all appearance-none bg-no-repeat cursor-pointer ${
                         categoryFilter !== "all"
                           ? "bg-primary text-primary-foreground border-primary"
                           : "bg-secondary/50 text-foreground border-border/50 hover:border-primary/50"
                       }`}
-                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='${categoryFilter !== "all" ? "white" : "%236b7280"}' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundPosition: "right 8px center" }}
+                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='${categoryFilter !== "all" ? "white" : "%236b7280"}' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundPosition: "right 6px center" }}
                     >
                       <option value="all">All Types</option>
                       <option value="raw">Cards</option>
-                      <option value="sealed">Sealed Products</option>
+                      <option value="sealed">Sealed</option>
                     </select>
-                  </div>
 
-                  {/* Set Filter (Dynamic) */}
-                  {availableSets.length > 1 && (
-                    <div className="flex-shrink-0">
+                    {/* Set Filter (Dynamic) */}
+                    {availableSets.length > 1 && (
                       <select
                         value={setFilter}
                         onChange={(e) => setSetFilter(e.target.value)}
-                        className={`h-9 px-3 pr-8 rounded-xl text-sm font-medium border transition-all appearance-none bg-no-repeat bg-right cursor-pointer max-w-[180px] truncate ${
+                        className={`h-8 px-3 pr-7 rounded-xl text-sm font-medium border transition-all appearance-none bg-no-repeat cursor-pointer max-w-[160px] truncate ${
                           setFilter !== "all"
                             ? "bg-primary text-primary-foreground border-primary"
                             : "bg-secondary/50 text-foreground border-border/50 hover:border-primary/50"
                         }`}
-                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='${setFilter !== "all" ? "white" : "%236b7280"}' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundPosition: "right 8px center" }}
+                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='${setFilter !== "all" ? "white" : "%236b7280"}' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundPosition: "right 6px center" }}
                       >
                         <option value="all">All Sets</option>
                         {availableSets.map(set => (
                           <option key={set} value={set}>{set}</option>
                         ))}
                       </select>
+                    )}
+
+                    {/* Sort Dropdown */}
+                    <div className="relative ml-auto">
+                      <button
+                        onClick={() => setShowSortDropdown(!showSortDropdown)}
+                        className={`h-8 px-3 rounded-xl text-sm font-medium border transition-all flex items-center gap-1.5 ${
+                          sortOption !== "relevance"
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-secondary/50 text-foreground border-border/50 hover:border-primary/50"
+                        }`}
+                      >
+                        <ArrowUpDown className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">Sort</span>
+                        <ChevronDown className="h-3 w-3" />
+                      </button>
+                      <AnimatePresence>
+                        {showSortDropdown && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
+                            className="absolute right-0 top-full mt-1 bg-card border border-border rounded-xl shadow-lg overflow-hidden z-30 min-w-[180px]"
+                          >
+                            {SORT_OPTIONS.map((option) => (
+                              <button
+                                key={option.value}
+                                onClick={() => {
+                                  setSortOption(option.value);
+                                  setShowSortDropdown(false);
+                                }}
+                                className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
+                                  sortOption === option.value
+                                    ? "bg-primary/10 text-primary font-medium"
+                                    : "hover:bg-secondary/50"
+                                }`}
+                              >
+                                {option.label}
+                              </button>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
-                  )}
 
-                  {/* Clear Filters Button */}
-                  {hasActiveFilters && (
-                    <button
-                      onClick={clearFilters}
-                      className="flex-shrink-0 h-9 px-3 rounded-xl text-sm font-medium bg-destructive/10 text-destructive border border-destructive/30 hover:bg-destructive/20 transition-all flex items-center gap-1.5"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                      Clear
-                    </button>
-                  )}
+                    {/* Clear Filters Button */}
+                    {hasActiveFilters && (
+                      <button
+                        onClick={clearFilters}
+                        className="flex-shrink-0 h-8 px-3 rounded-xl text-sm font-medium bg-destructive/10 text-destructive border border-destructive/30 hover:bg-destructive/20 transition-all flex items-center gap-1"
+                      >
+                        <X className="w-3 h-3" />
+                        Clear
+                      </button>
+                    )}
+                  </div>
                 </div>
-
-                {/* Filter summary */}
-                {hasActiveFilters && (
-                  <p className="text-xs text-muted-foreground">
-                    Showing {filteredResults.length} of {searchResults.length} results
-                  </p>
-                )}
               </motion.div>
             )}
           </motion.div>
@@ -637,28 +922,53 @@ const ScanCard = () => {
             )}
           </AnimatePresence>
 
+          {/* Skeleton Loading State */}
+          <AnimatePresence>
+            {showSkeletons && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="space-y-4"
+              >
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  <p className="text-sm text-muted-foreground">
+                    Searching for "{searchQuery}"...
+                  </p>
+                </div>
+                <SkeletonGrid count={6} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Search Results */}
           <AnimatePresence mode="wait">
-            {hasResults && (
+            {hasResults && !showSkeletons && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 className="space-y-4"
               >
+                {/* Result count with clear messaging */}
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">
-                    <span className="font-semibold text-foreground">{filteredResults.length}</span> {filteredResults.length === 1 ? 'item' : 'items'}
-                    {hasActiveFilters && ` (filtered from ${searchResults.length})`}
+                  <p className="text-sm">
+                    <span className="font-semibold text-foreground">{filteredResults.length}</span>
+                    <span className="text-muted-foreground">
+                      {" "}{filteredResults.length === 1 ? 'card' : 'cards'} matching "
+                      <span className="font-medium text-foreground">{searchQuery}</span>"
+                    </span>
+                    {hasActiveFilters && filteredResults.length !== searchResults.length && (
+                      <span className="text-muted-foreground/70">
+                        {" "}(filtered from {searchResults.length})
+                      </span>
+                    )}
                   </p>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => {
-                      setSearchQuery("");
-                      setSearchResults([]);
-                      clearFilters();
-                    }}
+                    onClick={clearSearch}
                     className="text-xs"
                   >
                     Clear
@@ -667,12 +977,12 @@ const ScanCard = () => {
 
                 {/* Results Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {filteredResults.map((product, index) => (
+                  {displayedResults.map((product, index) => (
                     <motion.div
                       key={product.id}
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.03 }}
+                      transition={{ delay: Math.min(index * 0.03, 0.3) }}
                       className="glass-card overflow-hidden group tap-scale cursor-pointer"
                       onClick={() => handleAddToInventory(product)}
                     >
@@ -755,12 +1065,40 @@ const ScanCard = () => {
                     </motion.div>
                   ))}
                 </div>
+
+                {/* Load More Button */}
+                {hasMoreResults && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex justify-center pt-4"
+                  >
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={loadMore}
+                      disabled={isLoadingMore}
+                      className="rounded-xl min-w-[200px]"
+                    >
+                      {isLoadingMore ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Loading...
+                        </>
+                      ) : (
+                        <>
+                          Load more ({filteredResults.length - displayCount} remaining)
+                        </>
+                      )}
+                    </Button>
+                  </motion.div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* No Results State */}
-          {searchQuery && !hasResults && !isSearching && (
+          {/* No Results State - Enhanced */}
+          {searchQuery && !hasResults && !isSearching && !showSkeletons && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -772,32 +1110,54 @@ const ScanCard = () => {
               <h3 className="font-semibold mb-1">
                 {hasActiveFilters && searchResults.length > 0
                   ? "No matches for current filters"
-                  : "No results found"}
+                  : `No results for "${searchQuery}"`}
               </h3>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
                 {hasActiveFilters && searchResults.length > 0
                   ? "Try adjusting your filters or clear them to see all results"
-                  : "Try different keywords or check spelling"}
+                  : "Try different keywords, check spelling, or search for a set name"}
               </p>
-              {hasActiveFilters && searchResults.length > 0 ? (
-                <Button
-                  variant="outline"
-                  onClick={clearFilters}
-                  className="rounded-xl"
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Clear Filters
-                </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  onClick={() => navigate("/add")}
-                  className="rounded-xl"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Manually
-                </Button>
+              
+              {/* Helpful suggestions */}
+              {!hasActiveFilters && (
+                <div className="space-y-4">
+                  <p className="text-xs text-muted-foreground">Try one of these popular searches:</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {POPULAR_SEARCHES.slice(0, 4).map((search) => (
+                      <button
+                        key={search.query}
+                        onClick={() => handlePopularSearchClick(search.query)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/50 text-sm font-medium hover:bg-secondary/80 transition-colors"
+                      >
+                        <span>{search.icon}</span>
+                        {search.query}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
+
+              <div className="mt-6 flex justify-center gap-3">
+                {hasActiveFilters && searchResults.length > 0 ? (
+                  <Button
+                    variant="outline"
+                    onClick={clearFilters}
+                    className="rounded-xl"
+                  >
+                    <X className="w-4 h-4 mr-2" />
+                    Clear Filters
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate("/add")}
+                    className="rounded-xl"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Manually
+                  </Button>
+                )}
+              </div>
             </motion.div>
           )}
         </main>
@@ -824,6 +1184,14 @@ const ScanCard = () => {
           </motion.button>
         )}
       </AnimatePresence>
+
+      {/* Click outside to close sort dropdown */}
+      {showSortDropdown && (
+        <div
+          className="fixed inset-0 z-10"
+          onClick={() => setShowSortDropdown(false)}
+        />
+      )}
 
       <BottomNav />
     </div>
