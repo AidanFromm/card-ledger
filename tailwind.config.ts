@@ -69,6 +69,15 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        // Robinhood-style semantic colors for gains/losses
+        gain: {
+          DEFAULT: "hsl(var(--gain))",
+          foreground: "hsl(var(--gain-foreground))",
+        },
+        loss: {
+          DEFAULT: "hsl(var(--loss))",
+          foreground: "hsl(var(--loss-foreground))",
+        },
       },
       // iOS 18 style rounded corners
       borderRadius: {
@@ -108,6 +117,11 @@ export default {
         "slide-up": "slide-up 0.4s ease-out",
         "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "bounce-soft": "bounce-soft 0.5s ease-out",
+        "ripple": "ripple 0.6s ease-out forwards",
+        "expand": "expand 0.25s ease-out forwards",
+        "collapse": "collapse 0.2s ease-out forwards",
+        "number-up": "number-up 0.3s ease-out",
+        "number-down": "number-down 0.3s ease-out",
       },
       keyframes: {
         "accordion-down": {
@@ -137,6 +151,26 @@ export default {
         "bounce-soft": {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-4px)" },
+        },
+        "ripple": {
+          "0%": { transform: "scale(0)", opacity: "0.5" },
+          "100%": { transform: "scale(4)", opacity: "0" },
+        },
+        "expand": {
+          "0%": { opacity: "0", transform: "scaleY(0.95)", transformOrigin: "top" },
+          "100%": { opacity: "1", transform: "scaleY(1)", transformOrigin: "top" },
+        },
+        "collapse": {
+          "0%": { opacity: "1", transform: "scaleY(1)", transformOrigin: "top" },
+          "100%": { opacity: "0", transform: "scaleY(0.95)", transformOrigin: "top" },
+        },
+        "number-up": {
+          "0%": { transform: "translateY(100%)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "number-down": {
+          "0%": { transform: "translateY(-100%)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
         },
       },
       transitionTimingFunction: {

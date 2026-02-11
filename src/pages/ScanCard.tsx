@@ -24,6 +24,7 @@ import { AddToInventoryDialog } from "@/components/AddToInventoryDialog";
 import { PageTransition } from "@/components/PageTransition";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useRecentSearches } from "@/hooks/useRecentSearches";
+import { PortfolioPreview } from "@/components/PortfolioPreview";
 
 // Filter types
 type CategoryFilter = "all" | "raw" | "sealed";
@@ -250,12 +251,15 @@ const ScanCard = () => {
                 animate={{ opacity: 1 }}
                 className="mb-6"
               >
-                <h1 className="ios-title-large mb-1">Card Ledger</h1>
+                <h1 className="text-3xl font-bold tracking-tight mb-1">Card Ledger</h1>
                 <p className="text-muted-foreground">
                   Search, scan, and track your collection
                 </p>
               </motion.div>
             )}
+            
+            {/* Portfolio Preview - Robinhood style summary */}
+            {showWelcome && <PortfolioPreview />}
 
             {/* Hero Search Bar */}
             <div className="search-hero">

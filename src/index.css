@@ -52,6 +52,14 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
+    /* Robinhood-style Gain/Loss colors */
+    /* Success Green: #00C853 */
+    --gain: 145 100% 39%;
+    --gain-foreground: 0 0% 100%;
+    /* Loss Red: #FF5252 */
+    --loss: 0 100% 66%;
+    --loss-foreground: 0 0% 100%;
+
     /* Borders - subtle in light mode */
     --border: 214 32% 91%;
     --input: 214 32% 91%;
@@ -130,6 +138,14 @@
     /* Warning states */
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
+
+    /* Robinhood-style Gain/Loss colors - slightly brighter for dark mode */
+    /* Success Green: #00C853 */
+    --gain: 145 100% 42%;
+    --gain-foreground: 0 0% 100%;
+    /* Loss Red: #FF5252 */
+    --loss: 0 100% 66%;
+    --loss-foreground: 0 0% 100%;
 
     /* Borders - visible in dark mode */
     --border: 215 19% 20%;
@@ -220,6 +236,23 @@
   }
 
   .glass-card {
+    @apply glass rounded-2xl;
+    box-shadow: var(--shadow-glass);
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  }
+
+  .glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .glass-card:active {
+    transform: scale(0.99) translateY(0);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Non-interactive glass card (no hover/active effects) */
+  .glass-card-static {
     @apply glass rounded-2xl;
     box-shadow: var(--shadow-glass);
   }
@@ -392,7 +425,7 @@
     @apply ios-badge bg-warning/15 text-warning;
   }
 
-  /* Profit/Loss colors - semantic only */
+  /* Profit/Loss colors - semantic only (legacy, use gain/loss below) */
   .text-profit {
     @apply text-success;
   }
@@ -407,6 +440,92 @@
 
   .bg-loss {
     @apply bg-destructive/15;
+  }
+
+  /* ===== ROBINHOOD-STYLE GAIN/LOSS SEMANTIC CLASSES ===== */
+  /* Text colors */
+  .text-gain {
+    color: hsl(var(--gain));
+  }
+
+  /* Normalized: use .text-loss (not .text-loss-red) for consistency */
+  .text-loss,
+  .text-loss-red {
+    color: hsl(var(--loss));
+  }
+
+  /* Background colors with opacity variants */
+  .bg-gain {
+    background-color: hsl(var(--gain));
+  }
+
+  .bg-gain\/10 {
+    background-color: hsl(var(--gain) / 0.1);
+  }
+
+  .bg-gain\/15 {
+    background-color: hsl(var(--gain) / 0.15);
+  }
+
+  .bg-gain\/20 {
+    background-color: hsl(var(--gain) / 0.2);
+  }
+
+  .bg-loss-red,
+  .bg-loss-solid {
+    background-color: hsl(var(--loss));
+  }
+
+  .bg-loss\/10 {
+    background-color: hsl(var(--loss) / 0.1);
+  }
+
+  .bg-loss\/15 {
+    background-color: hsl(var(--loss) / 0.15);
+  }
+
+  .bg-loss\/20 {
+    background-color: hsl(var(--loss) / 0.2);
+  }
+
+  /* Border colors */
+  .border-gain {
+    border-color: hsl(var(--gain));
+  }
+
+  .border-loss {
+    border-color: hsl(var(--loss));
+  }
+
+  /* Ring colors */
+  .ring-gain {
+    --tw-ring-color: hsl(var(--gain));
+  }
+
+  .ring-loss {
+    --tw-ring-color: hsl(var(--loss));
+  }
+
+  /* Gain/Loss badge pill styles */
+  .badge-gain {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold;
+    background-color: hsl(var(--gain) / 0.15);
+    color: hsl(var(--gain));
+  }
+
+  .badge-loss {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold;
+    background-color: hsl(var(--loss) / 0.15);
+    color: hsl(var(--loss));
+  }
+
+  /* Glow effects for gains/losses */
+  .glow-gain {
+    box-shadow: 0 0 20px hsl(var(--gain) / 0.3);
+  }
+
+  .glow-loss {
+    box-shadow: 0 0 20px hsl(var(--loss) / 0.3);
   }
 
   /* ===== ROBINHOOD-INSPIRED CLEAN UI ===== */
@@ -426,25 +545,43 @@
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.15), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
 
-  /* Display typography for financial figures */
+  /* Display typography for financial figures - Robinhood style */
   .text-display {
     @apply text-5xl font-bold tracking-tight;
     font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" on, "lnum" on;
   }
 
   .text-display-lg {
     @apply text-6xl font-bold tracking-tight;
     font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" on, "lnum" on;
   }
 
   .text-display-sm {
     @apply text-3xl font-bold tracking-tight;
     font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" on, "lnum" on;
   }
 
   .text-display-xs {
     @apply text-2xl font-bold tracking-tight;
     font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" on, "lnum" on;
+  }
+
+  /* Hero number - largest portfolio value display */
+  .text-hero {
+    @apply text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tighter;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" on, "lnum" on;
+    line-height: 1;
+  }
+
+  /* Tabular numbers utility for aligned financial data */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" on, "lnum" on;
   }
 
   /* Metric label styling */
@@ -510,13 +647,46 @@
     transition: var(--transition-spring);
   }
 
-  /* Tap feedback */
+  /* Tap feedback - improved with smooth transitions */
   .tap-highlight {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .tap-scale {
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
     -webkit-tap-highlight-color: transparent;
   }
 
   .tap-scale:active {
     transform: scale(0.97);
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Stronger tap scale for smaller elements */
+  .tap-scale-sm:active {
+    transform: scale(0.95);
+  }
+
+  /* Touch feedback overlay */
+  .touch-feedback {
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .touch-feedback::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: currentColor;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+  }
+
+  .touch-feedback:active::after {
+    opacity: 0.1;
   }
 
   /* Gradient text */
@@ -558,6 +728,84 @@
   .touch-target {
     min-width: 44px;
     min-height: 44px;
+  }
+
+  /* ===== TRANSITION UTILITIES ===== */
+  /* Robinhood-style smooth transitions (200-300ms) */
+  .transition-smooth {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-spring {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .transition-ios {
+    transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  /* Duration presets */
+  .duration-fast {
+    transition-duration: 0.15s;
+  }
+
+  .duration-normal {
+    transition-duration: 0.2s;
+  }
+
+  .duration-slow {
+    transition-duration: 0.3s;
+  }
+
+  /* ===== HOVER LIFT UTILITIES ===== */
+  .hover-lift {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+
+  .hover-lift-sm:hover {
+    transform: translateY(-1px);
+  }
+
+  .hover-lift-lg:hover {
+    transform: translateY(-4px);
+  }
+
+  /* ===== PULSE ANIMATIONS FOR VALUE CHANGES ===== */
+  @keyframes pulse-gain {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--gain) / 0); }
+    50% { box-shadow: 0 0 0 8px hsl(var(--gain) / 0.15); }
+  }
+
+  @keyframes pulse-loss {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--loss) / 0); }
+    50% { box-shadow: 0 0 0 8px hsl(var(--loss) / 0.15); }
+  }
+
+  .animate-pulse-gain {
+    animation: pulse-gain 1s ease-in-out;
+  }
+
+  .animate-pulse-loss {
+    animation: pulse-loss 1s ease-in-out;
+  }
+
+  /* ===== FOCUS STATES ===== */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+
+  .focus-ring-gain {
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    --tw-ring-color: hsl(var(--gain));
+  }
+
+  .focus-ring-loss {
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    --tw-ring-color: hsl(var(--loss));
   }
 }
 
