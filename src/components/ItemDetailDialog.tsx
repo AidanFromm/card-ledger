@@ -9,10 +9,11 @@ import {
   Plus, Pencil, Trash2, Check, X, Loader2, Save, ExternalLink, 
   Share2, DollarSign, TrendingUp, TrendingDown, ChevronLeft,
   Calendar, Clock, AlertCircle, Minus, BellRing, Sparkles,
-  ChevronRight, ImageIcon, Layers, Eye, Camera, RotateCcw
+  ChevronRight, ImageIcon, Layers, Eye, Camera, RotateCcw, Award
 } from "lucide-react";
 import PriceAlertDialog from "@/components/PriceAlertDialog";
 import SlabGeneratorModal from "@/components/SlabGeneratorModal";
+import { SendToGradingDialog } from "@/components/SendToGradingDialog";
 import { usePurchaseEntries } from "@/hooks/usePurchaseEntries";
 import { usePriceHistory } from "@/hooks/usePriceHistory";
 import { format } from "date-fns";
@@ -304,6 +305,9 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
 
   // Slab generator modal state
   const [showSlabGenerator, setShowSlabGenerator] = useState(false);
+
+  // Send to grading dialog state
+  const [showSendToGrading, setShowSendToGrading] = useState(false);
 
   // Price display state
   const [valuePercent, setValuePercent] = useState<PercentOption>(100);

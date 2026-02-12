@@ -19,6 +19,3 @@ export { SGCTemplate } from './templates/SGCTemplate';
 
 // Types
 export * from './types';
-
-// Default export
-export { default as SlabGenerator } from './SlabGenerator';

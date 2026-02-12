@@ -1,9 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useBackgroundImageFetch } from "@/hooks/useBackgroundImageFetch";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Search, Package, Award, Box, Grid3x3, CheckSquare, Square, DollarSign, Share2, RefreshCw, FileDown, Plus, TrendingUp, TrendingDown, Trophy, ImageIcon, ArrowUp } from "lucide-react";
+import { 
+  Trash2, Search, Package, Award, Box, Grid3x3, CheckSquare, Square, 
+  DollarSign, Share2, RefreshCw, FileDown, Plus, TrendingUp, TrendingDown, 
+  Trophy, ImageIcon, ArrowUp, FolderInput 
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Database } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
@@ -23,7 +27,8 @@ import { SkeletonGrid } from "@/components/ui/skeleton-card";
 import { EmptyInventory, EmptySearchResults } from "@/components/EmptyState";
 import { Progress } from "@/components/ui/progress";
 import { ImportExportDialog } from "@/components/ImportExportDialog";
-import { ExportDialog } from "@/components/ExportDialog";
+import { InventoryFilterPanel } from "@/components/InventoryFilterPanel";
+import { useInventoryFilters } from "@/hooks/useInventoryFilters";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +39,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Inventory = () => {
   const navigate = useNavigate();
@@ -41,10 +61,19 @@ const Inventory = () => {
   const { items, deleteItem, loading, refetch, updateItem } = useInventoryDb();
   const { createList } = useClientLists();
   const { isRefreshing, progress, refreshAllPrices } = useScrydexPricing();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [gradingFilter, setGradingFilter] = useState<"all" | "raw" | "graded" | "sealed">("all");
-  const [sportFilter, setSportFilter] = useState<string>("all");
-  const [portfolioPercent, setPortfolioPercent] = useState<number>(100); // Portfolio percentage view (100%, 90%, etc.)
+  
+  // Use the new filters hook
+  const {
+    filters,
+    updateFilter,
+    resetFilters,
+    activeFilterCount,
+    filteredItems,
+    totalItems,
+    resultCount,
+  } = useInventoryFilters(items);
+
+  const [portfolioPercent, setPortfolioPercent] = useState<number>(100);
   const [selectedItem, setSelectedItem] = useState<typeof items[0] | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isSaleDialogOpen, setIsSaleDialogOpen] = useState(false);
@@ -54,10 +83,19 @@ const Inventory = () => {
   const [itemsForSale, setItemsForSale] = useState<typeof items>([]);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isImportExportOpen, setIsImportExportOpen] = useState(false);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState<string>("");
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Global background image fetch (runs app-wide)
   const { isRunning: isFetchingImages, startBackgroundFetch } = useBackgroundImageFetch();
+
+  // Detect if user has sports cards
+  const hasSportsCards = useMemo(() => 
+    items.some((item: any) => item.sport), 
+    [items]
+  );
 
   // Handle scroll to show/hide scroll-to-top button
   useEffect(() => {
@@ -71,29 +109,6 @@ const Inventory = () => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  const filteredItems = items.filter((item) => {
-    if (item.quantity === 0) return false;
-
-    const matchesSearch =
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.set_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.category && item.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      ((item as any).player && (item as any).player.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      ((item as any).team && (item as any).team.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    const matchesGrading =
-      gradingFilter === "all" ||
-      (gradingFilter === "raw" && item.grading_company === "raw" && item.category?.toLowerCase() !== "sealed") ||
-      (gradingFilter === "graded" && item.grading_company !== "raw" && item.category?.toLowerCase() !== "sealed") ||
-      (gradingFilter === "sealed" && item.category?.toLowerCase() === "sealed");
-
-    const matchesSport =
-      sportFilter === "all" ||
-      (item as any).sport === sportFilter;
-
-    return matchesSearch && matchesGrading && matchesSport;
-  });
 
   const toggleItemSelection = (itemId: string) => {
     const newSelected = new Set(selectedItems);
@@ -151,12 +166,63 @@ const Inventory = () => {
       const deletePromises = Array.from(selectedItems).map(itemId => deleteItem(itemId));
       await Promise.all(deletePromises);
 
+      toast({
+        title: "Items deleted",
+        description: `Successfully deleted ${selectedItems.size} item${selectedItems.size > 1 ? 's' : ''}.`,
+      });
+
       setSelectedItems(new Set());
       setSelectionMode(false);
       setIsDeleteDialogOpen(false);
     } catch (error) {
       console.error("Failed to delete items:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete some items. Please try again.",
+        variant: "destructive",
+      });
     }
+  };
+
+  const handleBulkExport = () => {
+    // Export selected items as CSV
+    const selectedItemsData = items.filter(item => selectedItems.has(item.id));
+    const csvContent = [
+      ['Name', 'Set', 'Card #', 'Grading', 'Grade', 'Purchase Price', 'Market Price', 'Quantity'].join(','),
+      ...selectedItemsData.map(item => [
+        `"${item.name.replace(/"/g, '""')}"`,
+        `"${item.set_name.replace(/"/g, '""')}"`,
+        item.card_number || '',
+        item.grading_company,
+        item.grade || '',
+        item.purchase_price,
+        item.market_price || '',
+        item.quantity,
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cardledger-export-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Export complete",
+      description: `Exported ${selectedItems.size} item${selectedItems.size > 1 ? 's' : ''} to CSV.`,
+    });
+  };
+
+  const handleBulkMove = async () => {
+    // For now, we'll just show a placeholder since folders aren't implemented
+    // In a real implementation, this would move items to a folder/category
+    toast({
+      title: "Coming soon",
+      description: "Folder organization will be available in a future update.",
+    });
+    setIsMoveDialogOpen(false);
   };
 
   const handleRefreshPrices = async () => {
@@ -165,13 +231,12 @@ const Inventory = () => {
     refetch();
   };
 
-  // Trigger global background image fetch
   const handleFetchImages = () => {
     startBackgroundFetch();
   };
 
   // Calculate totals for header
-  const totalItems = filteredItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalItemCount = filteredItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalValue = filteredItems.reduce((sum, item) => {
     const price = item.market_price || item.purchase_price;
     return sum + price * item.quantity;
@@ -254,7 +319,6 @@ const Inventory = () => {
 
               {/* Percentage Slider */}
               <div className="space-y-1">
-                {/* Percentage Labels */}
                 <div className="flex justify-between text-[10px] text-muted-foreground px-0.5">
                   <span>10%</span>
                   <span>30%</span>
@@ -264,14 +328,11 @@ const Inventory = () => {
                   <span>100%</span>
                 </div>
 
-                {/* Slider Track */}
                 <div className="relative h-2 bg-secondary/50 rounded-full">
-                  {/* Filled Track */}
                   <div
                     className="absolute left-0 top-0 h-full bg-primary rounded-full"
                     style={{ width: `${((portfolioPercent - 10) / 90) * 100}%` }}
                   />
-                  {/* Draggable Thumb */}
                   <input
                     type="range"
                     min="10"
@@ -281,14 +342,12 @@ const Inventory = () => {
                     onChange={(e) => setPortfolioPercent(Number(e.target.value))}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-                  {/* Percentage Tooltip */}
                   <div
                     className="absolute -top-8 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-semibold px-1.5 py-0.5 rounded pointer-events-none"
                     style={{ left: `${((portfolioPercent - 10) / 90) * 100}%` }}
                   >
                     {portfolioPercent}%
                   </div>
-                  {/* Visual Thumb */}
                   <div
                     className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-primary rounded-full shadow-lg border-2 border-white pointer-events-none"
                     style={{ left: `${((portfolioPercent - 10) / 90) * 100}%` }}
@@ -298,155 +357,53 @@ const Inventory = () => {
             </motion.div>
 
             {/* Price refresh progress */}
-            {isRefreshing && progress && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-3 p-3 card-clean rounded-xl"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-muted-foreground">
-                    Updating... {progress.current}/{progress.total}
-                  </span>
-                  <span className="text-xs text-muted-foreground truncate max-w-[150px]">
-                    {progress.itemName}
-                  </span>
-                </div>
-                <Progress value={(progress.current / progress.total) * 100} className="h-1.5" />
-              </motion.div>
-            )}
-
+            <AnimatePresence>
+              {isRefreshing && progress && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-3 p-3 card-clean rounded-xl"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-muted-foreground">
+                      Updating... {progress.current}/{progress.total}
+                    </span>
+                    <span className="text-xs text-muted-foreground truncate max-w-[150px]">
+                      {progress.itemName}
+                    </span>
+                  </div>
+                  <Progress value={(progress.current / progress.total) * 100} className="h-1.5" />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
 
-          {/* Filters and Actions */}
+          {/* Search Bar */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mb-6 space-y-4"
+            className="mb-4"
           >
-            {/* Filter Chip Pills */}
-            <div className="mb-4 -mx-4 px-4">
-              <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1">
-                {[
-                  { key: 'all', label: 'All', icon: Grid3x3 },
-                  { key: 'raw', label: 'Raw', icon: Package },
-                  { key: 'graded', label: 'Graded', icon: Award },
-                  { key: 'sealed', label: 'Sealed', icon: Box },
-                ].map(({ key, label, icon: Icon }) => (
-                  <button
-                    key={key}
-                    onClick={() => setGradingFilter(key as any)}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
-                      gradingFilter === key
-                        ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
-                        : 'bg-secondary/40 text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
-                    }`}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    <span>{label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Sport Filter Pills */}
-            {items.some((item: any) => item.sport) && (
-              <div className="mb-4 -mx-4 px-4">
-                <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground flex-shrink-0 pr-2">
-                    <Trophy className="h-4 w-4" />
-                    <span>Sport:</span>
-                  </div>
-                  {['all', 'baseball', 'basketball', 'football', 'hockey', 'soccer'].map((sport) => (
-                    <button
-                      key={sport}
-                      onClick={() => setSportFilter(sport)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
-                        sportFilter === sport
-                          ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
-                          : 'bg-secondary/40 text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
-                      }`}
-                    >
-                      {sport === 'all' ? 'All' : sport.charAt(0).toUpperCase() + sport.slice(1)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Selection Mode Actions */}
-            {selectionMode && (
-              <div className="flex flex-wrap items-center gap-2 mb-3 p-3 rounded-xl bg-primary/5 border border-primary/20">
-                <div className="flex items-center gap-2 mr-auto">
-                  <span className="text-sm font-medium">
-                    {selectedItems.size} of {filteredItems.length} selected
-                  </span>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleSelectAll}
-                  className="h-8 px-3 text-xs rounded-lg"
-                >
-                  {filteredItems.every(item => selectedItems.has(item.id)) ? 'Deselect All' : 'Select All'}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleClearSelection}
-                  className="h-8 px-3 text-xs rounded-lg"
-                >
-                  Cancel
-                </Button>
-              </div>
-            )}
-
-            {/* Bulk Actions */}
-            {selectionMode && selectedItems.size > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex flex-wrap gap-2"
-              >
-                <Button
-                  onClick={handleBulkSale}
-                  className="gap-2 bg-success/10 border border-success/30 text-success hover:bg-success/20"
-                  variant="outline"
-                >
-                  <DollarSign className="h-4 w-4" />
-                  Record Sale
-                </Button>
-                <Button
-                  onClick={handleCreateList}
-                  className="gap-2"
-                  variant="outline"
-                >
-                  <Share2 className="h-4 w-4" />
-                  Create List
-                </Button>
-                <Button
-                  onClick={() => setIsDeleteDialogOpen(true)}
-                  className="gap-2 bg-destructive/10 border border-destructive/30 text-destructive hover:bg-destructive/20"
-                  variant="outline"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete
-                </Button>
-              </motion.div>
-            )}
-
-            {/* Search + Select */}
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 <Input
                   placeholder="Search cards..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={filters.searchTerm}
+                  onChange={(e) => updateFilter('searchTerm', e.target.value)}
                   className="pl-12 h-11 rounded-xl bg-secondary/30 border-border/50"
                 />
+                {filters.searchTerm && (
+                  <button
+                    onClick={() => updateFilter('searchTerm', '')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-secondary"
+                  >
+                    <span className="sr-only">Clear search</span>
+                    ×
+                  </button>
+                )}
               </div>
               <Button
                 variant={selectionMode ? "default" : "outline"}
@@ -472,6 +429,113 @@ const Inventory = () => {
             </div>
           </motion.div>
 
+          {/* Filter Panel */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="mb-4"
+          >
+            <InventoryFilterPanel
+              filters={filters}
+              onFilterChange={updateFilter}
+              onReset={resetFilters}
+              activeFilterCount={activeFilterCount}
+              resultCount={resultCount}
+              totalCount={totalItems}
+              hasSportsCards={hasSportsCards}
+            />
+          </motion.div>
+
+          {/* Selection Mode Actions */}
+          <AnimatePresence>
+            {selectionMode && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-4 space-y-3"
+              >
+                {/* Selection Controls */}
+                <div className="flex flex-wrap items-center gap-2 p-3 rounded-xl bg-primary/5 border border-primary/20">
+                  <div className="flex items-center gap-2 mr-auto">
+                    <span className="text-sm font-medium">
+                      {selectedItems.size} of {resultCount} selected
+                    </span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSelectAll}
+                    className="h-8 px-3 text-xs rounded-lg"
+                  >
+                    {filteredItems.every(item => selectedItems.has(item.id)) && filteredItems.length > 0 
+                      ? 'Deselect All' 
+                      : 'Select All'}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClearSelection}
+                    className="h-8 px-3 text-xs rounded-lg"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+
+                {/* Bulk Actions */}
+                {selectedItems.size > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex flex-wrap gap-2"
+                  >
+                    <Button
+                      onClick={handleBulkSale}
+                      className="gap-2 bg-success/10 border border-success/30 text-success hover:bg-success/20"
+                      variant="outline"
+                    >
+                      <DollarSign className="h-4 w-4" />
+                      Record Sale
+                    </Button>
+                    <Button
+                      onClick={handleCreateList}
+                      className="gap-2"
+                      variant="outline"
+                    >
+                      <Share2 className="h-4 w-4" />
+                      Create List
+                    </Button>
+                    <Button
+                      onClick={handleBulkExport}
+                      className="gap-2"
+                      variant="outline"
+                    >
+                      <FileDown className="h-4 w-4" />
+                      Export
+                    </Button>
+                    <Button
+                      onClick={() => setIsMoveDialogOpen(true)}
+                      className="gap-2"
+                      variant="outline"
+                    >
+                      <FolderInput className="h-4 w-4" />
+                      Move
+                    </Button>
+                    <Button
+                      onClick={() => setIsDeleteDialogOpen(true)}
+                      className="gap-2 bg-destructive/10 border border-destructive/30 text-destructive hover:bg-destructive/20"
+                      variant="outline"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Delete
+                    </Button>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Content */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -494,6 +558,7 @@ const Inventory = () => {
                 }}
                 onSell={handleSingleSale}
                 onDelete={deleteItem}
+                viewMode={filters.viewMode}
               />
             )}
           </motion.div>
@@ -520,6 +585,7 @@ const Inventory = () => {
             onClearSelection={handleClearSelection}
           />
 
+          {/* Bulk Delete Confirmation */}
           <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
             <AlertDialogContent className="border-border/50 bg-card/95 backdrop-blur-xl">
               <AlertDialogHeader>
@@ -543,6 +609,45 @@ const Inventory = () => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+
+          {/* Move to Folder Dialog */}
+          <Dialog open={isMoveDialogOpen} onOpenChange={setIsMoveDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <FolderInput className="h-5 w-5" />
+                  Move to Folder
+                </DialogTitle>
+                <DialogDescription>
+                  Move {selectedItems.size} selected item{selectedItems.size > 1 ? 's' : ''} to a folder.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <Select value={selectedFolder} onValueChange={setSelectedFolder}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a folder..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="personal">Personal Collection</SelectItem>
+                    <SelectItem value="for-sale">For Sale</SelectItem>
+                    <SelectItem value="grading">Pending Grading</SelectItem>
+                    <SelectItem value="watchlist">Watchlist</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-3">
+                  Folder organization is coming soon. This is a preview of the feature.
+                </p>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsMoveDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleBulkMove} disabled={!selectedFolder}>
+                  Move Items
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           <ImportExportDialog
             open={isImportExportOpen}
