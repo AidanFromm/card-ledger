@@ -16,7 +16,7 @@ serve(async (req) => {
     if (challengeCode) {
       // eBay sends a challenge code to verify the endpoint
       // We need to hash it with our verification token and return it
-      const verificationToken = Deno.env.get("EBAY_VERIFICATION_TOKEN") || "cardledger-verification-token";
+      const verificationToken = Deno.env.get("EBAY_VERIFICATION_TOKEN") || "cardledgerverificationtoken2026productionebayapi";
       const endpoint = url.origin + url.pathname;
       
       // Create the challenge response hash
