@@ -24,7 +24,9 @@ import {
   Check,
   Crown,
   Sparkles,
-  BookOpen
+  BookOpen,
+  Heart,
+  Layers
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -272,6 +274,18 @@ const Profile = () => {
   ];
 
   const extraMenuItems = [
+    {
+      icon: Heart,
+      label: "Wishlist",
+      description: "Cards you want to collect",
+      action: () => navigate("/wishlist"),
+    },
+    {
+      icon: Layers,
+      label: "Set Completion",
+      description: "Track your set progress",
+      action: () => navigate("/sets"),
+    },
     {
       icon: BookOpen,
       label: "App Tutorial",

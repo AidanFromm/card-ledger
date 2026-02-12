@@ -312,12 +312,11 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
 
   // Price display state
   const [valuePercent, setValuePercent] = useState<PercentOption>(100);
-  const [priceChartRange, setPriceChartRange] = useState<'7D' | '30D' | '90D'>('30D');
 
-  // Price history
+  // Price history - fetch 365 days to support all time ranges
   const { priceHistory, loading: priceHistoryLoading } = usePriceHistory({
     itemId: item?.id,
-    days: priceChartRange === '7D' ? 7 : priceChartRange === '30D' ? 30 : 90,
+    days: 365,
   });
 
   // Initialize edit fields when item changes
@@ -815,6 +814,27 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
                       </p>
                     </div>
                   </div>
+
+                  {/* ROI Display */}
+                  <div className="mt-3 p-3 rounded-xl bg-muted/20 border border-dashed">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground uppercase tracking-wide">Return on Investment (ROI)</span>
+                      <span className={`text-lg font-bold ${isUp ? 'text-emerald-500' : isNeutral ? 'text-muted-foreground' : 'text-red-500'}`}>
+                        {isUp ? '+' : ''}{gainPercent.toFixed(1)}%
+                      </span>
+                    </div>
+                    {(item as any).purchase_date && (
+                      <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {format(new Date((item as any).purchase_date), 'MMM d, yyyy')}
+                        </span>
+                        {(item as any).purchase_location && (
+                          <span className="truncate">@ {(item as any).purchase_location}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </motion.div>
 
@@ -825,68 +845,14 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
                 transition={{ delay: 0.25 }}
                 className="rounded-2xl border bg-card/80 backdrop-blur-sm p-4 shadow-lg"
               >
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-sm">Price History</h3>
-                  <div className="flex gap-1 p-1 rounded-lg bg-muted/50">
-                    {(['7D', '30D', '90D'] as const).map((range) => (
-                      <button
-                        key={range}
-                        onClick={() => setPriceChartRange(range)}
-                        className={`text-xs px-3 py-1.5 rounded-md font-medium transition-all ${
-                          priceChartRange === range
-                            ? 'bg-primary text-primary-foreground shadow-sm'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        {range}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                {priceHistoryLoading ? (
-                  <div className="h-[120px] flex items-center justify-center">
-                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                  </div>
-                ) : hasEnoughHistory(priceHistory) ? (
-                  <div className="h-[120px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={getChartData(priceHistory, priceChartRange)}>
-                        <defs>
-                          <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
-                        <XAxis dataKey="date" hide />
-                        <YAxis hide domain={['auto', 'auto']} />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: 'hsl(var(--card))',
-                            border: 'none',
-                            borderRadius: '12px',
-                            boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-                            fontSize: '12px',
-                            padding: '10px 14px',
-                          }}
-                          formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
-                          labelFormatter={(date) => new Date(date).toLocaleDateString()}
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey="price" 
-                          stroke="hsl(var(--primary))" 
-                          strokeWidth={2} 
-                          fill="url(#priceGradient)" 
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
-                ) : (
-                  <div className="h-[80px] flex flex-col items-center justify-center text-center border-2 border-dashed rounded-xl">
-                    <Clock className="h-5 w-5 text-muted-foreground/50 mb-1" />
-                    <p className="text-xs text-muted-foreground">Price history will appear here</p>
-                  </div>
-                )}
+                <h3 className="font-semibold text-sm mb-3">Price History</h3>
+                <PriceHistoryChart
+                  priceHistory={priceHistory}
+                  loading={priceHistoryLoading}
+                  currentPrice={marketPrice}
+                  showTimeSelector={true}
+                  height={140}
+                />
               </motion.div>
 
               {/* Quick Sell Slider */}

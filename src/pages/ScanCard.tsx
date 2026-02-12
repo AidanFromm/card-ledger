@@ -1076,8 +1076,25 @@ const ScanCard = () => {
                           </div>
                         )}
 
+                        {/* Wishlist Button - top right */}
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <AddToWishlistButton
+                            card={{
+                              id: product.id || product.pokemon_tcg_id || `${product.name}-${product.set_name}`,
+                              name: product.name,
+                              set_name: product.set_name,
+                              image_url: product.image_url,
+                              market_price: product.market_price,
+                              card_number: product.card_number,
+                              rarity: product.rarity,
+                              tcg_type: product.tcg_type || 'pokemon',
+                            }}
+                            variant="icon"
+                          />
+                        </div>
+
                         {/* Hover overlay with "View Details" */}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-200 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-200 flex items-center justify-center pointer-events-none">
                           <span className="text-white font-semibold text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-primary/90 px-4 py-2 rounded-xl">
                             View Details
                           </span>

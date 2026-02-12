@@ -305,16 +305,29 @@ const Inventory = () => {
             className="mb-5"
           >
             <div className="flex items-center justify-between mb-3 gap-2">
-              <h1 className="text-2xl font-bold flex-shrink-0">Inventory</h1>
+              <h1 className="text-2xl font-bold flex-shrink-0">
+                {activeFolderId 
+                  ? folders.find(f => f.id === activeFolderId)?.name || 'Inventory'
+                  : 'Inventory'}
+              </h1>
               <div className="flex gap-1.5 sm:gap-2">
+                <Button
+                  variant={showFoldersPanel ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowFoldersPanel(!showFoldersPanel)}
+                  className="gap-1 sm:gap-1.5 rounded-xl h-9 px-2.5 sm:px-3 text-xs"
+                >
+                  <Box className="h-4 w-4" />
+                  <span className="hidden sm:inline">Folders</span>
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => navigate('/import')}
+                  onClick={() => setIsSharesManagerOpen(true)}
                   className="gap-1 sm:gap-1.5 rounded-xl h-9 px-2.5 sm:px-3 text-xs"
                 >
-                  <FolderInput className="h-4 w-4" />
-                  <span className="hidden sm:inline">Import</span>
+                  <Link2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Shares</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -470,6 +483,26 @@ const Inventory = () => {
             </div>
           </motion.div>
 
+          {/* Folders Panel */}
+          <AnimatePresence>
+            {showFoldersPanel && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-4 overflow-hidden"
+              >
+                <div className="card-clean rounded-2xl p-3">
+                  <FoldersPanel
+                    selectedFolderId={activeFolderId}
+                    onSelectFolder={setActiveFolderId}
+                    onShareFolder={handleShareFolder}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Filter Panel */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -540,13 +573,33 @@ const Inventory = () => {
                       Record Sale
                     </Button>
                     <Button
-                      onClick={handleCreateList}
+                      onClick={handleShareSelection}
                       className="gap-2"
                       variant="outline"
                     >
                       <Share2 className="h-4 w-4" />
-                      Create List
+                      Share
                     </Button>
+                    <Button
+                      onClick={handleCreateList}
+                      className="gap-2"
+                      variant="outline"
+                    >
+                      <Link2 className="h-4 w-4" />
+                      Client List
+                    </Button>
+                    <BulkFolderDropdown
+                      inventoryItemIds={Array.from(selectedItems)}
+                      onFolderChange={() => {
+                        setSelectedItems(new Set());
+                        setSelectionMode(false);
+                      }}
+                    >
+                      <Button className="gap-2" variant="outline">
+                        <FolderInput className="h-4 w-4" />
+                        Add to Folder
+                      </Button>
+                    </BulkFolderDropdown>
                     <Button
                       onClick={handleBulkExport}
                       className="gap-2"
@@ -554,14 +607,6 @@ const Inventory = () => {
                     >
                       <FileDown className="h-4 w-4" />
                       Export
-                    </Button>
-                    <Button
-                      onClick={() => setIsMoveDialogOpen(true)}
-                      className="gap-2"
-                      variant="outline"
-                    >
-                      <FolderInput className="h-4 w-4" />
-                      Move
                     </Button>
                     <Button
                       onClick={() => setIsDeleteDialogOpen(true)}
@@ -657,38 +702,59 @@ const Inventory = () => {
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <FolderInput className="h-5 w-5" />
-                  Move to Folder
+                  Add to Folder
                 </DialogTitle>
                 <DialogDescription>
-                  Move {selectedItems.size} selected item{selectedItems.size > 1 ? 's' : ''} to a folder.
+                  Add {selectedItems.size} selected item{selectedItems.size > 1 ? 's' : ''} to a folder.
                 </DialogDescription>
               </DialogHeader>
               <div className="py-4">
-                <Select value={selectedFolder} onValueChange={setSelectedFolder}>
+                <Select value={selectedFolderForMove} onValueChange={setSelectedFolderForMove}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select a folder..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="personal">Personal Collection</SelectItem>
-                    <SelectItem value="for-sale">For Sale</SelectItem>
-                    <SelectItem value="grading">Pending Grading</SelectItem>
-                    <SelectItem value="watchlist">Watchlist</SelectItem>
+                    {folders.map((folder) => (
+                      <SelectItem key={folder.id} value={folder.id}>
+                        <span className="flex items-center gap-2">
+                          <span
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: folder.color }}
+                          />
+                          {folder.name}
+                        </span>
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground mt-3">
-                  Folder organization is coming soon. This is a preview of the feature.
+                  Cards can be in multiple folders for flexible organization.
                 </p>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsMoveDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleBulkMove} disabled={!selectedFolder}>
-                  Move Items
+                <Button onClick={handleBulkMove} disabled={!selectedFolderForMove}>
+                  Add to Folder
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
+          {/* Share Dialog */}
+          <ShareDialog
+            open={isShareDialogOpen}
+            onOpenChange={setIsShareDialogOpen}
+            selectedItems={items.filter(item => selectedItems.has(item.id))}
+            preselectedFolderId={shareFolderId}
+          />
+
+          {/* Shares Manager */}
+          <SharesManager
+            open={isSharesManagerOpen}
+            onOpenChange={setIsSharesManagerOpen}
+          />
 
           <ImportExportDialog
             open={isImportExportOpen}

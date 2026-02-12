@@ -878,6 +878,218 @@ export type Database = {
         }
         Relationships: []
       }
+      trade_listings: {
+        Row: {
+          id: string
+          user_id: string
+          inventory_item_id: string | null
+          listing_type: string
+          card_name: string
+          set_name: string | null
+          card_image_url: string | null
+          looking_for: string | null
+          notes: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          inventory_item_id?: string | null
+          listing_type: string
+          card_name: string
+          set_name?: string | null
+          card_image_url?: string | null
+          looking_for?: string | null
+          notes?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          inventory_item_id?: string | null
+          listing_type?: string
+          card_name?: string
+          set_name?: string | null
+          card_image_url?: string | null
+          looking_for?: string | null
+          notes?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_listings_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      trade_matches: {
+        Row: {
+          id: string
+          user_a_id: string
+          user_b_id: string
+          user_a_listing_id: string | null
+          user_b_listing_id: string | null
+          status: string
+          match_score: number | null
+          proposed_by: string | null
+          proposed_at: string | null
+          responded_at: string | null
+          completed_at: string | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_a_id: string
+          user_b_id: string
+          user_a_listing_id?: string | null
+          user_b_listing_id?: string | null
+          status?: string
+          match_score?: number | null
+          proposed_by?: string | null
+          proposed_at?: string | null
+          responded_at?: string | null
+          completed_at?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_a_id?: string
+          user_b_id?: string
+          user_a_listing_id?: string | null
+          user_b_listing_id?: string | null
+          status?: string
+          match_score?: number | null
+          proposed_by?: string | null
+          proposed_at?: string | null
+          responded_at?: string | null
+          completed_at?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_matches_user_a_listing_id_fkey"
+            columns: ["user_a_listing_id"]
+            isOneToOne: false
+            referencedRelation: "trade_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trade_matches_user_b_listing_id_fkey"
+            columns: ["user_b_listing_id"]
+            isOneToOne: false
+            referencedRelation: "trade_listings"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      trade_messages: {
+        Row: {
+          id: string
+          trade_match_id: string
+          sender_id: string
+          message: string
+          is_read: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          trade_match_id: string
+          sender_id: string
+          message: string
+          is_read?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          trade_match_id?: string
+          sender_id?: string
+          message?: string
+          is_read?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_messages_trade_match_id_fkey"
+            columns: ["trade_match_id"]
+            isOneToOne: false
+            referencedRelation: "trade_matches"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      trade_offer_items: {
+        Row: {
+          id: string
+          trade_match_id: string
+          offered_by: string
+          listing_id: string | null
+          inventory_item_id: string | null
+          card_name: string
+          set_name: string | null
+          card_image_url: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          trade_match_id: string
+          offered_by: string
+          listing_id?: string | null
+          inventory_item_id?: string | null
+          card_name: string
+          set_name?: string | null
+          card_image_url?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          trade_match_id?: string
+          offered_by?: string
+          listing_id?: string | null
+          inventory_item_id?: string | null
+          card_name?: string
+          set_name?: string | null
+          card_image_url?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_offer_items_trade_match_id_fkey"
+            columns: ["trade_match_id"]
+            isOneToOne: false
+            referencedRelation: "trade_matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trade_offer_items_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "trade_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trade_offer_items_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -900,6 +1112,17 @@ export type Database = {
           rarity: string
           set_name: string
           subtypes: string[]
+        }[]
+      }
+      find_trade_matches: {
+        Args: {
+          p_user_id: string
+        }
+        Returns: {
+          other_user_id: string
+          match_score: number
+          they_have_ids: string[]
+          you_have_ids: string[]
         }[]
       }
     }
