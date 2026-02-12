@@ -151,11 +151,11 @@ export function getChartData(
 }
 
 /**
- * Calculate 80% or 90% of a price (common selling thresholds)
+ * Calculate percentage of a price (common selling thresholds)
  */
 export function calculateSellingPrice(
   marketPrice: number,
-  percent: 80 | 90 | 100
+  percent: number
 ): number {
   return marketPrice * (percent / 100);
 }
@@ -165,7 +165,7 @@ export function calculateSellingPrice(
  */
 export function formatSellingPrice(
   marketPrice: number,
-  percent: 80 | 90 | 100
+  percent: number
 ): string {
   const price = calculateSellingPrice(marketPrice, percent);
   return `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
