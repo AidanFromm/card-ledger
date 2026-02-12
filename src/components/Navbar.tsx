@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Search, Package, LayoutDashboard, TrendingUp, DollarSign, User, BellRing } from "lucide-react";
+import { Search, Package, LayoutDashboard, TrendingUp, DollarSign, ArrowLeftRight, User, BellRing } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { motion } from "framer-motion";
@@ -16,6 +16,7 @@ const Navbar = () => {
     { path: "/dashboard", label: "Analytics", icon: LayoutDashboard },
     { path: "/market", label: "Trends", icon: TrendingUp },
     { path: "/sales", label: "Sales", icon: DollarSign },
+    { path: "/trade", label: "Trade", icon: ArrowLeftRight },
     { path: "/profile", label: "Profile", icon: User },
   ];
 

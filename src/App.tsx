@@ -20,6 +20,7 @@ import Wishlist from "./pages/Wishlist";
 import SetCompletion from "./pages/SetCompletion";
 import GradingTracker from "./pages/GradingTracker";
 import MarketTrends from "./pages/MarketTrends";
+import TradingHub from "./pages/TradingHub";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -91,6 +92,7 @@ const App = () => (
             <Route path="/sets" element={<ProtectedRoute><SetCompletion /></ProtectedRoute>} />
             <Route path="/grading" element={<ProtectedRoute><GradingTracker /></ProtectedRoute>} />
             <Route path="/market" element={<ProtectedRoute><MarketTrends /></ProtectedRoute>} />
+            <Route path="/trade" element={<ProtectedRoute><TradingHub /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/client-list/:shareToken" element={<ClientListView />} />
             <Route path="/share/:shareToken" element={<ShareView />} />

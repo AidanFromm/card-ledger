@@ -9,7 +9,8 @@ import {
   Plus, Pencil, Trash2, Check, X, Loader2, Save, ExternalLink, 
   Share2, DollarSign, TrendingUp, TrendingDown, ChevronLeft,
   Calendar, Clock, AlertCircle, Minus, BellRing, Sparkles,
-  ChevronRight, ImageIcon, Layers, Eye, Camera, RotateCcw, Award
+  ChevronRight, ImageIcon, Layers, Eye, Camera, RotateCcw, Award,
+  ArrowLeftRight
 } from "lucide-react";
 import PriceAlertDialog from "@/components/PriceAlertDialog";
 import SlabGeneratorModal from "@/components/SlabGeneratorModal";
@@ -20,6 +21,7 @@ import { format } from "date-fns";
 import { AddToInventoryDialog } from "./AddToInventoryDialog";
 import { useToast } from "@/hooks/use-toast";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
+import { useTrading } from "@/hooks/useTrading";
 import { supabase } from "@/integrations/supabase/client";
 import { cleanCardName, getBaseName, cardNumbersMatch, getPlaceholderForItem } from "@/lib/cardNameUtils";
 import { formatSellingPrice } from "@/lib/priceHistory";
@@ -276,6 +278,7 @@ interface ItemDetailDialogProps {
 export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }: ItemDetailDialogProps) => {
   const { entries, loading, updateEntry, deleteEntry, refetch } = usePurchaseEntries(item?.id);
   const { updateItem, deleteItem, refetch: refetchInventory } = useInventoryDb();
+  const { createListing, isListedForTrade, removeListing, getListingForItem } = useTrading();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editQuantity, setEditQuantity] = useState("");
@@ -1191,6 +1194,37 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
                     <Share2 className="h-4 w-4 mr-1.5" />
                     Share
                   </Button>
+                  {item && isListedForTrade(item.id) ? (
+                    <Button 
+                      variant="outline" 
+                      onClick={async () => {
+                        const listing = getListingForItem(item.id);
+                        if (listing) await removeListing(listing.id);
+                      }} 
+                      className="h-12 border-purple-500/30 text-purple-500 hover:bg-purple-500/10"
+                    >
+                      <ArrowLeftRight className="h-4 w-4 mr-1.5" />
+                      Listed
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      onClick={async () => {
+                        if (!item) return;
+                        await createListing({
+                          inventory_item_id: item.id,
+                          listing_type: 'have',
+                          card_name: item.name,
+                          set_name: item.set_name,
+                          card_image_url: item.card_image_url,
+                        });
+                      }} 
+                      className="h-12 border-purple-500/30 text-purple-500 hover:bg-purple-500/10"
+                    >
+                      <ArrowLeftRight className="h-4 w-4 mr-1.5" />
+                      Trade
+                    </Button>
+                  )}
                   <Button 
                     variant="outline" 
                     onClick={() => setShowDeleteItemConfirm(true)} 

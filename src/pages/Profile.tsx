@@ -26,7 +26,8 @@ import {
   Sparkles,
   BookOpen,
   Heart,
-  Layers
+  Layers,
+  ArrowLeftRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -279,6 +280,12 @@ const Profile = () => {
       label: "Wishlist",
       description: "Cards you want to collect",
       action: () => navigate("/wishlist"),
+    },
+    {
+      icon: ArrowLeftRight,
+      label: "Trading Hub",
+      description: "Trade cards with other collectors",
+      action: () => navigate("/trade"),
     },
     {
       icon: Layers,
