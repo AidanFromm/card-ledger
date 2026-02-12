@@ -118,12 +118,16 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
     grading_company: Enums<"grading_company">;
     grade: string;
     purchase_price: string;
+    purchase_date: string;
+    purchase_location: string;
   }>({
     quantity: "",
     condition: "NM",
     grading_company: "raw",
     grade: "",
     purchase_price: "",
+    purchase_date: new Date().toISOString().split('T')[0],
+    purchase_location: "",
   });
 
   // Reset BGS subgrades when company changes
@@ -151,6 +155,8 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
         grading_company: (product.grading_company as Enums<"grading_company">) || "raw",
         grade: product.grade || "",
         purchase_price: "", // Always start empty
+        purchase_date: new Date().toISOString().split('T')[0],
+        purchase_location: "",
       });
       setGradedPrice(null);
       setBgsSubgrades({
