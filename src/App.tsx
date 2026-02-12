@@ -19,6 +19,7 @@ import Alerts from "./pages/Alerts";
 import Wishlist from "./pages/Wishlist";
 import SetCompletion from "./pages/SetCompletion";
 import GradingTracker from "./pages/GradingTracker";
+import MarketTrends from "./pages/MarketTrends";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -86,7 +87,10 @@ const App = () => (
             <Route path="/scan/ai" element={<ProtectedRoute><ScanAI /></ProtectedRoute>} />
             <Route path="/sales" element={<ProtectedRoute><Sales /></ProtectedRoute>} />
             <Route path="/alerts" element={<ProtectedRoute><Alerts /></ProtectedRoute>} />
+            <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+            <Route path="/sets" element={<ProtectedRoute><SetCompletion /></ProtectedRoute>} />
             <Route path="/grading" element={<ProtectedRoute><GradingTracker /></ProtectedRoute>} />
+            <Route path="/market" element={<ProtectedRoute><MarketTrends /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/client-list/:shareToken" element={<ClientListView />} />
             <Route path="/share/:shareToken" element={<ShareView />} />

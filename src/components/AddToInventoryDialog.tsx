@@ -692,19 +692,52 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
               </>
             )}
 
-            {/* Purchase Price */}
-            <div className="space-y-2">
-              <Label htmlFor="purchase_price">Purchase Price</Label>
-              <Input
-                id="purchase_price"
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.purchase_price}
-                onChange={(e) => setFormData({ ...formData, purchase_price: e.target.value })}
-                placeholder="0.00"
-                required
-              />
+            {/* Purchase Details */}
+            <div className="space-y-3">
+              <Label className="text-muted-foreground text-xs uppercase tracking-wide">Purchase Details</Label>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {/* Purchase Price */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="purchase_price" className="text-xs">Price Paid</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                    <Input
+                      id="purchase_price"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.purchase_price}
+                      onChange={(e) => setFormData({ ...formData, purchase_price: e.target.value })}
+                      placeholder="0.00"
+                      className="pl-7"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                {/* Purchase Date */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="purchase_date" className="text-xs">Date</Label>
+                  <Input
+                    id="purchase_date"
+                    type="date"
+                    value={formData.purchase_date || ''}
+                    onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
+                  />
+                </div>
+              </div>
+              
+              {/* Purchase Location */}
+              <div className="space-y-1.5">
+                <Label htmlFor="purchase_location" className="text-xs">Where Purchased (optional)</Label>
+                <Input
+                  id="purchase_location"
+                  value={formData.purchase_location || ''}
+                  onChange={(e) => setFormData({ ...formData, purchase_location: e.target.value })}
+                  placeholder="e.g., eBay, TCGPlayer, Local Card Shop"
+                />
+              </div>
             </div>
 
             {/* Action Buttons */}
