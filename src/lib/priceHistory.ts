@@ -123,13 +123,17 @@ export function formatPriceChange(
  */
 export function getChartData(
   priceHistory: PriceHistoryPoint[],
-  timeRange: '7D' | '30D' | '90D' | 'ALL' = '30D'
+  timeRange: '7D' | '1M' | '30D' | '3M' | '90D' | '6M' | '1Y' | 'ALL' = '30D'
 ): Array<{ date: string; price: number }> {
   const now = new Date();
   const ranges: Record<string, number> = {
     '7D': 7,
+    '1M': 30,
     '30D': 30,
+    '3M': 90,
     '90D': 90,
+    '6M': 180,
+    '1Y': 365,
     'ALL': 365 * 10, // 10 years effectively means all
   };
 

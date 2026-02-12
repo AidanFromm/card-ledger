@@ -43,6 +43,24 @@ const actions: QuickAction[] = [
     description: 'Manual entry',
   },
   {
+    id: 'wishlist',
+    label: 'Wishlist',
+    icon: Heart,
+    path: '/wishlist',
+    gradient: 'from-pink-500 to-rose-500',
+    glowColor: 'rgba(236, 72, 153, 0.4)',
+    description: 'Cards to acquire',
+  },
+  {
+    id: 'sets',
+    label: 'Sets',
+    icon: Layers,
+    path: '/sets',
+    gradient: 'from-violet-500 to-purple-500',
+    glowColor: 'rgba(139, 92, 246, 0.4)',
+    description: 'Track completion',
+  },
+  {
     id: 'grading',
     label: 'Grading',
     icon: Award,
@@ -56,7 +74,7 @@ const actions: QuickAction[] = [
     label: 'Alerts',
     icon: Bell,
     path: '/alerts',
-    gradient: 'from-rose-500 to-pink-500',
+    gradient: 'from-orange-500 to-red-500',
     glowColor: 'rgba(244, 63, 94, 0.4)',
     description: 'Price notifications',
   },
@@ -145,7 +163,7 @@ export const QuickActions = memo(({ className = "" }: QuickActionsProps) => {
       </div>
 
       {/* Action Cards Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
         {actions.map((action, index) => (
           <QuickActionCard 
             key={action.id} 
