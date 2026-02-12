@@ -1,11 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
-import { Search, Package, LayoutDashboard, DollarSign, User } from "lucide-react";
+import { Search, Package, LayoutDashboard, DollarSign, User, BellRing } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { motion } from "framer-motion";
+import { usePriceAlerts } from "@/hooks/usePriceAlerts";
 
 const Navbar = () => {
   const location = useLocation();
+  const { activeCount, triggeredCount } = usePriceAlerts();
+  const hasAlertNotification = triggeredCount > 0;
 
   const navItems = [
     { path: "/scan", label: "Search", icon: Search },
@@ -64,6 +67,35 @@ const Navbar = () => {
               })}
             </div>
           </div>
+
+          {/* Alerts Bell Icon */}
+          <Link to="/alerts">
+            <motion.div
+              className="relative"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`relative h-10 w-10 rounded-xl ${
+                  location.pathname === '/alerts'
+                    ? 'bg-amber-500/10 text-amber-500'
+                    : 'text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10'
+                }`}
+              >
+                <BellRing className="h-5 w-5" />
+                {hasAlertNotification && (
+                  <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-amber-500 animate-pulse" />
+                )}
+                {activeCount > 0 && !hasAlertNotification && (
+                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-bold flex items-center justify-center text-primary-foreground">
+                    {activeCount > 9 ? '9+' : activeCount}
+                  </span>
+                )}
+              </Button>
+            </motion.div>
+          </Link>
         </div>
       </div>
     </motion.nav>

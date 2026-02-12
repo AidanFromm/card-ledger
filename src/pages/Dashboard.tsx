@@ -18,6 +18,7 @@ import {
   CategoryBreakdown,
   GradeDistribution,
 } from "@/components/dashboard";
+import AlertsWidget from "@/components/AlertsWidget";
 
 const Dashboard = () => {
   const { items, loading, refetch, isSyncing } = useInventoryDb();
@@ -162,6 +163,15 @@ const Dashboard = () => {
             type="losers" 
             limit={5} 
           />
+
+          {/* Price Alerts Widget */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.28 }}
+          >
+            <AlertsWidget maxItems={3} />
+          </motion.div>
 
           {/* Analytics Section */}
           <motion.div
