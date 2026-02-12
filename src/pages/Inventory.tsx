@@ -23,6 +23,7 @@ import { SkeletonGrid } from "@/components/ui/skeleton-card";
 import { EmptyInventory, EmptySearchResults } from "@/components/EmptyState";
 import { Progress } from "@/components/ui/progress";
 import { ImportExportDialog } from "@/components/ImportExportDialog";
+import { ExportDialog } from "@/components/ExportDialog";
 import {
   AlertDialog,
   AlertDialogAction,

@@ -76,6 +76,7 @@ const App = () => (
             <Route path="/loading" element={<Index />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
+            <Route path="/import" element={<ProtectedRoute><ImportPage /></ProtectedRoute>} />
             <Route path="/add" element={<ProtectedRoute><AddItem /></ProtectedRoute>} />
             <Route path="/scan" element={<ProtectedRoute><ScanCard /></ProtectedRoute>} />
             <Route path="/scan/barcode" element={<ProtectedRoute><ScanBarcode /></ProtectedRoute>} />
