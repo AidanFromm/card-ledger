@@ -1,6 +1,6 @@
 import { memo, useMemo } from "react";
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Flame, Snowflake } from "lucide-react";
 
 interface InventoryItem {
   id: string;
@@ -25,64 +25,102 @@ interface MoverCardProps {
   change: number;
   changePercent: number;
   index: number;
+  type: 'gainers' | 'losers';
+  rank: number;
 }
 
-const MoverCard = memo(({ item, change, changePercent, index }: MoverCardProps) => {
-  const isPositive = change >= 0;
-  const bgColor = isPositive ? 'bg-emerald-500/10' : 'bg-red-500/10';
-  const textColor = isPositive ? 'text-emerald-500' : 'text-red-500';
-  const borderColor = isPositive ? 'border-emerald-500/20' : 'border-red-500/20';
-
+const MoverCard = memo(({ item, change, changePercent, index, type, rank }: MoverCardProps) => {
+  const isGainer = type === 'gainers';
+  
   return (
     <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.05 }}
-      className={`flex-shrink-0 w-36 p-3 rounded-xl border ${borderColor} ${bgColor} backdrop-blur-sm`}
+      initial={{ opacity: 0, x: 30, scale: 0.9 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      transition={{ 
+        delay: index * 0.08,
+        type: "spring",
+        stiffness: 200,
+        damping: 20
+      }}
+      whileHover={{ scale: 1.02, y: -2 }}
+      className={`
+        flex-shrink-0 w-[140px] relative overflow-hidden
+        bg-gradient-to-br rounded-2xl p-3
+        border backdrop-blur-sm cursor-pointer
+        transition-shadow duration-300
+        ${isGainer 
+          ? 'from-emerald-500/10 via-emerald-500/5 to-transparent border-emerald-500/20 hover:shadow-emerald-500/10 hover:shadow-lg' 
+          : 'from-red-500/10 via-red-500/5 to-transparent border-red-500/20 hover:shadow-red-500/10 hover:shadow-lg'
+        }
+      `}
     >
-      {/* Card Image or Placeholder */}
-      {item.card_image_url ? (
-        <div className="w-full h-14 mb-2 rounded-lg overflow-hidden bg-black/20">
+      {/* Rank badge */}
+      <div className={`
+        absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center
+        text-[10px] font-bold
+        ${isGainer ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}
+      `}>
+        #{rank}
+      </div>
+
+      {/* Card Image */}
+      <div className="w-full h-[80px] mb-2 rounded-xl overflow-hidden bg-zinc-800/50 relative">
+        {item.card_image_url ? (
           <img 
             src={item.card_image_url} 
             alt={item.name}
             className="w-full h-full object-contain"
+            loading="lazy"
           />
-        </div>
-      ) : (
-        <div className="w-full h-14 mb-2 rounded-lg bg-muted/30 flex items-center justify-center">
-          {isPositive ? (
-            <TrendingUp className="h-6 w-6 text-emerald-500/50" />
-          ) : (
-            <TrendingDown className="h-6 w-6 text-red-500/50" />
-          )}
-        </div>
-      )}
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            {isGainer ? (
+              <Flame className="h-8 w-8 text-emerald-500/30" />
+            ) : (
+              <Snowflake className="h-8 w-8 text-red-500/30" />
+            )}
+          </div>
+        )}
+        
+        {/* Grade badge */}
+        {item.grade && item.grading_company && item.grading_company.toLowerCase() !== 'raw' && (
+          <div className="absolute bottom-1 left-1 bg-zinc-900/90 backdrop-blur-sm px-1.5 py-0.5 rounded-md">
+            <span className="text-[9px] font-bold text-zinc-300">
+              {item.grading_company} {item.grade}
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* Card Name */}
-      <p className="text-xs font-medium text-foreground truncate mb-0.5">
+      <p className="text-xs font-semibold text-white truncate mb-0.5 leading-tight">
         {item.name}
       </p>
       
       {/* Set Name */}
-      <p className="text-[10px] text-muted-foreground truncate mb-2">
+      <p className="text-[10px] text-zinc-500 truncate mb-2">
         {item.set_name}
       </p>
 
-      {/* Change */}
-      <div className="flex items-center gap-1">
-        {isPositive ? (
-          <ArrowUpRight className={`h-3.5 w-3.5 ${textColor}`} />
-        ) : (
-          <ArrowDownRight className={`h-3.5 w-3.5 ${textColor}`} />
-        )}
-        <span className={`text-xs font-semibold ${textColor}`}>
-          {changePercent >= 0 ? '+' : ''}{changePercent.toFixed(1)}%
-        </span>
+      {/* Change Display */}
+      <div className="flex items-center gap-1.5">
+        <div className={`
+          flex items-center gap-0.5 px-2 py-1 rounded-lg
+          ${isGainer ? 'bg-emerald-500/20' : 'bg-red-500/20'}
+        `}>
+          {isGainer ? (
+            <ArrowUpRight className="h-3 w-3 text-emerald-400" />
+          ) : (
+            <ArrowDownRight className="h-3 w-3 text-red-400" />
+          )}
+          <span className={`text-xs font-bold ${isGainer ? 'text-emerald-400' : 'text-red-400'}`}>
+            {changePercent >= 0 ? '+' : ''}{changePercent.toFixed(1)}%
+          </span>
+        </div>
       </div>
       
       {/* Dollar Change */}
-      <p className={`text-[10px] ${textColor} opacity-80`}>
+      <p className={`text-[10px] mt-1 font-medium ${isGainer ? 'text-emerald-400/70' : 'text-red-400/70'}`}>
         {change >= 0 ? '+' : '-'}${Math.abs(change).toFixed(2)}
       </p>
     </motion.div>
@@ -93,7 +131,6 @@ MoverCard.displayName = "MoverCard";
 
 export const TopMovers = memo(({ items, type, limit = 5 }: TopMoversProps) => {
   const movers = useMemo(() => {
-    // Calculate change for each item
     const withChanges = items
       .filter(item => item.market_price && item.market_price !== item.purchase_price)
       .map(item => {
@@ -104,7 +141,6 @@ export const TopMovers = memo(({ items, type, limit = 5 }: TopMoversProps) => {
         return { item, change, changePercent };
       });
 
-    // Sort by change
     if (type === 'gainers') {
       return withChanges
         .filter(m => m.change > 0)
@@ -122,32 +158,46 @@ export const TopMovers = memo(({ items, type, limit = 5 }: TopMoversProps) => {
     return null;
   }
 
-  const title = type === 'gainers' ? 'Top Gainers' : 'Top Losers';
-  const Icon = type === 'gainers' ? TrendingUp : TrendingDown;
-  const iconColor = type === 'gainers' ? 'text-emerald-500' : 'text-red-500';
+  const isGainer = type === 'gainers';
+  const Icon = isGainer ? TrendingUp : TrendingDown;
+  const title = isGainer ? 'Top Gainers' : 'Top Losers';
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="mb-6"
     >
       {/* Section Header */}
-      <div className="flex items-center gap-2 mb-3 px-1">
-        <Icon className={`h-4 w-4 ${iconColor}`} />
-        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <div className="flex items-center gap-2.5 mb-4 px-1">
+        <div className={`
+          p-1.5 rounded-lg
+          ${isGainer ? 'bg-emerald-500/15' : 'bg-red-500/15'}
+        `}>
+          <Icon className={`h-4 w-4 ${isGainer ? 'text-emerald-400' : 'text-red-400'}`} />
+        </div>
+        <h3 className="text-base font-semibold text-white">{title}</h3>
+        <span className="text-xs text-zinc-500 bg-zinc-800/50 px-2 py-0.5 rounded-full">
+          {movers.length} cards
+        </span>
       </div>
 
       {/* Horizontal Scroll Container */}
-      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4">
+      <div 
+        className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4"
+        style={{ scrollSnapType: 'x mandatory' }}
+      >
         {movers.map(({ item, change, changePercent }, index) => (
-          <MoverCard
-            key={item.id}
-            item={item}
-            change={change}
-            changePercent={changePercent}
-            index={index}
-          />
+          <div key={item.id} style={{ scrollSnapAlign: 'start' }}>
+            <MoverCard
+              item={item}
+              change={change}
+              changePercent={changePercent}
+              index={index}
+              type={type}
+              rank={index + 1}
+            />
+          </div>
         ))}
       </div>
     </motion.div>
