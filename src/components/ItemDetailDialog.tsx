@@ -26,7 +26,6 @@ import { formatSellingPrice } from "@/lib/priceHistory";
 import { PriceHistoryChart } from "@/components/PriceHistoryChart";
 import { RAW_CONDITIONS, getGradeLabel } from "@/lib/gradingScales";
 import { triggerHaptic, triggerSuccessHaptic } from "@/lib/haptics";
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, Area, AreaChart } from "recharts";
 import {
   AlertDialog,
   AlertDialogAction,

@@ -9,6 +9,8 @@ import {
   Camera,
   Sparkles,
   Award,
+  Heart,
+  Layers,
 } from "lucide-react";
 
 interface QuickAction {
