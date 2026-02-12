@@ -1201,11 +1201,22 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
                 </div>
                 
                 {/* Secondary action row */}
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-4 gap-2">
+                  {/* Send to Grading - only show for raw cards */}
+                  {item.grading_company === 'raw' && item.category !== 'sealed' && (
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowSendToGrading(true)} 
+                      className="h-12 border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
+                    >
+                      <Award className="h-4 w-4 mr-1.5" />
+                      Grade
+                    </Button>
+                  )}
                   <Button 
                     variant="outline" 
                     onClick={() => setShowPriceAlertDialog(true)} 
-                    className="h-12 border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
+                    className={`h-12 border-blue-500/30 text-blue-500 hover:bg-blue-500/10 ${item.grading_company !== 'raw' || item.category === 'sealed' ? 'col-span-1' : ''}`}
                   >
                     <BellRing className="h-4 w-4 mr-1.5" />
                     Alert

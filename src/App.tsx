@@ -21,6 +21,7 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import ClientListView from "./pages/ClientListView";
+import ShareView from "./pages/ShareView";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { useBackgroundImageFetch } from "./hooks/useBackgroundImageFetch";
@@ -86,6 +87,7 @@ const App = () => (
             <Route path="/grading" element={<ProtectedRoute><GradingTracker /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/client-list/:shareToken" element={<ClientListView />} />
+            <Route path="/share/:shareToken" element={<ShareView />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

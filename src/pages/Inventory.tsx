@@ -278,11 +278,20 @@ const Inventory = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setIsImportExportOpen(true)}
+                  onClick={() => navigate('/import')}
+                  className="gap-1 sm:gap-1.5 rounded-xl h-9 px-2.5 sm:px-3 text-xs"
+                >
+                  <FolderInput className="h-4 w-4" />
+                  <span className="hidden sm:inline">Import</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsExportDialogOpen(true)}
                   className="gap-1 sm:gap-1.5 rounded-xl h-9 px-2.5 sm:px-3 text-xs"
                 >
                   <FileDown className="h-4 w-4" />
-                  <span className="hidden sm:inline">Import</span>
+                  <span className="hidden sm:inline">Export</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -654,6 +663,16 @@ const Inventory = () => {
             onOpenChange={setIsImportExportOpen}
             items={items}
             onImportComplete={refetch}
+          />
+
+          <ExportDialog
+            open={isExportDialogOpen}
+            onOpenChange={setIsExportDialogOpen}
+            items={items}
+            currentFilter={{
+              category: filters.category,
+              searchTerm: filters.searchTerm,
+            }}
           />
         </main>
       </PageTransition>
