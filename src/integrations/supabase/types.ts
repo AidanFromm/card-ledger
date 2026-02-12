@@ -196,6 +196,8 @@ export type Database = {
           name: string
           notes: string | null
           platform_sold: string | null
+          purchase_date: string | null
+          purchase_location: string | null
           purchase_price: number
           quantity: number
           raw_condition: string | null
@@ -223,6 +225,8 @@ export type Database = {
           name: string
           notes?: string | null
           platform_sold?: string | null
+          purchase_date?: string | null
+          purchase_location?: string | null
           purchase_price: number
           quantity?: number
           raw_condition?: string | null
@@ -483,6 +487,89 @@ export type Database = {
           },
         ]
       }
+      grading_submissions: {
+        Row: {
+          id: string
+          user_id: string
+          inventory_item_id: string | null
+          card_name: string
+          set_name: string | null
+          card_number: string | null
+          card_image_url: string | null
+          grading_company: string
+          submission_date: string
+          expected_return_date: string | null
+          tracking_number: string | null
+          status: Database["public"]["Enums"]["grading_status"]
+          status_updated_at: string
+          final_grade: string | null
+          cert_number: string | null
+          submission_cost: number
+          shipping_cost: number
+          insurance_cost: number
+          service_level: string | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          inventory_item_id?: string | null
+          card_name: string
+          set_name?: string | null
+          card_number?: string | null
+          card_image_url?: string | null
+          grading_company: string
+          submission_date?: string
+          expected_return_date?: string | null
+          tracking_number?: string | null
+          status?: Database["public"]["Enums"]["grading_status"]
+          status_updated_at?: string
+          final_grade?: string | null
+          cert_number?: string | null
+          submission_cost?: number
+          shipping_cost?: number
+          insurance_cost?: number
+          service_level?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          inventory_item_id?: string | null
+          card_name?: string
+          set_name?: string | null
+          card_number?: string | null
+          card_image_url?: string | null
+          grading_company?: string
+          submission_date?: string
+          expected_return_date?: string | null
+          tracking_number?: string | null
+          status?: Database["public"]["Enums"]["grading_status"]
+          status_updated_at?: string
+          final_grade?: string | null
+          cert_number?: string | null
+          submission_cost?: number
+          shipping_cost?: number
+          insurance_cost?: number
+          service_level?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grading_submissions_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -517,6 +604,7 @@ export type Database = {
         | "heavily-played"
         | "damaged"
       grading_company: "raw" | "psa" | "bgs" | "cgc" | "ace" | "sgc" | "tag"
+      grading_status: "submitted" | "received" | "grading" | "shipped" | "complete"
       product_category: "raw" | "graded" | "sealed"
     }
     CompositeTypes: {
@@ -654,6 +742,7 @@ export const Constants = {
         "damaged",
       ],
       grading_company: ["raw", "psa", "bgs", "cgc", "ace", "sgc", "tag"],
+      grading_status: ["submitted", "received", "grading", "shipped", "complete"],
       product_category: ["raw", "graded", "sealed"],
     },
   },

@@ -5,6 +5,8 @@ import BottomNav from "@/components/BottomNav";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { useTodayChange } from "@/hooks/usePriceHistory";
 import { usePortfolioHistory, TimeRange } from "@/hooks/usePortfolioHistory";
+import { usePriceAlerts } from "@/hooks/usePriceAlerts";
+import { useSalesDb } from "@/hooks/useSalesDb";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { PageTransition } from "@/components/PageTransition";
@@ -61,6 +63,13 @@ const DashboardSkeleton = () => (
 
 const Dashboard = () => {
   const { items, loading, refetch, isSyncing } = useInventoryDb();
+  const { sales, loading: salesLoading } = useSalesDb();
+  const { 
+    alerts, 
+    activeCount, 
+    triggeredCount, 
+    loading: alertsLoading 
+  } = usePriceAlerts();
   const [timeRange, setTimeRange] = useState<TimeRange>('1M');
 
   // Separate sold and unsold items
@@ -110,6 +119,38 @@ const Dashboard = () => {
   const sparklineData = useMemo(() => 
     portfolioHistory.slice(-30).map(d => ({ value: d.value, date: d.date })),
     [portfolioHistory]
+  );
+
+  // Transform alerts data for PriceAlertsSummary component
+  const formattedAlerts = useMemo(() => 
+    alerts.map(alert => ({
+      id: alert.id,
+      cardName: alert.card_name,
+      targetPrice: alert.target_price,
+      currentPrice: alert.current_price || 0,
+      type: alert.direction,
+      triggered: !!alert.triggered_at,
+      triggeredAt: alert.triggered_at ? new Date(alert.triggered_at) : undefined,
+      cardImage: alert.card_image_url || undefined,
+    })),
+    [alerts]
+  );
+
+  // Transform sales data to work with RecentActivity (sold items format)
+  const salesAsItems = useMemo(() => 
+    sales.map(sale => ({
+      id: sale.id,
+      name: sale.item_name,
+      card_image_url: sale.card_image_url,
+      purchase_price: sale.purchase_price,
+      market_price: sale.sale_price,
+      quantity: sale.quantity_sold,
+      sale_price: sale.sale_price,
+      sale_date: sale.sale_date,
+      created_at: sale.created_at,
+      updated_at: sale.updated_at,
+    })),
+    [sales]
   );
 
   // Is portfolio positive overall?
@@ -291,14 +332,15 @@ const Dashboard = () => {
             {/* Recent Activity Timeline */}
             <RecentActivity 
               items={unsoldItems}
-              soldItems={soldItems}
+              soldItems={salesAsItems}
               limit={5}
             />
             
             {/* Price Alerts Summary */}
             <PriceAlertsSummary 
-              activeCount={0}
-              triggeredCount={0}
+              alerts={formattedAlerts}
+              activeCount={activeCount}
+              triggeredCount={triggeredCount}
             />
           </motion.div>
 
