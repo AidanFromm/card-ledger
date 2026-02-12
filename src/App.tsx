@@ -16,6 +16,8 @@ import ScanBarcode from "./pages/ScanBarcode";
 import ScanAI from "./pages/ScanAI";
 import Sales from "./pages/Sales";
 import Alerts from "./pages/Alerts";
+import Wishlist from "./pages/Wishlist";
+import SetCompletion from "./pages/SetCompletion";
 import GradingTracker from "./pages/GradingTracker";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";

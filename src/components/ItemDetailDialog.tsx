@@ -1272,6 +1272,19 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
         existingCompany={item.grading_company !== 'raw' ? item.grading_company : null}
       />
 
+      {/* Send to Grading Dialog */}
+      <SendToGradingDialog
+        open={showSendToGrading}
+        onOpenChange={setShowSendToGrading}
+        item={{
+          id: item.id,
+          name: item.name,
+          set_name: item.set_name,
+          card_number: item.card_number,
+          card_image_url: localImageUrl,
+        }}
+      />
+
       {/* Delete Entry Confirmation */}
       <AlertDialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
         <AlertDialogContent>
