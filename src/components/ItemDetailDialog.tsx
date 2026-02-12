@@ -8,8 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { 
   Plus, Pencil, Trash2, Check, X, Loader2, Save, ExternalLink, 
   Share2, DollarSign, TrendingUp, TrendingDown, ChevronLeft,
-  Calendar, Clock, AlertCircle, Minus
+  Calendar, Clock, AlertCircle, Minus, BellRing
 } from "lucide-react";
+import PriceAlertDialog from "@/components/PriceAlertDialog";
 import { usePurchaseEntries } from "@/hooks/usePurchaseEntries";
 import { usePriceHistory } from "@/hooks/usePriceHistory";
 import { format } from "date-fns";
@@ -208,6 +209,9 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
   const [isFetchingImage, setIsFetchingImage] = useState(false);
   const [localImageUrl, setLocalImageUrl] = useState<string | null>(null);
   const [localCategory, setLocalCategory] = useState<string | null>(null);
+
+  // Price alert dialog state
+  const [showPriceAlertDialog, setShowPriceAlertDialog] = useState(false);
 
   // Price display state
   const [valuePercent, setValuePercent] = useState<PercentOption>(100);
@@ -1042,7 +1046,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="grid grid-cols-3 gap-3 pb-6"
+                className="grid grid-cols-4 gap-2 pb-6"
               >
                 <Button 
                   onClick={() => { triggerSuccessHaptic(); if (onSell) onSell(); }} 
@@ -1050,6 +1054,14 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
                 >
                   <DollarSign className="h-4 w-4 mr-1" />
                   Sell
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowPriceAlertDialog(true)} 
+                  className="h-12 border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
+                >
+                  <BellRing className="h-4 w-4 mr-1" />
+                  Alert
                 </Button>
                 <Button variant="outline" onClick={handleShare} className="h-12">
                   <Share2 className="h-4 w-4 mr-1" />
@@ -1060,8 +1072,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
                   onClick={() => setShowDeleteItemConfirm(true)} 
                   className="h-12 text-destructive border-destructive/30 hover:bg-destructive/10"
                 >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Delete
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </motion.div>
             </div>
@@ -1073,6 +1084,19 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
         product={productForDialog}
+      />
+
+      {/* Price Alert Dialog */}
+      <PriceAlertDialog
+        open={showPriceAlertDialog}
+        onOpenChange={setShowPriceAlertDialog}
+        card={{
+          id: item.id,
+          name: item.name,
+          set_name: item.set_name,
+          card_image_url: localImageUrl,
+          market_price: item.market_price,
+        }}
       />
 
       {/* Delete Entry Confirmation */}
