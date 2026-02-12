@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      price_alerts: {
+        Row: {
+          id: string
+          user_id: string
+          card_id: string
+          card_name: string
+          set_name: string | null
+          card_image_url: string | null
+          current_price: number | null
+          target_price: number
+          direction: string
+          is_active: boolean
+          triggered_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          card_id: string
+          card_name: string
+          set_name?: string | null
+          card_image_url?: string | null
+          current_price?: number | null
+          target_price: number
+          direction: string
+          is_active?: boolean
+          triggered_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          card_id?: string
+          card_name?: string
+          set_name?: string | null
+          card_image_url?: string | null
+          current_price?: number | null
+          target_price?: number
+          direction?: string
+          is_active?: boolean
+          triggered_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       client_list_items: {
         Row: {
           card_image_url: string | null
