@@ -1,4 +1,4 @@
-import { Search, Package, LayoutDashboard, DollarSign, User } from "lucide-react";
+import { Search, Package, LayoutDashboard, TrendingUp, User } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -11,12 +11,12 @@ const BottomNav = () => {
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const navRef = useRef<HTMLDivElement>(null);
 
-  // 5 tabs: Scan/Search (hero), Inventory, Dashboard, Sales, Profile
+  // 5 tabs: Scan/Search (hero), Inventory, Dashboard, Trends, Profile
   const navItems = [
     { to: "/scan", icon: Search, label: "Search" },
     { to: "/inventory", icon: Package, label: "Inventory" },
     { to: "/dashboard", icon: LayoutDashboard, label: "Analytics" },
-    { to: "/sales", icon: DollarSign, label: "Sales" },
+    { to: "/market", icon: TrendingUp, label: "Trends" },
     { to: "/profile", icon: User, label: "Profile" },
   ];
 

@@ -324,6 +324,8 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
           grading_company: formData.grading_company,
           grade: formData.grade || null,
           purchase_price: purchasePrice,
+          purchase_date: formData.purchase_date || null,
+          purchase_location: formData.purchase_location || null,
           market_price: marketPriceToUse,
           lowest_listed: (product as any).lowest_listed || null,
           notes: null,

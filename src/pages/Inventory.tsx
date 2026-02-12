@@ -6,11 +6,16 @@ import { Input } from "@/components/ui/input";
 import { 
   Trash2, Search, Package, Award, Box, Grid3x3, CheckSquare, Square, 
   DollarSign, Share2, RefreshCw, FileDown, Plus, TrendingUp, TrendingDown, 
-  Trophy, ImageIcon, ArrowUp, FolderInput 
+  Trophy, ImageIcon, ArrowUp, FolderInput, Link2, Settings2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Database } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
+import { useFolders } from "@/hooks/useFolders";
+import { FoldersPanel } from "@/components/FoldersPanel";
+import { BulkFolderDropdown } from "@/components/FolderDropdown";
+import { ShareDialog } from "@/components/ShareDialog";
+import { SharesManager } from "@/components/SharesManager";
 
 type InventoryItem = Database["public"]["Tables"]["inventory_items"]["Row"];
 import Navbar from "@/components/Navbar";
@@ -61,6 +66,7 @@ const Inventory = () => {
   const { items, deleteItem, loading, refetch, updateItem } = useInventoryDb();
   const { createList } = useClientLists();
   const { isRefreshing, progress, refreshAllPrices } = useScrydexPricing();
+  const { folders, getFolderItemIds, addItemsToFolder } = useFolders();
   
   // Use the new filters hook
   const {
@@ -68,9 +74,9 @@ const Inventory = () => {
     updateFilter,
     resetFilters,
     activeFilterCount,
-    filteredItems,
+    filteredItems: baseFilteredItems,
     totalItems,
-    resultCount,
+    resultCount: baseResultCount,
   } = useInventoryFilters(items);
 
   const [portfolioPercent, setPortfolioPercent] = useState<number>(100);
@@ -85,8 +91,24 @@ const Inventory = () => {
   const [isImportExportOpen, setIsImportExportOpen] = useState(false);
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
-  const [selectedFolder, setSelectedFolder] = useState<string>("");
+  const [selectedFolderForMove, setSelectedFolderForMove] = useState<string>("");
   const [showScrollTop, setShowScrollTop] = useState(false);
+  
+  // Folder and sharing state
+  const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
+  const [showFoldersPanel, setShowFoldersPanel] = useState(false);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isSharesManagerOpen, setIsSharesManagerOpen] = useState(false);
+  const [shareFolderId, setShareFolderId] = useState<string | undefined>();
+  
+  // Filter items by active folder
+  const filteredItems = useMemo(() => {
+    if (!activeFolderId) return baseFilteredItems;
+    const folderItemIds = getFolderItemIds(activeFolderId);
+    return baseFilteredItems.filter(item => folderItemIds.includes(item.id));
+  }, [baseFilteredItems, activeFolderId, getFolderItemIds]);
+  
+  const resultCount = filteredItems.length;
 
   // Global background image fetch (runs app-wide)
   const { isRunning: isFetchingImages, startBackgroundFetch } = useBackgroundImageFetch();
@@ -216,13 +238,23 @@ const Inventory = () => {
   };
 
   const handleBulkMove = async () => {
-    // For now, we'll just show a placeholder since folders aren't implemented
-    // In a real implementation, this would move items to a folder/category
-    toast({
-      title: "Coming soon",
-      description: "Folder organization will be available in a future update.",
-    });
+    if (!selectedFolderForMove) return;
+    
+    await addItemsToFolder(selectedFolderForMove, Array.from(selectedItems));
+    setSelectedFolderForMove("");
     setIsMoveDialogOpen(false);
+    setSelectedItems(new Set());
+    setSelectionMode(false);
+  };
+  
+  const handleShareFolder = (folderId: string) => {
+    setShareFolderId(folderId);
+    setIsShareDialogOpen(true);
+  };
+  
+  const handleShareSelection = () => {
+    setShareFolderId(undefined);
+    setIsShareDialogOpen(true);
   };
 
   const handleRefreshPrices = async () => {

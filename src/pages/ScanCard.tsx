@@ -31,6 +31,7 @@ import { useRecentSearches } from "@/hooks/useRecentSearches";
 import { useSearchCache } from "@/hooks/useSearchCache";
 import { PortfolioPreview } from "@/components/PortfolioPreview";
 import { SkeletonGrid } from "@/components/SkeletonCard";
+import { AddToWishlistButton } from "@/components/AddToWishlistButton";
 
 // Filter types
 type CategoryFilter = "all" | "raw" | "sealed";
