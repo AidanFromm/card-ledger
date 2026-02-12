@@ -8,6 +8,7 @@ import {
   Bell,
   Camera,
   Sparkles,
+  Award,
 } from "lucide-react";
 
 interface QuickAction {
@@ -40,21 +41,21 @@ const actions: QuickAction[] = [
     description: 'Manual entry',
   },
   {
-    id: 'inventory',
-    label: 'Collection',
-    icon: Package,
-    path: '/inventory',
-    gradient: 'from-purple-500 to-pink-500',
-    glowColor: 'rgba(168, 85, 247, 0.4)',
-    description: 'View all cards',
+    id: 'grading',
+    label: 'Grading',
+    icon: Award,
+    path: '/grading',
+    gradient: 'from-amber-500 to-yellow-500',
+    glowColor: 'rgba(245, 158, 11, 0.4)',
+    description: 'Track submissions',
   },
   {
     id: 'alerts',
     label: 'Alerts',
     icon: Bell,
     path: '/alerts',
-    gradient: 'from-amber-500 to-orange-500',
-    glowColor: 'rgba(245, 158, 11, 0.4)',
+    gradient: 'from-rose-500 to-pink-500',
+    glowColor: 'rgba(244, 63, 94, 0.4)',
     description: 'Price notifications',
   },
 ];

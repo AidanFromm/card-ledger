@@ -1,9 +1,12 @@
 import { useRef, useState, useEffect } from "react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { InventoryCard } from "./InventoryCard";
+import { InventoryListCard } from "./InventoryListCard";
 import type { Database } from "@/integrations/supabase/types";
 
 type InventoryItem = Database["public"]["Tables"]["inventory_items"]["Row"];
+type ViewMode = 'grid' | 'list';
 
 interface VirtualizedInventoryGridProps {
   items: InventoryItem[];
@@ -13,9 +16,10 @@ interface VirtualizedInventoryGridProps {
   onOpenDetail: (item: InventoryItem) => void;
   onSell: (item: InventoryItem) => void;
   onDelete: (id: string) => void;
+  viewMode?: ViewMode;
 }
 
-// Responsive breakpoints for column count
+// Responsive breakpoints for column count (grid mode)
 const getColumnCount = (width: number): number => {
   if (width >= 1280) return 6; // xl
   if (width >= 1024) return 5; // lg
@@ -23,8 +27,9 @@ const getColumnCount = (width: number): number => {
   return 2; // default (mobile)
 };
 
-// Row height must be consistent - card height + gap
-const ROW_HEIGHT = 340;
+// Row heights
+const GRID_ROW_HEIGHT = 340;
+const LIST_ROW_HEIGHT = 92;
 const GAP = 12;
 
 export const VirtualizedInventoryGrid = ({
@@ -35,6 +40,7 @@ export const VirtualizedInventoryGrid = ({
   onOpenDetail,
   onSell,
   onDelete,
+  viewMode = 'grid',
 }: VirtualizedInventoryGridProps) => {
   const listRef = useRef<HTMLDivElement>(null);
   const [columnCount, setColumnCount] = useState(2);
@@ -44,29 +50,30 @@ export const VirtualizedInventoryGrid = ({
   useEffect(() => {
     const updateLayout = () => {
       if (listRef.current) {
-        setColumnCount(getColumnCount(listRef.current.offsetWidth));
+        setColumnCount(viewMode === 'grid' ? getColumnCount(listRef.current.offsetWidth) : 1);
         setScrollMargin(listRef.current.offsetTop);
       }
     };
 
     updateLayout();
     window.addEventListener('resize', updateLayout);
-    // Also update after a short delay to catch late layout changes
     const timer = setTimeout(updateLayout, 100);
 
     return () => {
       window.removeEventListener('resize', updateLayout);
       clearTimeout(timer);
     };
-  }, []);
+  }, [viewMode]);
 
   // Calculate rows
-  const rowCount = Math.ceil(items.length / columnCount);
+  const effectiveColumnCount = viewMode === 'grid' ? columnCount : 1;
+  const rowCount = Math.ceil(items.length / effectiveColumnCount);
+  const rowHeight = viewMode === 'grid' ? GRID_ROW_HEIGHT : LIST_ROW_HEIGHT;
 
   // Use window virtualizer so the entire page scrolls together
   const rowVirtualizer = useWindowVirtualizer({
     count: rowCount,
-    estimateSize: () => ROW_HEIGHT,
+    estimateSize: () => rowHeight,
     overscan: 5,
     scrollMargin,
   });
@@ -74,7 +81,11 @@ export const VirtualizedInventoryGrid = ({
   const virtualRows = rowVirtualizer.getVirtualItems();
 
   return (
-    <div ref={listRef}>
+    <motion.div 
+      ref={listRef}
+      layout
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+    >
       <div
         style={{
           height: `${rowVirtualizer.getTotalSize()}px`,
@@ -82,48 +93,71 @@ export const VirtualizedInventoryGrid = ({
           position: "relative",
         }}
       >
-        {virtualRows.map((virtualRow) => {
-          const rowIndex = virtualRow.index;
-          const startIndex = rowIndex * columnCount;
-          const rowItems = items.slice(startIndex, startIndex + columnCount);
+        <AnimatePresence mode="popLayout">
+          {virtualRows.map((virtualRow) => {
+            const rowIndex = virtualRow.index;
+            const startIndex = rowIndex * effectiveColumnCount;
+            const rowItems = items.slice(startIndex, startIndex + effectiveColumnCount);
 
-          return (
-            <div
-              key={virtualRow.key}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: ROW_HEIGHT,
-                transform: `translateY(${virtualRow.start - scrollMargin}px)`,
-                paddingBottom: GAP,
-              }}
-            >
-              <div
-                className="grid items-stretch"
+            return (
+              <motion.div
+                key={`${viewMode}-${virtualRow.key}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
                 style={{
-                  gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
-                  gap: GAP,
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: rowHeight,
+                  transform: `translateY(${virtualRow.start - scrollMargin}px)`,
+                  paddingBottom: GAP,
                 }}
               >
-                {rowItems.map((item) => (
-                  <InventoryCard
-                    key={item.id}
-                    item={item}
-                    selectionMode={selectionMode}
-                    isSelected={selectedItems.has(item.id)}
-                    onSelect={() => onToggleSelect(item.id)}
-                    onOpenDetail={() => onOpenDetail(item)}
-                    onSell={() => onSell(item)}
-                    onDelete={() => onDelete(item.id)}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })}
+                {viewMode === 'grid' ? (
+                  <div
+                    className="grid items-stretch"
+                    style={{
+                      gridTemplateColumns: `repeat(${effectiveColumnCount}, minmax(0, 1fr))`,
+                      gap: GAP,
+                    }}
+                  >
+                    {rowItems.map((item) => (
+                      <InventoryCard
+                        key={item.id}
+                        item={item}
+                        selectionMode={selectionMode}
+                        isSelected={selectedItems.has(item.id)}
+                        onSelect={() => onToggleSelect(item.id)}
+                        onOpenDetail={() => onOpenDetail(item)}
+                        onSell={() => onSell(item)}
+                        onDelete={() => onDelete(item.id)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {rowItems.map((item) => (
+                      <InventoryListCard
+                        key={item.id}
+                        item={item}
+                        selectionMode={selectionMode}
+                        isSelected={selectedItems.has(item.id)}
+                        onSelect={() => onToggleSelect(item.id)}
+                        onOpenDetail={() => onOpenDetail(item)}
+                        onSell={() => onSell(item)}
+                        onDelete={() => onDelete(item.id)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   );
 };

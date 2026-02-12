@@ -176,6 +176,176 @@ export type Database = {
         }
         Relationships: []
       }
+      folders: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          color: string
+          icon: string
+          is_default: boolean
+          position: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          color?: string
+          icon?: string
+          is_default?: boolean
+          position?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          color?: string
+          icon?: string
+          is_default?: boolean
+          position?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      folder_items: {
+        Row: {
+          id: string
+          folder_id: string
+          inventory_item_id: string
+          added_at: string
+        }
+        Insert: {
+          id?: string
+          folder_id: string
+          inventory_item_id: string
+          added_at?: string
+        }
+        Update: {
+          id?: string
+          folder_id?: string
+          inventory_item_id?: string
+          added_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "folder_items_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "folder_items_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      shared_collections: {
+        Row: {
+          id: string
+          user_id: string
+          share_token: string
+          title: string
+          description: string | null
+          share_type: string
+          folder_id: string | null
+          show_values: boolean
+          show_purchase_prices: boolean
+          expires_at: string | null
+          view_count: number
+          last_viewed_at: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          share_token: string
+          title?: string
+          description?: string | null
+          share_type?: string
+          folder_id?: string | null
+          show_values?: boolean
+          show_purchase_prices?: boolean
+          expires_at?: string | null
+          view_count?: number
+          last_viewed_at?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          share_token?: string
+          title?: string
+          description?: string | null
+          share_type?: string
+          folder_id?: string | null
+          show_values?: boolean
+          show_purchase_prices?: boolean
+          expires_at?: string | null
+          view_count?: number
+          last_viewed_at?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_collections_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      shared_collection_items: {
+        Row: {
+          id: string
+          shared_collection_id: string
+          inventory_item_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          shared_collection_id: string
+          inventory_item_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          shared_collection_id?: string
+          inventory_item_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_collection_items_shared_collection_id_fkey"
+            columns: ["shared_collection_id"]
+            isOneToOne: false
+            referencedRelation: "shared_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shared_collection_items_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       inventory_items: {
         Row: {
           bgs_centering: number | null
@@ -254,6 +424,8 @@ export type Database = {
           name?: string
           notes?: string | null
           platform_sold?: string | null
+          purchase_date?: string | null
+          purchase_location?: string | null
           purchase_price?: number
           quantity?: number
           raw_condition?: string | null
@@ -569,6 +741,142 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      wishlist: {
+        Row: {
+          id: string
+          user_id: string
+          card_id: string
+          card_name: string
+          set_name: string | null
+          image_url: string | null
+          target_price: number | null
+          current_price: number | null
+          notes: string | null
+          tcg_type: string | null
+          card_number: string | null
+          rarity: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          card_id: string
+          card_name: string
+          set_name?: string | null
+          image_url?: string | null
+          target_price?: number | null
+          current_price?: number | null
+          notes?: string | null
+          tcg_type?: string | null
+          card_number?: string | null
+          rarity?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          card_id?: string
+          card_name?: string
+          set_name?: string | null
+          image_url?: string | null
+          target_price?: number | null
+          current_price?: number | null
+          notes?: string | null
+          tcg_type?: string | null
+          card_number?: string | null
+          rarity?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      set_progress: {
+        Row: {
+          id: string
+          user_id: string
+          set_id: string
+          set_name: string
+          tcg_type: string
+          set_logo_url: string | null
+          set_symbol_url: string | null
+          release_date: string | null
+          total_cards: number
+          owned_cards: number
+          completion_percentage: number
+          owned_card_ids: string[]
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          set_id: string
+          set_name: string
+          tcg_type?: string
+          set_logo_url?: string | null
+          set_symbol_url?: string | null
+          release_date?: string | null
+          total_cards?: number
+          owned_cards?: number
+          owned_card_ids?: string[]
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          set_id?: string
+          set_name?: string
+          tcg_type?: string
+          set_logo_url?: string | null
+          set_symbol_url?: string | null
+          release_date?: string | null
+          total_cards?: number
+          owned_cards?: number
+          owned_card_ids?: string[]
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      set_cards_cache: {
+        Row: {
+          id: string
+          set_id: string
+          tcg_type: string
+          set_name: string
+          total_cards: number
+          cards: Json
+          last_updated: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          set_id: string
+          tcg_type: string
+          set_name: string
+          total_cards: number
+          cards?: Json
+          last_updated?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          set_id?: string
+          tcg_type?: string
+          set_name?: string
+          total_cards?: number
+          cards?: Json
+          last_updated?: string
+          created_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {

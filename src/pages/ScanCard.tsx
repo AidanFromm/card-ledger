@@ -95,7 +95,9 @@ const ScanCard = () => {
   const [tcgFilter, setTcgFilter] = useState<TCGFilter>("all");
   const [sortOption, setSortOption] = useState<SortOption>("relevance");
   const [setFilter, setSetFilter] = useState<string>("all");
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [showPriceFilter, setShowPriceFilter] = useState(false);
 
   // Get unique sets from search results for dynamic filter
   const availableSets = useMemo(() => {
@@ -147,6 +149,7 @@ const ScanCard = () => {
     let results = searchResults.filter(product => {
       const productCategory = product.category?.toLowerCase() || "raw";
       const productTcg = product.tcg_type?.toLowerCase() || "pokemon";
+      const productPrice = product.market_price || 0;
 
       // Category filter (Raw vs Sealed)
       if (categoryFilter !== "all") {
@@ -159,6 +162,11 @@ const ScanCard = () => {
 
       // Set filter
       if (setFilter !== "all" && product.set_name !== setFilter) return false;
+
+      // Price range filter
+      if (priceRange[0] > 0 || priceRange[1] < 10000) {
+        if (productPrice < priceRange[0] || productPrice > priceRange[1]) return false;
+      }
 
       return true;
     });
@@ -178,7 +186,7 @@ const ScanCard = () => {
     }
 
     return results;
-  }, [searchResults, categoryFilter, tcgFilter, setFilter, sortOption]);
+  }, [searchResults, categoryFilter, tcgFilter, setFilter, sortOption, priceRange]);
 
   // Paginated results for display
   const displayedResults = useMemo(() => {
@@ -193,9 +201,10 @@ const ScanCard = () => {
     setTcgFilter("all");
     setSetFilter("all");
     setSortOption("relevance");
+    setPriceRange([0, 10000]);
   };
 
-  const hasActiveFilters = categoryFilter !== "all" || tcgFilter !== "all" || setFilter !== "all" || sortOption !== "relevance";
+  const hasActiveFilters = categoryFilter !== "all" || tcgFilter !== "all" || setFilter !== "all" || sortOption !== "relevance" || priceRange[0] > 0 || priceRange[1] < 10000;
 
   // Clear search input
   const clearSearch = useCallback(() => {
@@ -299,7 +308,7 @@ const ScanCard = () => {
 
     doLocalSearch();
 
-    // Stage 2: Full API search after 500ms debounce
+    // Stage 2: Full API search after 300ms debounce
     setIsSearching(true);
     const queryForApi = trimmedQuery;
 
@@ -347,7 +356,7 @@ const ScanCard = () => {
           setIsSearching(false);
         }
       }
-    }, 500);
+    }, 300);
 
     return () => {
       clearTimeout(debounceTimer);
@@ -646,6 +655,59 @@ const ScanCard = () => {
                         ))}
                       </select>
                     )}
+
+                    {/* Price Range Filter */}
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowPriceFilter(!showPriceFilter)}
+                        className={`h-8 px-3 rounded-xl text-sm font-medium border transition-all flex items-center gap-1.5 ${
+                          priceRange[0] > 0 || priceRange[1] < 10000
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-secondary/50 text-foreground border-border/50 hover:border-primary/50"
+                        }`}
+                      >
+                        <span className="text-xs">$</span>
+                        <span className="hidden sm:inline">Price</span>
+                        <ChevronDown className="h-3 w-3" />
+                      </button>
+                      <AnimatePresence>
+                        {showPriceFilter && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
+                            className="absolute left-0 top-full mt-1 bg-card border border-border rounded-xl shadow-lg overflow-hidden z-30 p-4 min-w-[200px]"
+                          >
+                            <p className="text-xs text-muted-foreground mb-3">Price Range</p>
+                            <div className="space-y-3">
+                              {[
+                                { label: "Any", min: 0, max: 10000 },
+                                { label: "Under $10", min: 0, max: 10 },
+                                { label: "$10 - $50", min: 10, max: 50 },
+                                { label: "$50 - $100", min: 50, max: 100 },
+                                { label: "$100 - $500", min: 100, max: 500 },
+                                { label: "$500+", min: 500, max: 10000 },
+                              ].map((range) => (
+                                <button
+                                  key={range.label}
+                                  onClick={() => {
+                                    setPriceRange([range.min, range.max]);
+                                    setShowPriceFilter(false);
+                                  }}
+                                  className={`w-full px-3 py-2 text-left text-sm rounded-lg transition-colors ${
+                                    priceRange[0] === range.min && priceRange[1] === range.max
+                                      ? "bg-primary/10 text-primary font-medium"
+                                      : "hover:bg-secondary/50"
+                                  }`}
+                                >
+                                  {range.label}
+                                </button>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
 
                     {/* Sort Dropdown */}
                     <div className="relative ml-auto">
@@ -1185,11 +1247,14 @@ const ScanCard = () => {
         )}
       </AnimatePresence>
 
-      {/* Click outside to close sort dropdown */}
-      {showSortDropdown && (
+      {/* Click outside to close dropdowns */}
+      {(showSortDropdown || showPriceFilter) && (
         <div
           className="fixed inset-0 z-10"
-          onClick={() => setShowSortDropdown(false)}
+          onClick={() => {
+            setShowSortDropdown(false);
+            setShowPriceFilter(false);
+          }}
         />
       )}
 

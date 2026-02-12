@@ -23,7 +23,8 @@ import {
   Star,
   Check,
   Crown,
-  Sparkles
+  Sparkles,
+  BookOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -33,8 +34,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useTheme } from "@/components/ThemeProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import BottomNav from "@/components/BottomNav";
 import { PageTransition } from "@/components/PageTransition";
+import { OnboardingFlow } from "@/components/OnboardingFlow";
 
 type SheetType = "notifications" | "privacy" | "help" | "feedback" | "subscription" | null;
 
@@ -133,6 +136,17 @@ const Profile = () => {
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [activeSheet, setActiveSheet] = useState<SheetType>(null);
+  
+  // Onboarding state
+  const {
+    shouldShow: showOnboarding,
+    currentStep: onboardingStep,
+    setStep: setOnboardingStep,
+    completeOnboarding,
+    skipOnboarding,
+    showOnboarding: triggerShowOnboarding,
+    hideOnboarding,
+  } = useOnboarding(1); // Pass 1 to prevent auto-trigger
 
   // Notification states
   const [priceAlerts, setPriceAlerts] = useState(true);
@@ -219,6 +233,11 @@ const Profile = () => {
     { value: "system", label: "System", icon: Monitor },
   ] as const;
 
+  const handleShowOnboarding = () => {
+    triggerShowOnboarding();
+    setOnboardingStep(0);
+  };
+
   const menuItems = [
     {
       icon: Bell,
@@ -249,6 +268,15 @@ const Profile = () => {
       label: "Send Feedback",
       description: "Help us improve",
       sheet: "feedback" as SheetType
+    },
+  ];
+
+  const extraMenuItems = [
+    {
+      icon: BookOpen,
+      label: "App Tutorial",
+      description: "Replay the welcome guide",
+      action: handleShowOnboarding,
     },
   ];
 
@@ -383,6 +411,35 @@ const Profile = () => {
               >
                 <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center">
                   <item.icon className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium">{item.label}</p>
+                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              </button>
+            ))}
+          </motion.div>
+
+          {/* Extra Menu Items (Tutorial, etc.) */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22 }}
+            className="glass-card overflow-hidden mb-6"
+          >
+            {extraMenuItems.map((item, index) => (
+              <button
+                key={item.label}
+                onClick={item.action}
+                className={`
+                  w-full flex items-center gap-4 p-4 text-left
+                  hover:bg-secondary/50 transition-colors tap-scale
+                  ${index !== extraMenuItems.length - 1 ? 'border-b border-border/50' : ''}
+                `}
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <item.icon className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium">{item.label}</p>
@@ -703,6 +760,24 @@ const Profile = () => {
       </BottomSheet>
 
       <BottomNav />
+
+      {/* Onboarding Flow Modal */}
+      <OnboardingFlow
+        isOpen={showOnboarding}
+        onComplete={() => {
+          completeOnboarding();
+          hideOnboarding();
+          toast({
+            title: "Tutorial complete!",
+            description: "You're all set to start using CardLedger.",
+          });
+        }}
+        onSkip={() => {
+          hideOnboarding();
+        }}
+        currentStep={onboardingStep}
+        onStepChange={setOnboardingStep}
+      />
     </div>
   );
 };

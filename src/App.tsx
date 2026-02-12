@@ -9,12 +9,14 @@ import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
+import ImportPage from "./pages/ImportPage";
 import AddItem from "./pages/AddItem";
 import ScanCard from "./pages/ScanCard";
 import ScanBarcode from "./pages/ScanBarcode";
 import ScanAI from "./pages/ScanAI";
 import Sales from "./pages/Sales";
 import Alerts from "./pages/Alerts";
+import GradingTracker from "./pages/GradingTracker";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -80,6 +82,7 @@ const App = () => (
             <Route path="/scan/ai" element={<ProtectedRoute><ScanAI /></ProtectedRoute>} />
             <Route path="/sales" element={<ProtectedRoute><Sales /></ProtectedRoute>} />
             <Route path="/alerts" element={<ProtectedRoute><Alerts /></ProtectedRoute>} />
+            <Route path="/grading" element={<ProtectedRoute><GradingTracker /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/client-list/:shareToken" element={<ClientListView />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

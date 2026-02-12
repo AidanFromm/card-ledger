@@ -7,9 +7,11 @@ import { useTodayChange } from "@/hooks/usePriceHistory";
 import { usePortfolioHistory, TimeRange } from "@/hooks/usePortfolioHistory";
 import { usePriceAlerts } from "@/hooks/usePriceAlerts";
 import { useSalesDb } from "@/hooks/useSalesDb";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { PageTransition } from "@/components/PageTransition";
+import { OnboardingFlow } from "@/components/OnboardingFlow";
 
 // Dashboard components - Premium V3
 import {
@@ -71,6 +73,15 @@ const Dashboard = () => {
     loading: alertsLoading 
   } = usePriceAlerts();
   const [timeRange, setTimeRange] = useState<TimeRange>('1M');
+  
+  // Onboarding hook - detect first-time users
+  const {
+    shouldShow: showOnboarding,
+    currentStep: onboardingStep,
+    setStep: setOnboardingStep,
+    completeOnboarding,
+    skipOnboarding,
+  } = useOnboarding(items.length);
 
   // Separate sold and unsold items
   const { unsoldItems, soldItems } = useMemo(() => ({
@@ -381,6 +392,15 @@ const Dashboard = () => {
         </main>
       </PageTransition>
       <BottomNav />
+
+      {/* Onboarding Flow Modal */}
+      <OnboardingFlow
+        isOpen={showOnboarding}
+        onComplete={completeOnboarding}
+        onSkip={skipOnboarding}
+        currentStep={onboardingStep}
+        onStepChange={setOnboardingStep}
+      />
     </div>
   );
 };
