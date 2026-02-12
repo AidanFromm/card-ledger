@@ -119,7 +119,7 @@ export const ImportExportDialog = ({
         }
       });
 
-      console.log(`🔍 Background Matcher: Processing ${uniqueProducts.size} unique cards from ${itemsWithoutImages.length} items`);
+      console.log(` Background Matcher: Processing ${uniqueProducts.size} unique cards from ${itemsWithoutImages.length} items`);
 
       const products = Array.from(uniqueProducts.values());
       let imagesFound = 0;
@@ -162,7 +162,7 @@ export const ImportExportDialog = ({
             continue;
           }
 
-          console.log(`  📊 Found ${resultsWithImages.length} results with images`);
+          console.log(`   Found ${resultsWithImages.length} results with images`);
 
           // Score each result using multi-signal matching
           interface ScoredResult {
@@ -285,7 +285,7 @@ export const ImportExportDialog = ({
 
       // Summary
       console.log(`\n${'='.repeat(50)}`);
-      console.log(`🎉 MATCHING COMPLETE`);
+      console.log(` MATCHING COMPLETE`);
       console.log(`   Total items: ${itemsWithoutImages.length}`);
       console.log(`   Unique cards: ${products.length}`);
       console.log(`   Images found: ${imagesFound}`);
@@ -431,14 +431,14 @@ export const ImportExportDialog = ({
       }
 
       toast({
-        title: "Import successful! 🎉",
+        title: "Import successful!",
         description: `Imported ${imported} items to your inventory.`,
       });
 
       // Show persistent toast about images
       setTimeout(() => {
         toast({
-          title: "📷 Loading images...",
+          title: " Loading images...",
           description: "Finding product images in background. This may take a minute. We'll notify you when done!",
           duration: 10000,
         });
@@ -675,7 +675,7 @@ export const ImportExportDialog = ({
                                 </p>
                                 {result.warnings && result.warnings.length > 0 && (
                                   <p className="text-[10px] text-amber-500 mt-1">
-                                    ⚠ {result.warnings.join(', ')}
+                                     {result.warnings.join(', ')}
                                   </p>
                                 )}
                               </div>

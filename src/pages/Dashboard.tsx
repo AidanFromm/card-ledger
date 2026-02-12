@@ -368,7 +368,7 @@ const Dashboard = () => {
                 transition={{ type: "spring", stiffness: 200 }}
                 className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700/50 flex items-center justify-center"
               >
-                <span className="text-5xl">💎</span>
+                <span className="text-5xl"></span>
               </motion.div>
               <h3 className="text-xl font-bold text-white mb-2">
                 Start Your Collection

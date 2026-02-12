@@ -392,7 +392,7 @@ export const useTrading = () => {
 
       toast({
         title: 'Trade Completed',
-        description: 'Congratulations on the successful trade! 🎉',
+        description: 'Congratulations on the successful trade!',
       });
 
       await fetchMyTrades();

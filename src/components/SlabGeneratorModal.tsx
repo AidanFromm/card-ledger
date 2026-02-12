@@ -145,7 +145,7 @@ export const SlabGeneratorModal = ({
       
       if (success) {
         triggerSuccessHaptic();
-        toast({ title: "Slab image downloaded! 🎉" });
+        toast({ title: "Slab image downloaded!" });
       } else {
         throw new Error('Download failed');
       }

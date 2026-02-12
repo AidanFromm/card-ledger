@@ -40,24 +40,24 @@ type SortOption = "relevance" | "price_low" | "price_high" | "name_asc";
 
 // Popular searches - trending cards
 const POPULAR_SEARCHES = [
-  { query: "Charizard", icon: "🔥" },
-  { query: "Pikachu VMAX", icon: "⚡" },
+  { query: "Charizard", icon: "" },
+  { query: "Pikachu VMAX", icon: "" },
   { query: "Mew ex", icon: "✨" },
-  { query: "PSA 10", icon: "💎" },
-  { query: "Elite Trainer Box", icon: "📦" },
-  { query: "Lugia", icon: "🌊" },
-  { query: "Eevee", icon: "🦊" },
-  { query: "Gengar", icon: "👻" },
+  { query: "PSA 10", icon: "" },
+  { query: "Elite Trainer Box", icon: "" },
+  { query: "Lugia", icon: "" },
+  { query: "Eevee", icon: "" },
+  { query: "Gengar", icon: "" },
 ];
 
 // TCG type chips
 const TCG_FILTERS: { value: TCGFilter; label: string; icon?: string }[] = [
   { value: "all", label: "All" },
-  { value: "pokemon", label: "Pokémon", icon: "⚡" },
-  { value: "sports", label: "Sports", icon: "🏀" },
-  { value: "onepiece", label: "One Piece", icon: "🏴‍☠️" },
-  { value: "yugioh", label: "Yu-Gi-Oh!", icon: "🎴" },
-  { value: "mtg", label: "MTG", icon: "🧙" },
+  { value: "pokemon", label: "Pokémon", icon: "" },
+  { value: "sports", label: "Sports", icon: "" },
+  { value: "onepiece", label: "One Piece", icon: "" },
+  { value: "yugioh", label: "Yu-Gi-Oh!", icon: "" },
+  { value: "mtg", label: "MTG", icon: "" },
 ];
 
 // Sort options

@@ -857,7 +857,7 @@ const ImportPage = () => {
                   <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-6">
                     <CheckCircle2 className="h-12 w-12 text-emerald-500" />
                   </div>
-                  <h2 className="text-2xl font-bold mb-2">Import Complete! 🎉</h2>
+                  <h2 className="text-2xl font-bold mb-2">Import Complete!</h2>
                   <p className="text-muted-foreground">
                     Your cards have been added to your inventory
                   </p>

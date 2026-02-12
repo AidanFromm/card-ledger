@@ -339,9 +339,9 @@ const SetCompletion = () => {
                     <SelectValue placeholder="Select TCG" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pokemon">⚡ Pokémon</SelectItem>
-                    <SelectItem value="mtg">🧙 Magic: The Gathering</SelectItem>
-                    <SelectItem value="yugioh">🎴 Yu-Gi-Oh!</SelectItem>
+                    <SelectItem value="pokemon"> Pokémon</SelectItem>
+                    <SelectItem value="mtg"> Magic: The Gathering</SelectItem>
+                    <SelectItem value="yugioh"> Yu-Gi-Oh!</SelectItem>
                   </SelectContent>
                 </Select>
                 
