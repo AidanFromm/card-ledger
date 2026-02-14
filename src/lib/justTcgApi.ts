@@ -56,12 +56,31 @@ export interface JustTcgSet {
 }
 
 export interface JustTcgVariant {
-  variant_id: string;
-  tcgplayer_sku_id: string;
+  id: string;
+  variant_id?: string;
+  tcgplayerSkuId: string;
+  tcgplayer_sku_id?: string;
   printing: string;
   condition: string;
-  price_usd: number;
-  price_history?: JustTcgPriceHistory[];
+  language?: string;
+  price: number; // In CENTS
+  price_usd?: number; // Converted to USD
+  lastUpdated?: number;
+  priceChange24hr?: number;
+  priceChange7d?: number;
+  priceChange30d?: number;
+  priceChange90d?: number;
+  avgPrice?: number;
+  avgPrice30d?: number;
+  avgPrice90d?: number;
+  minPrice7d?: number;
+  maxPrice7d?: number;
+  minPrice30d?: number;
+  maxPrice30d?: number;
+  trendSlope7d?: number;
+  trendSlope30d?: number;
+  priceHistory?: Array<{ p: number; t: number }>; // price in cents, timestamp
+  priceHistory30d?: Array<{ p: number; t: number }>;
   statistics?: JustTcgStatistics;
 }
 
@@ -592,39 +611,60 @@ function extractPrices(card: JustTcgCard): UnifiedCardPrices | undefined {
     bestVariant = card.variants.find(v => 
       v.condition === condition || v.condition.includes(condition)
     );
-    if (bestVariant) break;
+    if (bestVariant && (bestVariant.price > 0 || bestVariant.price_usd)) break;
   }
   
-  // Fallback to first variant
-  if (!bestVariant) {
-    bestVariant = card.variants[0];
+  // Fallback to first variant with a price
+  if (!bestVariant || (!bestVariant.price && !bestVariant.price_usd)) {
+    bestVariant = card.variants.find(v => v.price > 0 || (v.price_usd && v.price_usd > 0));
   }
+  
+  if (!bestVariant) {
+    return undefined;
+  }
+  
+  // Convert cents to dollars
+  const centsToUsd = (cents: number | undefined) => cents ? cents / 100 : undefined;
   
   // Build all variants map
   const allVariants: Record<string, { price_usd: number; condition: string; printing: string }> = {};
   
   for (const variant of card.variants) {
     const key = `${variant.printing}_${variant.condition}`;
-    allVariants[key] = {
-      price_usd: variant.price_usd,
-      condition: variant.condition,
-      printing: variant.printing,
-    };
+    const priceUsd = variant.price_usd || centsToUsd(variant.price) || 0;
+    if (priceUsd > 0) {
+      allVariants[key] = {
+        price_usd: priceUsd,
+        condition: variant.condition,
+        printing: variant.printing,
+      };
+    }
   }
   
-  // Calculate low/mid/high from all variants
-  const prices = card.variants.map(v => v.price_usd).filter(p => p > 0);
+  // Calculate low/mid/high from all variants (convert cents to USD)
+  const prices = card.variants
+    .map(v => v.price_usd || centsToUsd(v.price) || 0)
+    .filter(p => p > 0);
   const sortedPrices = prices.sort((a, b) => a - b);
   
+  // Convert price history
+  const priceHistory: JustTcgPriceHistory[] = (bestVariant.priceHistory || bestVariant.priceHistory30d || [])
+    .map(h => ({
+      date: new Date(h.t * 1000).toISOString().split('T')[0],
+      price_usd: h.p / 100, // Convert cents to USD
+    }));
+  
+  const marketPrice = bestVariant.price_usd || centsToUsd(bestVariant.price);
+  
   return {
-    market: bestVariant.price_usd,
+    market: marketPrice,
     low: sortedPrices[0],
     mid: sortedPrices[Math.floor(sortedPrices.length / 2)],
     high: sortedPrices[sortedPrices.length - 1],
     variant: bestVariant.printing,
     condition: bestVariant.condition,
     allVariants,
-    priceHistory: bestVariant.price_history,
+    priceHistory,
   };
 }
 
