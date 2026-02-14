@@ -6,12 +6,13 @@ type InventoryItem = Database["public"]["Tables"]["inventory_items"]["Row"];
 // Filter types
 export type TCGType = 'all' | 'pokemon' | 'mtg' | 'yugioh' | 'sports' | 'onepiece' | 'other';
 export type GradeFilter = 'all' | 'raw' | 'psa' | 'bgs' | 'cgc' | 'sgc';
-export type ValueRange = 'all' | 'under10' | '10to50' | '50to100' | '100to500' | 'over500';
+export type ValueRange = 'all' | 'under10' | '10to50' | '50to100' | '100to500' | 'over500' | 'custom';
 export type ConditionFilter = 'all' | 'mint' | 'near-mint' | 'excellent' | 'good' | 'poor';
 export type DateRangeFilter = 'all' | '7days' | '30days' | '90days';
-export type SortOption = 'value-desc' | 'value-asc' | 'name-asc' | 'name-desc' | 'date-desc' | 'date-asc' | 'profit-desc' | 'profit-asc';
-export type ViewMode = 'grid' | 'list';
+export type SortOption = 'value-desc' | 'value-asc' | 'name-asc' | 'name-desc' | 'date-desc' | 'date-asc' | 'profit-desc' | 'profit-asc' | 'roi-desc' | 'roi-asc';
+export type ViewMode = 'grid' | 'list' | 'table';
 export type CategoryFilter = 'all' | 'raw' | 'graded' | 'sealed';
+export type ProfitFilter = 'all' | 'profitable' | 'losing' | 'break-even';
 
 export interface InventoryFilters {
   tcg: TCGType;
@@ -24,6 +25,11 @@ export interface InventoryFilters {
   searchTerm: string;
   sortBy: SortOption;
   viewMode: ViewMode;
+  gradedOnly: boolean;
+  profitFilter: ProfitFilter;
+  setFilter: string;
+  priceMin: number | null;
+  priceMax: number | null;
 }
 
 const DEFAULT_FILTERS: InventoryFilters = {
@@ -37,9 +43,16 @@ const DEFAULT_FILTERS: InventoryFilters = {
   searchTerm: '',
   sortBy: 'date-desc',
   viewMode: 'grid',
+  gradedOnly: false,
+  profitFilter: 'all',
+  setFilter: 'all',
+  priceMin: null,
+  priceMax: null,
 };
 
 const STORAGE_KEY = 'cardledger-inventory-filters';
+const RECENT_SEARCHES_KEY = 'cardledger-recent-searches';
+const MAX_RECENT_SEARCHES = 10;
 
 // Helper to detect TCG type from item data
 const detectTCG = (item: InventoryItem): TCGType => {
@@ -85,6 +98,22 @@ const mapCondition = (condition: string | null): ConditionFilter => {
   return 'all';
 };
 
+// Calculate profit/loss for an item
+const calculatePnL = (item: InventoryItem) => {
+  const marketPrice = item.market_price;
+  const purchasePrice = item.purchase_price;
+  
+  if (!marketPrice || !purchasePrice || purchasePrice === 0) {
+    return { gain: 0, roi: 0, isBreakEven: true, hasData: false };
+  }
+
+  const gain = marketPrice - purchasePrice;
+  const roi = (gain / purchasePrice) * 100;
+  const isBreakEven = Math.abs(roi) < 1; // Less than 1% is break-even
+
+  return { gain, roi, isBreakEven, hasData: true };
+};
+
 export const useInventoryFilters = (items: InventoryItem[]) => {
   const [filters, setFilters] = useState<InventoryFilters>(() => {
     try {
@@ -99,7 +128,32 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
     return DEFAULT_FILTERS;
   });
 
-  // Persist to localStorage
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {
+      console.warn('Failed to load recent searches:', e);
+    }
+    return [];
+  });
+
+  // Extract unique sets from items for the set filter
+  const availableSets = useMemo(() => {
+    const sets = new Map<string, number>();
+    items.forEach(item => {
+      if (item.set_name) {
+        sets.set(item.set_name, (sets.get(item.set_name) || 0) + 1);
+      }
+    });
+    return Array.from(sets.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({ name, count }));
+  }, [items]);
+
+  // Persist filters to localStorage
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(filters));
@@ -107,6 +161,15 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
       console.warn('Failed to save filters to localStorage:', e);
     }
   }, [filters]);
+
+  // Persist recent searches
+  useEffect(() => {
+    try {
+      localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(recentSearches));
+    } catch (e) {
+      console.warn('Failed to save recent searches:', e);
+    }
+  }, [recentSearches]);
 
   const updateFilter = useCallback(<K extends keyof InventoryFilters>(
     key: K,
@@ -116,7 +179,26 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
   }, []);
 
   const resetFilters = useCallback(() => {
-    setFilters(DEFAULT_FILTERS);
+    setFilters(prev => ({
+      ...DEFAULT_FILTERS,
+      viewMode: prev.viewMode, // Preserve view mode preference
+    }));
+  }, []);
+
+  const addRecentSearch = useCallback((term: string) => {
+    if (!term.trim()) return;
+    setRecentSearches(prev => {
+      const filtered = prev.filter(s => s.toLowerCase() !== term.toLowerCase());
+      return [term, ...filtered].slice(0, MAX_RECENT_SEARCHES);
+    });
+  }, []);
+
+  const clearRecentSearches = useCallback(() => {
+    setRecentSearches([]);
+  }, []);
+
+  const removeRecentSearch = useCallback((term: string) => {
+    setRecentSearches(prev => prev.filter(s => s !== term));
   }, []);
 
   const activeFilterCount = useMemo(() => {
@@ -128,6 +210,10 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
     if (filters.dateRange !== 'all') count++;
     if (filters.category !== 'all') count++;
     if (filters.sport !== 'all') count++;
+    if (filters.gradedOnly) count++;
+    if (filters.profitFilter !== 'all') count++;
+    if (filters.setFilter !== 'all') count++;
+    if (filters.priceMin !== null || filters.priceMax !== null) count++;
     return count;
   }, [filters]);
 
@@ -147,6 +233,11 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
           ((item as any).player && (item as any).player.toLowerCase().includes(search)) ||
           ((item as any).team && (item as any).team.toLowerCase().includes(search));
         if (!matchesSearch) return false;
+      }
+
+      // Graded only toggle (quick filter)
+      if (filters.gradedOnly) {
+        if (item.grading_company === 'raw' || !item.grade) return false;
       }
 
       // Category filter (raw/graded/sealed)
@@ -175,15 +266,37 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
         }
       }
 
-      // Value range filter
-      if (filters.valueRange !== 'all') {
-        const price = item.market_price || item.purchase_price;
+      // Set filter
+      if (filters.setFilter !== 'all') {
+        if (item.set_name !== filters.setFilter) return false;
+      }
+
+      // Value range filter (preset or custom)
+      const price = item.market_price || item.purchase_price;
+      if (filters.valueRange !== 'all' && filters.valueRange !== 'custom') {
         switch (filters.valueRange) {
           case 'under10': if (price >= 10) return false; break;
           case '10to50': if (price < 10 || price >= 50) return false; break;
           case '50to100': if (price < 50 || price >= 100) return false; break;
           case '100to500': if (price < 100 || price >= 500) return false; break;
           case 'over500': if (price < 500) return false; break;
+        }
+      }
+
+      // Custom price range (slider)
+      if (filters.priceMin !== null && price < filters.priceMin) return false;
+      if (filters.priceMax !== null && price > filters.priceMax) return false;
+
+      // Profit/Loss filter
+      if (filters.profitFilter !== 'all') {
+        const pnl = calculatePnL(item);
+        if (!pnl.hasData) {
+          // No market data - only show in 'all' or 'break-even'
+          if (filters.profitFilter !== 'break-even') return false;
+        } else {
+          if (filters.profitFilter === 'profitable' && pnl.gain <= 0) return false;
+          if (filters.profitFilter === 'losing' && pnl.gain >= 0) return false;
+          if (filters.profitFilter === 'break-even' && !pnl.isBreakEven) return false;
         }
       }
 
@@ -230,6 +343,8 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
       const priceB = b.market_price || b.purchase_price;
       const profitA = (a.market_price || a.purchase_price) - a.purchase_price;
       const profitB = (b.market_price || b.purchase_price) - b.purchase_price;
+      const roiA = a.purchase_price > 0 ? (profitA / a.purchase_price) * 100 : 0;
+      const roiB = b.purchase_price > 0 ? (profitB / b.purchase_price) * 100 : 0;
 
       switch (filters.sortBy) {
         case 'value-desc':
@@ -248,6 +363,10 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
           return profitB - profitA;
         case 'profit-asc':
           return profitA - profitB;
+        case 'roi-desc':
+          return roiB - roiA;
+        case 'roi-asc':
+          return roiA - roiB;
         default:
           return 0;
       }
@@ -255,6 +374,16 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
 
     return result;
   }, [items, filters]);
+
+  // Get min/max prices for slider range
+  const priceRange = useMemo(() => {
+    if (items.length === 0) return { min: 0, max: 1000 };
+    const prices = items.map(item => item.market_price || item.purchase_price);
+    return {
+      min: Math.floor(Math.min(...prices)),
+      max: Math.ceil(Math.max(...prices)),
+    };
+  }, [items]);
 
   return {
     filters,
@@ -264,5 +393,11 @@ export const useInventoryFilters = (items: InventoryItem[]) => {
     filteredItems: filteredAndSortedItems,
     totalItems: items.length,
     resultCount: filteredAndSortedItems.length,
+    availableSets,
+    priceRange,
+    recentSearches,
+    addRecentSearch,
+    clearRecentSearches,
+    removeRecentSearch,
   };
 };

@@ -27,7 +27,11 @@ interface InventoryCardProps {
   onOpenDetail: () => void;
   onSell: () => void;
   onDelete: () => void;
+  onLongPress?: () => void;
 }
+
+// Long press duration in ms
+const LONG_PRESS_DURATION = 500;
 
 // Swipe threshold in pixels
 const SWIPE_THRESHOLD = 100;
@@ -74,16 +78,19 @@ export const InventoryCard = ({
   onOpenDetail,
   onSell,
   onDelete,
+  onLongPress,
 }: InventoryCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [slabError, setSlabError] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [hasTriggeredHaptic, setHasTriggeredHaptic] = useState(false);
+  const [isLongPressing, setIsLongPressing] = useState(false);
 
   // Swipe state
   const x = useMotionValue(0);
   const cardRef = useRef<HTMLDivElement>(null);
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Transform x position to action visibility
   const deleteOpacity = useTransform(x, [-SWIPE_THRESHOLD, -40], [1, 0]);
@@ -149,6 +156,50 @@ export const InventoryCard = ({
     setShowDeleteConfirm(false);
   };
 
+  // Long press handlers for entering selection mode
+  const handleTouchStart = useCallback(() => {
+    if (selectionMode) return; // Already in selection mode
+    
+    longPressTimerRef.current = setTimeout(() => {
+      setIsLongPressing(true);
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+      onLongPress?.();
+    }, LONG_PRESS_DURATION);
+  }, [selectionMode, onLongPress]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    setIsLongPressing(false);
+  }, []);
+
+  const handleTouchMove = useCallback(() => {
+    // Cancel long press if user moves finger
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  }, []);
+
+  const handleClick = useCallback(() => {
+    // Don't trigger click if we just did a long press
+    if (isLongPressing) {
+      setIsLongPressing(false);
+      return;
+    }
+    
+    if (selectionMode) {
+      onSelect();
+    } else {
+      onOpenDetail();
+    }
+  }, [isLongPressing, selectionMode, onSelect, onOpenDetail]);
+
   return (
     <>
       <div className="relative overflow-visible">
@@ -199,8 +250,15 @@ export const InventoryCard = ({
               hover:shadow-xl hover:shadow-black/10 dark:hover:shadow-black/30
               transition-shadow duration-300
               ${selectionMode && isSelected ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}
+              ${isLongPressing ? 'ring-2 ring-primary/50 scale-[0.98]' : ''}
             `}
-            onClick={() => selectionMode ? onSelect() : onOpenDetail()}
+            onClick={handleClick}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            onTouchMove={handleTouchMove}
+            onMouseDown={handleTouchStart}
+            onMouseUp={handleTouchEnd}
+            onMouseLeave={handleTouchEnd}
           >
             {/* Selection checkbox */}
             <AnimatePresence>

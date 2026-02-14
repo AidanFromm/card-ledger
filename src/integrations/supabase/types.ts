@@ -149,6 +149,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ebay_connections: {
+        Row: {
+          id: string
+          user_id: string
+          ebay_username: string | null
+          ebay_user_id: string | null
+          access_token: string
+          refresh_token: string
+          access_token_expires_at: string
+          refresh_token_expires_at: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          ebay_username?: string | null
+          ebay_user_id?: string | null
+          access_token: string
+          refresh_token: string
+          access_token_expires_at: string
+          refresh_token_expires_at: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          ebay_username?: string | null
+          ebay_user_id?: string | null
+          access_token?: string
+          refresh_token?: string
+          access_token_expires_at?: string
+          refresh_token_expires_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           created_at: string

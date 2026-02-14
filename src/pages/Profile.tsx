@@ -27,7 +27,9 @@ import {
   BookOpen,
   Heart,
   Layers,
-  ArrowLeftRight
+  ArrowLeftRight,
+  Settings,
+  List,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -275,6 +277,18 @@ const Profile = () => {
   ];
 
   const extraMenuItems = [
+    {
+      icon: Settings,
+      label: "Settings",
+      description: "Profile, preferences & data",
+      action: () => navigate("/settings"),
+    },
+    {
+      icon: List,
+      label: "Client Lists",
+      description: "Create shareable lists for buyers",
+      action: () => navigate("/lists"),
+    },
     {
       icon: Heart,
       label: "Wishlist",

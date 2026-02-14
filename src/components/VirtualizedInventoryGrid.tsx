@@ -3,10 +3,11 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { InventoryCard } from "./InventoryCard";
 import { InventoryListCard } from "./InventoryListCard";
+import { InventoryTableCard } from "./InventoryTableCard";
 import type { Database } from "@/integrations/supabase/types";
 
 type InventoryItem = Database["public"]["Tables"]["inventory_items"]["Row"];
-type ViewMode = 'grid' | 'list';
+type ViewMode = 'grid' | 'list' | 'table';
 
 interface VirtualizedInventoryGridProps {
   items: InventoryItem[];
@@ -17,6 +18,7 @@ interface VirtualizedInventoryGridProps {
   onSell: (item: InventoryItem) => void;
   onDelete: (id: string) => void;
   viewMode?: ViewMode;
+  onLongPress?: (id: string) => void;
 }
 
 // Responsive breakpoints for column count (grid mode)
@@ -30,6 +32,8 @@ const getColumnCount = (width: number): number => {
 // Row heights
 const GRID_ROW_HEIGHT = 340;
 const LIST_ROW_HEIGHT = 92;
+const TABLE_ROW_HEIGHT = 56;
+const TABLE_HEADER_HEIGHT = 40;
 const GAP = 12;
 
 export const VirtualizedInventoryGrid = ({
@@ -41,6 +45,7 @@ export const VirtualizedInventoryGrid = ({
   onSell,
   onDelete,
   viewMode = 'grid',
+  onLongPress,
 }: VirtualizedInventoryGridProps) => {
   const listRef = useRef<HTMLDivElement>(null);
   const [columnCount, setColumnCount] = useState(2);
@@ -68,7 +73,7 @@ export const VirtualizedInventoryGrid = ({
   // Calculate rows
   const effectiveColumnCount = viewMode === 'grid' ? columnCount : 1;
   const rowCount = Math.ceil(items.length / effectiveColumnCount);
-  const rowHeight = viewMode === 'grid' ? GRID_ROW_HEIGHT : LIST_ROW_HEIGHT;
+  const rowHeight = viewMode === 'grid' ? GRID_ROW_HEIGHT : viewMode === 'list' ? LIST_ROW_HEIGHT : TABLE_ROW_HEIGHT;
 
   // Use window virtualizer so the entire page scrolls together
   const rowVirtualizer = useWindowVirtualizer({
@@ -86,12 +91,26 @@ export const VirtualizedInventoryGrid = ({
       layout
       transition={{ duration: 0.3, ease: "easeInOut" }}
     >
+      {/* Table Header for table view */}
+      {viewMode === 'table' && items.length > 0 && (
+        <div className="grid grid-cols-[auto_1fr_auto_auto_auto_auto_auto] gap-2 items-center px-3 py-2 bg-secondary/30 border-b border-border/50 text-xs font-medium text-muted-foreground sticky top-0 z-10 rounded-t-xl">
+          {selectionMode && <div className="w-5" />}
+          <div>Card</div>
+          <div className="text-center w-16">Condition</div>
+          <div className="text-center w-16">Grade</div>
+          <div className="text-right w-20">Cost</div>
+          <div className="text-right w-20">Value</div>
+          <div className="text-right w-24">P&L / ROI</div>
+        </div>
+      )}
+
       <div
         style={{
           height: `${rowVirtualizer.getTotalSize()}px`,
           width: "100%",
           position: "relative",
         }}
+        className={viewMode === 'table' ? 'bg-card rounded-b-xl border border-t-0 border-border/50 overflow-hidden' : ''}
       >
         <AnimatePresence mode="popLayout">
           {virtualRows.map((virtualRow) => {
@@ -113,7 +132,7 @@ export const VirtualizedInventoryGrid = ({
                   width: "100%",
                   height: rowHeight,
                   transform: `translateY(${virtualRow.start - scrollMargin}px)`,
-                  paddingBottom: GAP,
+                  paddingBottom: viewMode === 'table' ? 0 : GAP,
                 }}
               >
                 {viewMode === 'grid' ? (
@@ -134,13 +153,30 @@ export const VirtualizedInventoryGrid = ({
                         onOpenDetail={() => onOpenDetail(item)}
                         onSell={() => onSell(item)}
                         onDelete={() => onDelete(item.id)}
+                        onLongPress={() => onLongPress?.(item.id)}
+                      />
+                    ))}
+                  </div>
+                ) : viewMode === 'list' ? (
+                  <div className="space-y-2">
+                    {rowItems.map((item) => (
+                      <InventoryListCard
+                        key={item.id}
+                        item={item}
+                        selectionMode={selectionMode}
+                        isSelected={selectedItems.has(item.id)}
+                        onSelect={() => onToggleSelect(item.id)}
+                        onOpenDetail={() => onOpenDetail(item)}
+                        onSell={() => onSell(item)}
+                        onDelete={() => onDelete(item.id)}
+                        onLongPress={() => onLongPress?.(item.id)}
                       />
                     ))}
                   </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div>
                     {rowItems.map((item) => (
-                      <InventoryListCard
+                      <InventoryTableCard
                         key={item.id}
                         item={item}
                         selectionMode={selectionMode}

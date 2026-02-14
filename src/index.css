@@ -1,43 +1,46 @@
+/* Import premium fonts - must be first */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Card Ledger iOS Design System
-   - Primary: Blue (#0074fb)
-   - Feel: Premium/Luxury
-   - Style: Glassmorphism
+/* Card Ledger Premium Design System
+   - Primary: Emerald/Teal (#10b981)
+   - Feel: Premium/Luxury like Robinhood/Cash App
+   - Style: Clean dark with subtle glassmorphism
    - Corners: Very rounded (20-24pt)
-   - Both light and dark mode support
+   - Typography: Inter + JetBrains Mono for numbers
 */
 
 @layer base {
   /* ===== LIGHT MODE (Default) ===== */
   :root {
-    /* iOS-style light backgrounds */
-    --background: 0 0% 96%;
-    --foreground: 222 47% 11%;
+    /* Light backgrounds */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 9%;
 
-    /* Glassmorphism card surfaces */
+    /* Card surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 0 0% 9%;
 
-    /* Logo Blue Primary (#0074fb) */
-    --primary: 212 100% 49%;
+    /* Emerald/Teal Primary (#10b981) */
+    --primary: 160 84% 39%;
     --primary-foreground: 0 0% 100%;
 
     /* Light secondary */
-    --secondary: 210 20% 93%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
 
     /* Muted light backgrounds */
-    --muted: 210 20% 93%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    /* Blue accent */
-    --accent: 212 100% 49%;
+    /* Teal accent */
+    --accent: 160 84% 39%;
     --accent-foreground: 0 0% 100%;
 
     /* Destructive states */
@@ -45,7 +48,7 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Success states */
-    --success: 142 76% 36%;
+    --success: 160 84% 39%;
     --success-foreground: 0 0% 100%;
 
     /* Warning states */
@@ -53,17 +56,15 @@
     --warning-foreground: 0 0% 100%;
 
     /* Robinhood-style Gain/Loss colors */
-    /* Success Green: #00C853 */
-    --gain: 145 100% 39%;
+    --gain: 160 84% 39%;
     --gain-foreground: 0 0% 100%;
-    /* Loss Red: #FF5252 */
-    --loss: 0 100% 66%;
+    --loss: 0 84% 60%;
     --loss-foreground: 0 0% 100%;
 
-    /* Borders - subtle in light mode */
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 212 100% 49%;
+    /* Borders */
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 160 84% 39%;
 
     /* iOS 18 style - very rounded */
     --radius: 1.25rem;
@@ -72,23 +73,23 @@
     --radius-xl: 2rem;
 
     /* Chart colors */
-    --chart-1: 212 100% 49%;
-    --chart-2: 142 76% 36%;
-    --chart-3: 0 84% 60%;
-    --chart-4: 271 81% 56%;
-    --chart-5: 38 92% 50%;
+    --chart-1: 160 84% 39%;
+    --chart-2: 200 80% 50%;
+    --chart-3: 280 80% 60%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 0 84% 60%;
 
-    /* Glassmorphism effects - light mode (reduced for cleaner look) */
-    --glass-bg: 0 0% 100% / 0.85;
-    --glass-border: 0 0% 100% / 0.4;
-    --glass-blur: 12px;
+    /* Glassmorphism effects */
+    --glass-bg: 0 0% 100% / 0.9;
+    --glass-border: 0 0% 100% / 0.5;
+    --glass-blur: 20px;
 
-    /* Shadows - softer for light mode */
-    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
-    --shadow-card: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -2px hsl(0 0% 0% / 0.1);
-    --shadow-card-hover: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -4px hsl(0 0% 0% / 0.1);
-    --shadow-glow: 0 0 0 3px hsl(212 100% 49% / 0.15);
-    --shadow-glass: 0 8px 32px hsl(0 0% 0% / 0.1);
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.03);
+    --shadow-card: 0 4px 6px -1px hsl(0 0% 0% / 0.05), 0 2px 4px -2px hsl(0 0% 0% / 0.05);
+    --shadow-card-hover: 0 20px 25px -5px hsl(0 0% 0% / 0.1), 0 8px 10px -6px hsl(0 0% 0% / 0.1);
+    --shadow-glow: 0 0 20px hsl(160 84% 39% / 0.15);
+    --shadow-glass: 0 8px 32px hsl(0 0% 0% / 0.05);
 
     --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-spring: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -98,78 +99,76 @@
     --nav-blur: 24px;
   }
 
-  /* ===== DARK MODE ===== */
+  /* ===== DARK MODE (Premium Dark) ===== */
   .dark {
-    /* iOS-style dark backgrounds (#1c1c1e range) */
-    --background: 220 17% 9%;
-    --foreground: 210 40% 98%;
+    /* Deep dark background #0a0a0a */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
 
-    /* Glassmorphism card surfaces - dark */
-    --card: 217 19% 13%;
-    --card-foreground: 210 40% 98%;
+    /* Card surfaces #1a1a1a */
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 217 19% 13%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
 
-    /* Logo Blue Primary (#0074fb) */
-    --primary: 212 100% 49%;
+    /* Emerald/Teal Primary (#10b981) */
+    --primary: 160 84% 39%;
     --primary-foreground: 0 0% 100%;
 
-    /* Dark secondary */
-    --secondary: 215 19% 18%;
-    --secondary-foreground: 210 40% 98%;
+    /* Dark secondary #1f1f1f */
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 98%;
 
     /* Muted dark backgrounds */
-    --muted: 215 19% 16%;
-    --muted-foreground: 217 10% 64%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
 
-    /* Blue accent */
-    --accent: 212 100% 49%;
+    /* Teal accent */
+    --accent: 160 84% 39%;
     --accent-foreground: 0 0% 100%;
 
     /* Destructive states */
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
     /* Success states */
-    --success: 142 76% 45%;
+    --success: 160 84% 39%;
     --success-foreground: 0 0% 100%;
 
     /* Warning states */
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    /* Robinhood-style Gain/Loss colors - slightly brighter for dark mode */
-    /* Success Green: #00C853 */
-    --gain: 145 100% 42%;
+    /* Robinhood-style Gain/Loss colors */
+    --gain: 160 84% 45%;
     --gain-foreground: 0 0% 100%;
-    /* Loss Red: #FF5252 */
-    --loss: 0 100% 66%;
+    --loss: 0 84% 60%;
     --loss-foreground: 0 0% 100%;
 
-    /* Borders - visible in dark mode */
-    --border: 215 19% 20%;
-    --input: 215 19% 18%;
-    --ring: 212 100% 49%;
+    /* Borders - subtle gray-800 style */
+    --border: 0 0% 18%;
+    --input: 0 0% 15%;
+    --ring: 160 84% 39%;
 
-    /* Chart colors - same */
-    --chart-1: 212 100% 49%;
-    --chart-2: 142 76% 45%;
-    --chart-3: 0 84% 60%;
-    --chart-4: 271 81% 56%;
-    --chart-5: 38 92% 50%;
+    /* Chart colors */
+    --chart-1: 160 84% 45%;
+    --chart-2: 200 80% 55%;
+    --chart-3: 280 80% 65%;
+    --chart-4: 38 92% 55%;
+    --chart-5: 0 84% 65%;
 
-    /* Glassmorphism effects - dark mode (reduced for cleaner look) */
-    --glass-bg: 217 19% 13% / 0.9;
-    --glass-border: 215 19% 25% / 0.4;
-    --glass-blur: 12px;
+    /* Glassmorphism effects - dark mode */
+    --glass-bg: 0 0% 10% / 0.95;
+    --glass-border: 0 0% 20% / 0.5;
+    --glass-blur: 20px;
 
     /* Shadows - stronger for dark mode */
-    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
-    --shadow-card: 0 4px 6px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
-    --shadow-card-hover: 0 10px 15px -3px hsl(212 100% 49% / 0.15), 0 4px 6px -4px hsl(0 0% 0% / 0.4);
-    --shadow-glow: 0 0 0 3px hsl(212 100% 49% / 0.2);
-    --shadow-glass: 0 8px 32px hsl(0 0% 0% / 0.3);
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.4);
+    --shadow-card: 0 4px 6px -1px hsl(0 0% 0% / 0.5), 0 2px 4px -2px hsl(0 0% 0% / 0.4);
+    --shadow-card-hover: 0 20px 25px -5px hsl(160 84% 39% / 0.1), 0 8px 10px -6px hsl(0 0% 0% / 0.4);
+    --shadow-glow: 0 0 30px hsl(160 84% 39% / 0.2);
+    --shadow-glass: 0 8px 32px hsl(0 0% 0% / 0.4);
   }
 }
 
@@ -826,4 +825,305 @@ body.barcode-scanner-active #root {
 
 body.barcode-scanner-active #root > *:not(.scanner-visible) {
   visibility: hidden;
+}
+
+/* ===== PREMIUM UI ENHANCEMENTS ===== */
+
+/* Premium shimmer with gradient */
+@keyframes premium-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-premium {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: premium-shimmer 2s infinite linear;
+}
+
+/* Glow animation for premium elements */
+@keyframes premium-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.2);
+  }
+  50% {
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.4);
+  }
+}
+
+.animate-premium-glow {
+  animation: premium-glow 2s ease-in-out infinite;
+}
+
+/* Floating animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Input focus animation */
+.input-premium {
+  @apply relative overflow-hidden;
+  @apply bg-secondary/50 border border-border/50 rounded-xl;
+  @apply px-4 py-3 text-foreground;
+  @apply placeholder:text-muted-foreground;
+  @apply transition-all duration-200;
+  @apply focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20;
+}
+
+.input-premium:focus {
+  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.1);
+}
+
+/* Premium card hover effect */
+.card-premium {
+  @apply rounded-2xl bg-card border border-border/50;
+  @apply transition-all duration-300 ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-premium::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.1) 0%,
+    transparent 50%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card-premium:hover::before {
+  opacity: 1;
+}
+
+.card-premium:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.15),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+.card-premium:active {
+  transform: scale(0.98);
+}
+
+/* Gradient text */
+.text-gradient-primary {
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(160 84% 50%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-gain {
+  background: linear-gradient(135deg, hsl(var(--gain)) 0%, hsl(160 84% 50%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-loss {
+  background: linear-gradient(135deg, hsl(var(--loss)) 0%, hsl(0 84% 50%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Monospace numbers */
+.font-numeric {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" on, "lnum" on;
+}
+
+/* Large display numbers */
+.number-display {
+  @apply font-numeric font-bold tracking-tight;
+  line-height: 1;
+}
+
+.number-display-sm {
+  @apply number-display text-2xl;
+}
+
+.number-display-md {
+  @apply number-display text-4xl;
+}
+
+.number-display-lg {
+  @apply number-display text-5xl sm:text-6xl;
+}
+
+.number-display-xl {
+  @apply number-display text-6xl sm:text-7xl lg:text-8xl;
+}
+
+/* Button premium styles */
+.btn-premium {
+  @apply relative overflow-hidden;
+  @apply inline-flex items-center justify-center gap-2;
+  @apply px-6 py-3 rounded-xl font-semibold;
+  @apply transition-all duration-200;
+  @apply active:scale-[0.97];
+  min-height: 44px;
+}
+
+.btn-premium-primary {
+  @apply btn-premium;
+  @apply bg-gradient-to-r from-primary to-emerald-600;
+  @apply text-white;
+  @apply shadow-lg shadow-primary/25;
+  @apply hover:shadow-xl hover:shadow-primary/30;
+  @apply hover:scale-[1.02] hover:-translate-y-0.5;
+}
+
+.btn-premium-secondary {
+  @apply btn-premium;
+  @apply bg-secondary text-secondary-foreground;
+  @apply hover:bg-secondary/80;
+}
+
+.btn-premium-ghost {
+  @apply btn-premium;
+  @apply bg-transparent text-foreground;
+  @apply hover:bg-secondary/50;
+}
+
+/* Ripple effect base */
+.ripple-container {
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Badge pill styles */
+.badge-pill {
+  @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold;
+}
+
+.badge-pill-primary {
+  @apply badge-pill bg-primary/15 text-primary;
+}
+
+.badge-pill-gain {
+  @apply badge-pill;
+  background-color: hsl(var(--gain) / 0.15);
+  color: hsl(var(--gain));
+}
+
+.badge-pill-loss {
+  @apply badge-pill;
+  background-color: hsl(var(--loss) / 0.15);
+  color: hsl(var(--loss));
+}
+
+/* Stats card styling */
+.stat-value {
+  @apply font-numeric text-2xl font-bold;
+}
+
+.stat-label {
+  @apply text-xs uppercase tracking-wider text-muted-foreground font-medium;
+}
+
+.stat-change {
+  @apply font-numeric text-sm font-semibold;
+}
+
+.stat-change-positive {
+  @apply stat-change text-gain;
+}
+
+.stat-change-negative {
+  @apply stat-change text-loss;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+  background-color: hsl(var(--primary) / 0.3);
+  color: inherit;
+}
+
+/* Scrollbar styling for webkit */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Hide scrollbar but maintain scrollability */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Safe area padding helpers */
+.pt-safe-area {
+  padding-top: max(env(safe-area-inset-top), 12px);
+}
+
+.pb-safe-area {
+  padding-bottom: max(env(safe-area-inset-bottom), 24px);
+}
+
+/* Skeleton loading base */
+.skeleton-base {
+  @apply relative overflow-hidden rounded-lg bg-muted/50;
+}
+
+.skeleton-base::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: premium-shimmer 1.5s infinite linear;
 }

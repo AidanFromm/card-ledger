@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { RefreshCw, Wallet, TrendingUp, Package } from "lucide-react";
+import { RefreshCw, Wallet, TrendingUp, Package, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
@@ -9,11 +9,11 @@ import { usePriceAlerts } from "@/hooks/usePriceAlerts";
 import { useSalesDb } from "@/hooks/useSalesDb";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { PageTransition } from "@/components/PageTransition";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 
-// Dashboard components - Premium V3
+// Dashboard components - Premium V4
 import {
   PortfolioHero,
   TimeRangeSelector,
@@ -26,38 +26,59 @@ import {
   RecentActivity,
   PriceAlertsSummary,
   StatsCard,
+  BestPerformerCard,
 } from "@/components/dashboard";
 
-// Premium skeleton loader
+// Premium skeleton loader with shimmer
 const DashboardSkeleton = () => (
-  <div className="space-y-6 animate-pulse">
+  <div className="space-y-6">
     {/* Hero skeleton */}
-    <div>
-      <div className="h-4 w-24 bg-zinc-800/50 rounded mb-3" />
-      <div className="h-14 w-64 bg-zinc-800/60 rounded-lg mb-3" />
-      <div className="h-6 w-40 bg-zinc-800/40 rounded mb-2" />
+    <div className="space-y-3">
+      <div className="h-4 w-28 bg-zinc-800/60 rounded-lg animate-pulse" />
+      <div className="h-16 w-72 bg-zinc-800/80 rounded-xl animate-pulse relative overflow-hidden">
+        <motion.div
+          initial={{ x: "-100%" }}
+          animate={{ x: "200%" }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-zinc-700/30 to-transparent"
+        />
+      </div>
+      <div className="h-8 w-48 bg-zinc-800/50 rounded-full animate-pulse" />
     </div>
     
     {/* Chart skeleton */}
-    <div className="h-[280px] bg-zinc-800/30 rounded-2xl overflow-hidden relative">
+    <div className="h-[120px] bg-gradient-to-t from-zinc-800/20 to-transparent rounded-3xl animate-pulse relative overflow-hidden">
       <motion.div
         initial={{ x: "-100%" }}
         animate={{ x: "200%" }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-        className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent"
+        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent"
       />
     </div>
     
-    {/* Cards skeleton */}
-    <div className="grid grid-cols-2 gap-3">
-      <div className="h-24 bg-zinc-800/40 rounded-2xl" />
-      <div className="h-24 bg-zinc-800/40 rounded-2xl" />
+    {/* Time selector skeleton */}
+    <div className="flex justify-center">
+      <div className="h-10 w-80 bg-zinc-800/40 rounded-2xl animate-pulse" />
     </div>
     
-    {/* Actions skeleton */}
+    {/* Stats skeleton */}
+    <div className="grid grid-cols-2 gap-3">
+      {[1, 2].map(i => (
+        <div key={i} className="h-28 bg-zinc-800/40 rounded-2xl animate-pulse relative overflow-hidden">
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: "200%" }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear", delay: i * 0.2 }}
+            className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-zinc-700/20 to-transparent"
+          />
+        </div>
+      ))}
+    </div>
+    
+    {/* Quick actions skeleton */}
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       {[1, 2, 3, 4].map(i => (
-        <div key={i} className="h-28 bg-zinc-800/30 rounded-2xl" />
+        <div key={i} className="h-24 bg-zinc-800/30 rounded-2xl animate-pulse" />
       ))}
     </div>
   </div>
@@ -108,6 +129,23 @@ const Dashboard = () => {
       unrealizedProfit: value - paid,
       totalCards: cards,
     };
+  }, [unsoldItems]);
+
+  // Find best performer
+  const bestPerformer = useMemo(() => {
+    const withChanges = unsoldItems
+      .filter(item => item.market_price && item.market_price !== item.purchase_price)
+      .map(item => {
+        const marketValue = (item.market_price || item.purchase_price) * item.quantity;
+        const costBasis = item.purchase_price * item.quantity;
+        const change = marketValue - costBasis;
+        const changePercent = costBasis > 0 ? (change / costBasis) * 100 : 0;
+        return { item, change, changePercent };
+      })
+      .filter(m => m.change > 0)
+      .sort((a, b) => b.changePercent - a.changePercent);
+
+    return withChanges[0] || null;
   }, [unsoldItems]);
 
   // Portfolio history for chart
@@ -197,7 +235,7 @@ const Dashboard = () => {
               size="sm"
               onClick={() => refetch()}
               disabled={isSyncing}
-              className="gap-1.5 h-8 px-3 text-xs text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded-xl"
+              className="gap-1.5 h-8 px-3 text-xs text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded-xl border border-transparent hover:border-zinc-700/50 transition-all"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
               {isSyncing ? 'Syncing...' : 'Refresh'}
@@ -250,7 +288,7 @@ const Dashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6"
+            className="grid grid-cols-2 gap-3 mb-6"
           >
             <StatsCard
               label="Total Invested"
@@ -269,27 +307,44 @@ const Dashboard = () => {
               icon={TrendingUp}
               iconColor={isPositive ? "text-emerald-400" : "text-red-400"}
               iconBg={isPositive ? "bg-emerald-500/15" : "bg-red-500/15"}
-              glowColor={isPositive ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.1)"}
+              glowColor={isPositive ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)"}
               index={1}
             />
+          </motion.div>
+
+          {/* Best Performer & Total Cards Row */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.32 }}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"
+          >
+            {bestPerformer ? (
+              <BestPerformerCard
+                name={bestPerformer.item.name}
+                imageUrl={bestPerformer.item.card_image_url}
+                value={(bestPerformer.item.market_price || bestPerformer.item.purchase_price) * bestPerformer.item.quantity}
+                change={bestPerformer.change}
+                changePercent={bestPerformer.changePercent}
+                index={0}
+              />
+            ) : (
+              <StatsCard
+                label="Best Performer"
+                value="--"
+                icon={Sparkles}
+                iconColor="text-amber-400"
+                iconBg="bg-amber-500/15"
+                index={0}
+              />
+            )}
             <StatsCard
               label="Total Cards"
               value={totalCards.toString()}
               icon={Package}
               iconColor="text-purple-400"
               iconBg="bg-purple-500/15"
-              index={2}
-              className="hidden lg:block"
-            />
-            <StatsCard
-              label="Avg Card Value"
-              value={totalCards > 0 ? totalValue / totalCards : 0}
-              prefix="$"
-              icon={TrendingUp}
-              iconColor="text-amber-400"
-              iconBg="bg-amber-500/15"
-              index={3}
-              className="hidden lg:block"
+              index={1}
             />
           </motion.div>
 
@@ -366,9 +421,15 @@ const Dashboard = () => {
                 initial={{ scale: 0.8 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200 }}
-                className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700/50 flex items-center justify-center"
+                className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700/50 flex items-center justify-center shadow-2xl"
               >
-                <span className="text-5xl"></span>
+                <motion.span 
+                  className="text-5xl"
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                >
+                  🃏
+                </motion.span>
               </motion.div>
               <h3 className="text-xl font-bold text-white mb-2">
                 Start Your Collection
@@ -377,10 +438,10 @@ const Dashboard = () => {
                 Add cards to your inventory to track your portfolio performance, see gains & losses, and unlock powerful analytics.
               </p>
               <motion.button
-                whileHover={{ scale: 1.03 }}
+                whileHover={{ scale: 1.03, y: -2 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => window.location.href = '/scan'}
-                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25"
+                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 border border-emerald-400/20"
               >
                 Scan Your First Card
               </motion.button>

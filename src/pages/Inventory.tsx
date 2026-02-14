@@ -1,10 +1,9 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useBackgroundImageFetch } from "@/hooks/useBackgroundImageFetch";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { 
-  Trash2, Search, Package, Award, Box, Grid3x3, CheckSquare, Square, 
+  Trash2, Package, Award, Box, Grid3x3, CheckSquare, Square, 
   DollarSign, Share2, RefreshCw, FileDown, Plus, TrendingUp, TrendingDown, 
   Trophy, ImageIcon, ArrowUp, FolderInput, Link2, Settings2
 } from "lucide-react";
@@ -16,6 +15,8 @@ import { FoldersPanel } from "@/components/FoldersPanel";
 import { BulkFolderDropdown } from "@/components/FolderDropdown";
 import { ShareDialog } from "@/components/ShareDialog";
 import { SharesManager } from "@/components/SharesManager";
+import { PullToRefresh } from "@/components/PullToRefresh";
+import { SearchAutocomplete } from "@/components/SearchAutocomplete";
 
 type InventoryItem = Database["public"]["Tables"]["inventory_items"]["Row"];
 import Navbar from "@/components/Navbar";
@@ -69,7 +70,7 @@ const Inventory = () => {
   const { isRefreshing, progress, refreshAllPrices } = useScrydexPricing();
   const { folders, getFolderItemIds, addItemsToFolder } = useFolders();
   
-  // Use the new filters hook
+  // Use the filters hook with all new features
   const {
     filters,
     updateFilter,
@@ -78,6 +79,12 @@ const Inventory = () => {
     filteredItems: baseFilteredItems,
     totalItems,
     resultCount: baseResultCount,
+    availableSets,
+    priceRange,
+    recentSearches,
+    addRecentSearch,
+    clearRecentSearches,
+    removeRecentSearch,
   } = useInventoryFilters(items);
 
   const [portfolioPercent, setPortfolioPercent] = useState<number>(100);
@@ -94,6 +101,7 @@ const Inventory = () => {
   const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
   const [selectedFolderForMove, setSelectedFolderForMove] = useState<string>("");
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isPullRefreshing, setIsPullRefreshing] = useState(false);
   
   // Folder and sharing state
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
@@ -120,6 +128,24 @@ const Inventory = () => {
     [items]
   );
 
+  // Generate search suggestions from items
+  const searchSuggestions = useMemo(() => {
+    if (!filters.searchTerm || filters.searchTerm.length < 2) return [];
+    const term = filters.searchTerm.toLowerCase();
+    const suggestions = new Set<string>();
+    
+    items.forEach(item => {
+      if (item.name.toLowerCase().includes(term)) {
+        suggestions.add(item.name);
+      }
+      if (item.set_name.toLowerCase().includes(term)) {
+        suggestions.add(item.set_name);
+      }
+    });
+    
+    return Array.from(suggestions).slice(0, 5);
+  }, [items, filters.searchTerm]);
+
   // Handle scroll to show/hide scroll-to-top button
   useEffect(() => {
     const handleScroll = () => {
@@ -133,6 +159,29 @@ const Inventory = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Pull to refresh handler
+  const handlePullRefresh = async () => {
+    setIsPullRefreshing(true);
+    try {
+      await refetch();
+      // Also refresh prices for visible items
+      const itemsToRefresh = filteredItems.filter(item => item.quantity > 0).slice(0, 20);
+      if (itemsToRefresh.length > 0) {
+        await refreshAllPrices(itemsToRefresh);
+      }
+    } finally {
+      setIsPullRefreshing(false);
+    }
+  };
+
+  // Handle search with recent searches
+  const handleSearch = useCallback((term: string) => {
+    updateFilter('searchTerm', term);
+    if (term.trim()) {
+      addRecentSearch(term);
+    }
+  }, [updateFilter, addRecentSearch]);
+
   const toggleItemSelection = (itemId: string) => {
     const newSelected = new Set(selectedItems);
     if (newSelected.has(itemId)) {
@@ -142,6 +191,18 @@ const Inventory = () => {
     }
     setSelectedItems(newSelected);
   };
+
+  // Long press handler to enter selection mode
+  const handleLongPress = useCallback((itemId: string) => {
+    if (!selectionMode) {
+      setSelectionMode(true);
+      setSelectedItems(new Set([itemId]));
+      // Haptic feedback if available
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    }
+  }, [selectionMode]);
 
   const handleBulkSale = () => {
     const itemsToSell = items.filter(item => selectedItems.has(item.id));
@@ -298,482 +359,492 @@ const Inventory = () => {
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
       <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
-          {/* Header with Expandable Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-5"
-          >
-            <div className="flex items-center justify-between mb-3 gap-2">
-              <h1 className="text-2xl font-bold flex-shrink-0">
-                {activeFolderId 
-                  ? folders.find(f => f.id === activeFolderId)?.name || 'Inventory'
-                  : 'Inventory'}
-              </h1>
-              <div className="flex gap-1.5 sm:gap-2">
-                <Button
-                  variant={showFoldersPanel ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setShowFoldersPanel(!showFoldersPanel)}
-                  className="gap-1 sm:gap-1.5 rounded-xl h-9 px-2.5 sm:px-3 text-xs"
-                >
-                  <Box className="h-4 w-4" />
-                  <span className="hidden sm:inline">Folders</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsSharesManagerOpen(true)}
-                  className="gap-1 sm:gap-1.5 rounded-xl h-9 px-2.5 sm:px-3 text-xs"
-                >
-                  <Link2 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Shares</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsExportDialogOpen(true)}
-                  className="gap-1 sm:gap-1.5 rounded-xl h-9 px-2.5 sm:px-3 text-xs"
-                >
-                  <FileDown className="h-4 w-4" />
-                  <span className="hidden sm:inline">Export</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleFetchImages}
-                  disabled={isFetchingImages}
-                  className="gap-1 sm:gap-1.5 rounded-xl h-9 px-2.5 sm:px-3 text-xs"
-                >
-                  <ImageIcon className={`h-4 w-4 ${isFetchingImages ? 'animate-pulse' : ''}`} />
-                  <span className="hidden sm:inline">Images</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRefreshPrices}
-                  disabled={isRefreshing}
-                  className="gap-1 sm:gap-1.5 rounded-xl h-9 px-2.5 sm:px-3 text-xs"
-                >
-                  <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                  <span className="hidden sm:inline">Refresh</span>
-                </Button>
-              </div>
-            </div>
-
-            {/* Portfolio Value Card */}
-            <motion.div className="card-clean-elevated rounded-3xl p-4">
-              {/* Value Display */}
-              <div className="mb-4">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Portfolio Value</p>
-                <p className="text-3xl font-bold text-success">
-                  ${(totalValue * (portfolioPercent / 100)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </p>
-              </div>
-
-              {/* Percentage Slider */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-[10px] text-muted-foreground px-0.5">
-                  <span>10%</span>
-                  <span>30%</span>
-                  <span>50%</span>
-                  <span>70%</span>
-                  <span>90%</span>
-                  <span>100%</span>
-                </div>
-
-                <div className="relative h-2 bg-secondary/50 rounded-full">
-                  <div
-                    className="absolute left-0 top-0 h-full bg-primary rounded-full"
-                    style={{ width: `${((portfolioPercent - 10) / 90) * 100}%` }}
-                  />
-                  <input
-                    type="range"
-                    min="10"
-                    max="100"
-                    step="1"
-                    value={portfolioPercent}
-                    onChange={(e) => setPortfolioPercent(Number(e.target.value))}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  <div
-                    className="absolute -top-8 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-semibold px-1.5 py-0.5 rounded pointer-events-none"
-                    style={{ left: `${((portfolioPercent - 10) / 90) * 100}%` }}
+        <PullToRefresh onRefresh={handlePullRefresh}>
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
+            {/* Header with Expandable Stats */}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-5"
+            >
+              <div className="flex items-center justify-between mb-3 gap-2">
+                <h1 className="text-2xl font-bold flex-shrink-0">
+                  {activeFolderId 
+                    ? folders.find(f => f.id === activeFolderId)?.name || 'Inventory'
+                    : 'Inventory'}
+                </h1>
+                <div className="flex gap-1.5 sm:gap-2">
+                  <Button
+                    variant={showFoldersPanel ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setShowFoldersPanel(!showFoldersPanel)}
+                    className="gap-1 sm:gap-1.5 rounded-xl h-9 px-2.5 sm:px-3 text-xs"
                   >
-                    {portfolioPercent}%
-                  </div>
-                  <div
-                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-primary rounded-full shadow-lg border-2 border-white pointer-events-none"
-                    style={{ left: `${((portfolioPercent - 10) / 90) * 100}%` }}
-                  />
+                    <Box className="h-4 w-4" />
+                    <span className="hidden sm:inline">Folders</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsSharesManagerOpen(true)}
+                    className="gap-1 sm:gap-1.5 rounded-xl h-9 px-2.5 sm:px-3 text-xs"
+                  >
+                    <Link2 className="h-4 w-4" />
+                    <span className="hidden sm:inline">Shares</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsExportDialogOpen(true)}
+                    className="gap-1 sm:gap-1.5 rounded-xl h-9 px-2.5 sm:px-3 text-xs"
+                  >
+                    <FileDown className="h-4 w-4" />
+                    <span className="hidden sm:inline">Export</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleFetchImages}
+                    disabled={isFetchingImages}
+                    className="gap-1 sm:gap-1.5 rounded-xl h-9 px-2.5 sm:px-3 text-xs"
+                  >
+                    <ImageIcon className={`h-4 w-4 ${isFetchingImages ? 'animate-pulse' : ''}`} />
+                    <span className="hidden sm:inline">Images</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRefreshPrices}
+                    disabled={isRefreshing}
+                    className="gap-1 sm:gap-1.5 rounded-xl h-9 px-2.5 sm:px-3 text-xs"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    <span className="hidden sm:inline">Refresh</span>
+                  </Button>
                 </div>
               </div>
+
+              {/* Portfolio Value Card */}
+              <motion.div className="card-clean-elevated rounded-3xl p-4">
+                {/* Value Display */}
+                <div className="mb-4">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Portfolio Value</p>
+                  <p className="text-3xl font-bold text-success">
+                    ${(totalValue * (portfolioPercent / 100)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                  {/* Total Profit/Loss indicator */}
+                  <div className={`flex items-center gap-1 mt-1 text-sm font-medium ${totalProfit >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                    {totalProfit >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                    <span>
+                      {totalProfit >= 0 ? '+' : ''}${totalProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      {totalCost > 0 && (
+                        <span className="opacity-70 ml-1">({((totalProfit / totalCost) * 100).toFixed(1)}%)</span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Percentage Slider */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[10px] text-muted-foreground px-0.5">
+                    <span>10%</span>
+                    <span>30%</span>
+                    <span>50%</span>
+                    <span>70%</span>
+                    <span>90%</span>
+                    <span>100%</span>
+                  </div>
+
+                  <div className="relative h-2 bg-secondary/50 rounded-full">
+                    <div
+                      className="absolute left-0 top-0 h-full bg-primary rounded-full"
+                      style={{ width: `${((portfolioPercent - 10) / 90) * 100}%` }}
+                    />
+                    <input
+                      type="range"
+                      min="10"
+                      max="100"
+                      step="1"
+                      value={portfolioPercent}
+                      onChange={(e) => setPortfolioPercent(Number(e.target.value))}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <div
+                      className="absolute -top-8 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-semibold px-1.5 py-0.5 rounded pointer-events-none"
+                      style={{ left: `${((portfolioPercent - 10) / 90) * 100}%` }}
+                    >
+                      {portfolioPercent}%
+                    </div>
+                    <div
+                      className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-primary rounded-full shadow-lg border-2 border-white pointer-events-none"
+                      style={{ left: `${((portfolioPercent - 10) / 90) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Price refresh progress */}
+              <AnimatePresence>
+                {isRefreshing && progress && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-3 p-3 card-clean rounded-xl"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs text-muted-foreground">
+                        Updating... {progress.current}/{progress.total}
+                      </span>
+                      <span className="text-xs text-muted-foreground truncate max-w-[150px]">
+                        {progress.itemName}
+                      </span>
+                    </div>
+                    <Progress value={(progress.current / progress.total) * 100} className="h-1.5" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
 
-            {/* Price refresh progress */}
+            {/* Search Bar with Autocomplete */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="mb-4"
+            >
+              <div className="flex items-center gap-2">
+                <SearchAutocomplete
+                  value={filters.searchTerm}
+                  onChange={(value) => updateFilter('searchTerm', value)}
+                  onSearch={handleSearch}
+                  recentSearches={recentSearches}
+                  onRemoveRecent={removeRecentSearch}
+                  onClearRecent={clearRecentSearches}
+                  suggestions={searchSuggestions}
+                  placeholder="Search cards, sets, players..."
+                />
+                <Button
+                  variant={selectionMode ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    setSelectionMode(!selectionMode);
+                    setSelectedItems(new Set());
+                  }}
+                  className="h-11 px-4 text-sm font-medium gap-1.5 rounded-xl flex-shrink-0"
+                >
+                  {selectionMode ? (
+                    <>
+                      <CheckSquare className="h-4 w-4" />
+                      <span>{selectedItems.size}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Square className="h-4 w-4" />
+                      <span>Select</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1.5 ml-1">
+                💡 Long press any card to quickly select
+              </p>
+            </motion.div>
+
+            {/* Folders Panel */}
             <AnimatePresence>
-              {isRefreshing && progress && (
+              {showFoldersPanel && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mt-3 p-3 card-clean rounded-xl"
+                  className="mb-4 overflow-hidden"
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-muted-foreground">
-                      Updating... {progress.current}/{progress.total}
-                    </span>
-                    <span className="text-xs text-muted-foreground truncate max-w-[150px]">
-                      {progress.itemName}
-                    </span>
+                  <div className="card-clean rounded-2xl p-3">
+                    <FoldersPanel
+                      selectedFolderId={activeFolderId}
+                      onSelectFolder={setActiveFolderId}
+                      onShareFolder={handleShareFolder}
+                    />
                   </div>
-                  <Progress value={(progress.current / progress.total) * 100} className="h-1.5" />
                 </motion.div>
               )}
             </AnimatePresence>
-          </motion.div>
 
-          {/* Search Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-4"
-          >
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                <Input
-                  placeholder="Search cards..."
-                  value={filters.searchTerm}
-                  onChange={(e) => updateFilter('searchTerm', e.target.value)}
-                  className="pl-12 h-11 rounded-xl bg-secondary/30 border-border/50"
-                />
-                {filters.searchTerm && (
-                  <button
-                    onClick={() => updateFilter('searchTerm', '')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-secondary"
-                  >
-                    <span className="sr-only">Clear search</span>
-                    ×
-                  </button>
-                )}
-              </div>
-              <Button
-                variant={selectionMode ? "default" : "outline"}
-                size="sm"
-                onClick={() => {
-                  setSelectionMode(!selectionMode);
-                  setSelectedItems(new Set());
-                }}
-                className="h-11 px-4 text-sm font-medium gap-1.5 rounded-xl flex-shrink-0"
-              >
-                {selectionMode ? (
-                  <>
-                    <CheckSquare className="h-4 w-4" />
-                    <span>{selectedItems.size}</span>
-                  </>
-                ) : (
-                  <>
-                    <Square className="h-4 w-4" />
-                    <span>Select</span>
-                  </>
-                )}
-              </Button>
-            </div>
-          </motion.div>
+            {/* Filter Panel with all new options */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="mb-4"
+            >
+              <InventoryFilterPanel
+                filters={filters}
+                onFilterChange={updateFilter}
+                onReset={resetFilters}
+                activeFilterCount={activeFilterCount}
+                resultCount={resultCount}
+                totalCount={totalItems}
+                hasSportsCards={hasSportsCards}
+                availableSets={availableSets}
+                priceRange={priceRange}
+              />
+            </motion.div>
 
-          {/* Folders Panel */}
-          <AnimatePresence>
-            {showFoldersPanel && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mb-4 overflow-hidden"
-              >
-                <div className="card-clean rounded-2xl p-3">
-                  <FoldersPanel
-                    selectedFolderId={activeFolderId}
-                    onSelectFolder={setActiveFolderId}
-                    onShareFolder={handleShareFolder}
-                  />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Filter Panel */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="mb-4"
-          >
-            <InventoryFilterPanel
-              filters={filters}
-              onFilterChange={updateFilter}
-              onReset={resetFilters}
-              activeFilterCount={activeFilterCount}
-              resultCount={resultCount}
-              totalCount={totalItems}
-              hasSportsCards={hasSportsCards}
-            />
-          </motion.div>
-
-          {/* Selection Mode Actions */}
-          <AnimatePresence>
-            {selectionMode && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mb-4 space-y-3"
-              >
-                {/* Selection Controls */}
-                <div className="flex flex-wrap items-center gap-2 p-3 rounded-xl bg-primary/5 border border-primary/20">
-                  <div className="flex items-center gap-2 mr-auto">
-                    <span className="text-sm font-medium">
-                      {selectedItems.size} of {resultCount} selected
-                    </span>
+            {/* Selection Mode Actions */}
+            <AnimatePresence>
+              {selectionMode && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-4 space-y-3"
+                >
+                  {/* Selection Controls */}
+                  <div className="flex flex-wrap items-center gap-2 p-3 rounded-xl bg-primary/5 border border-primary/20">
+                    <div className="flex items-center gap-2 mr-auto">
+                      <span className="text-sm font-medium">
+                        {selectedItems.size} of {resultCount} selected
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSelectAll}
+                      className="h-8 px-3 text-xs rounded-lg"
+                    >
+                      {filteredItems.every(item => selectedItems.has(item.id)) && filteredItems.length > 0 
+                        ? 'Deselect All' 
+                        : 'Select All'}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleClearSelection}
+                      className="h-8 px-3 text-xs rounded-lg"
+                    >
+                      Cancel
+                    </Button>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSelectAll}
-                    className="h-8 px-3 text-xs rounded-lg"
+
+                  {/* Bulk Actions */}
+                  {selectedItems.size > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex flex-wrap gap-2"
+                    >
+                      <Button
+                        onClick={handleBulkSale}
+                        className="gap-2 bg-success/10 border border-success/30 text-success hover:bg-success/20"
+                        variant="outline"
+                      >
+                        <DollarSign className="h-4 w-4" />
+                        Record Sale
+                      </Button>
+                      <Button
+                        onClick={handleShareSelection}
+                        className="gap-2"
+                        variant="outline"
+                      >
+                        <Share2 className="h-4 w-4" />
+                        Share
+                      </Button>
+                      <Button
+                        onClick={handleCreateList}
+                        className="gap-2"
+                        variant="outline"
+                      >
+                        <Link2 className="h-4 w-4" />
+                        Client List
+                      </Button>
+                      <BulkFolderDropdown
+                        inventoryItemIds={Array.from(selectedItems)}
+                        onFolderChange={() => {
+                          setSelectedItems(new Set());
+                          setSelectionMode(false);
+                        }}
+                      >
+                        <Button className="gap-2" variant="outline">
+                          <FolderInput className="h-4 w-4" />
+                          Add to Folder
+                        </Button>
+                      </BulkFolderDropdown>
+                      <Button
+                        onClick={handleBulkExport}
+                        className="gap-2"
+                        variant="outline"
+                      >
+                        <FileDown className="h-4 w-4" />
+                        Export
+                      </Button>
+                      <Button
+                        onClick={() => setIsDeleteDialogOpen(true)}
+                        className="gap-2 bg-destructive/10 border border-destructive/30 text-destructive hover:bg-destructive/20"
+                        variant="outline"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Delete
+                      </Button>
+                    </motion.div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Content */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              {items.length === 0 ? (
+                <EmptyInventory />
+              ) : filteredItems.length === 0 ? (
+                <EmptySearchResults />
+              ) : (
+                <VirtualizedInventoryGrid
+                  items={filteredItems}
+                  selectionMode={selectionMode}
+                  selectedItems={selectedItems}
+                  onToggleSelect={toggleItemSelection}
+                  onOpenDetail={(item) => {
+                    setSelectedItem(item);
+                    setIsDetailOpen(true);
+                  }}
+                  onSell={handleSingleSale}
+                  onDelete={deleteItem}
+                  viewMode={filters.viewMode}
+                  onLongPress={handleLongPress}
+                />
+              )}
+            </motion.div>
+
+            {/* Dialogs */}
+            <ItemDetailDialog
+              item={selectedItem}
+              open={isDetailOpen}
+              onOpenChange={setIsDetailOpen}
+            />
+
+            <RecordSaleDialog
+              open={isSaleDialogOpen}
+              onOpenChange={setIsSaleDialogOpen}
+              preselectedItems={itemsForSale}
+              onSaleComplete={handleSaleComplete}
+            />
+
+            <CreateClientListDialog
+              open={isListDialogOpen}
+              onOpenChange={setIsListDialogOpen}
+              selectedItems={items.filter(item => selectedItems.has(item.id))}
+              onCreateList={handleListCreate}
+              onClearSelection={handleClearSelection}
+            />
+
+            {/* Bulk Delete Confirmation */}
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+              <AlertDialogContent className="border-border/50 bg-card/95 backdrop-blur-xl">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="flex items-center gap-2 text-xl">
+                    <Trash2 className="h-5 w-5 text-destructive" />
+                    Delete Selected Items
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="text-base">
+                    Are you sure you want to delete {selectedItems.size} selected {selectedItems.size === 1 ? 'item' : 'items'}?
+                    This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="border-border/50">Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleBulkDelete}
+                    className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                   >
-                    {filteredItems.every(item => selectedItems.has(item.id)) && filteredItems.length > 0 
-                      ? 'Deselect All' 
-                      : 'Select All'}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleClearSelection}
-                    className="h-8 px-3 text-xs rounded-lg"
-                  >
+                    Delete {selectedItems.size} {selectedItems.size === 1 ? 'Item' : 'Items'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Move to Folder Dialog */}
+            <Dialog open={isMoveDialogOpen} onOpenChange={setIsMoveDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <FolderInput className="h-5 w-5" />
+                    Add to Folder
+                  </DialogTitle>
+                  <DialogDescription>
+                    Add {selectedItems.size} selected item{selectedItems.size > 1 ? 's' : ''} to a folder.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                  <Select value={selectedFolderForMove} onValueChange={setSelectedFolderForMove}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a folder..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {folders.map((folder) => (
+                        <SelectItem key={folder.id} value={folder.id}>
+                          <span className="flex items-center gap-2">
+                            <span
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: folder.color }}
+                            />
+                            {folder.name}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Cards can be in multiple folders for flexible organization.
+                  </p>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsMoveDialogOpen(false)}>
                     Cancel
                   </Button>
-                </div>
+                  <Button onClick={handleBulkMove} disabled={!selectedFolderForMove}>
+                    Add to Folder
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
-                {/* Bulk Actions */}
-                {selectedItems.size > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-wrap gap-2"
-                  >
-                    <Button
-                      onClick={handleBulkSale}
-                      className="gap-2 bg-success/10 border border-success/30 text-success hover:bg-success/20"
-                      variant="outline"
-                    >
-                      <DollarSign className="h-4 w-4" />
-                      Record Sale
-                    </Button>
-                    <Button
-                      onClick={handleShareSelection}
-                      className="gap-2"
-                      variant="outline"
-                    >
-                      <Share2 className="h-4 w-4" />
-                      Share
-                    </Button>
-                    <Button
-                      onClick={handleCreateList}
-                      className="gap-2"
-                      variant="outline"
-                    >
-                      <Link2 className="h-4 w-4" />
-                      Client List
-                    </Button>
-                    <BulkFolderDropdown
-                      inventoryItemIds={Array.from(selectedItems)}
-                      onFolderChange={() => {
-                        setSelectedItems(new Set());
-                        setSelectionMode(false);
-                      }}
-                    >
-                      <Button className="gap-2" variant="outline">
-                        <FolderInput className="h-4 w-4" />
-                        Add to Folder
-                      </Button>
-                    </BulkFolderDropdown>
-                    <Button
-                      onClick={handleBulkExport}
-                      className="gap-2"
-                      variant="outline"
-                    >
-                      <FileDown className="h-4 w-4" />
-                      Export
-                    </Button>
-                    <Button
-                      onClick={() => setIsDeleteDialogOpen(true)}
-                      className="gap-2 bg-destructive/10 border border-destructive/30 text-destructive hover:bg-destructive/20"
-                      variant="outline"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Delete
-                    </Button>
-                  </motion.div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+            {/* Share Dialog */}
+            <ShareDialog
+              open={isShareDialogOpen}
+              onOpenChange={setIsShareDialogOpen}
+              selectedItems={items.filter(item => selectedItems.has(item.id))}
+              preselectedFolderId={shareFolderId}
+            />
 
-          {/* Content */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            {items.length === 0 ? (
-              <EmptyInventory />
-            ) : filteredItems.length === 0 ? (
-              <EmptySearchResults />
-            ) : (
-              <VirtualizedInventoryGrid
-                items={filteredItems}
-                selectionMode={selectionMode}
-                selectedItems={selectedItems}
-                onToggleSelect={toggleItemSelection}
-                onOpenDetail={(item) => {
-                  setSelectedItem(item);
-                  setIsDetailOpen(true);
-                }}
-                onSell={handleSingleSale}
-                onDelete={deleteItem}
-                viewMode={filters.viewMode}
-              />
-            )}
-          </motion.div>
+            {/* Shares Manager */}
+            <SharesManager
+              open={isSharesManagerOpen}
+              onOpenChange={setIsSharesManagerOpen}
+            />
 
-          {/* Dialogs */}
-          <ItemDetailDialog
-            item={selectedItem}
-            open={isDetailOpen}
-            onOpenChange={setIsDetailOpen}
-          />
+            <ImportExportDialog
+              open={isImportExportOpen}
+              onOpenChange={setIsImportExportOpen}
+              items={items}
+              onImportComplete={refetch}
+            />
 
-          <RecordSaleDialog
-            open={isSaleDialogOpen}
-            onOpenChange={setIsSaleDialogOpen}
-            preselectedItems={itemsForSale}
-            onSaleComplete={handleSaleComplete}
-          />
-
-          <CreateClientListDialog
-            open={isListDialogOpen}
-            onOpenChange={setIsListDialogOpen}
-            selectedItems={items.filter(item => selectedItems.has(item.id))}
-            onCreateList={handleListCreate}
-            onClearSelection={handleClearSelection}
-          />
-
-          {/* Bulk Delete Confirmation */}
-          <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-            <AlertDialogContent className="border-border/50 bg-card/95 backdrop-blur-xl">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="flex items-center gap-2 text-xl">
-                  <Trash2 className="h-5 w-5 text-destructive" />
-                  Delete Selected Items
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-base">
-                  Are you sure you want to delete {selectedItems.size} selected {selectedItems.size === 1 ? 'item' : 'items'}?
-                  This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel className="border-border/50">Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleBulkDelete}
-                  className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                >
-                  Delete {selectedItems.size} {selectedItems.size === 1 ? 'Item' : 'Items'}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          {/* Move to Folder Dialog */}
-          <Dialog open={isMoveDialogOpen} onOpenChange={setIsMoveDialogOpen}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <FolderInput className="h-5 w-5" />
-                  Add to Folder
-                </DialogTitle>
-                <DialogDescription>
-                  Add {selectedItems.size} selected item{selectedItems.size > 1 ? 's' : ''} to a folder.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="py-4">
-                <Select value={selectedFolderForMove} onValueChange={setSelectedFolderForMove}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a folder..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {folders.map((folder) => (
-                      <SelectItem key={folder.id} value={folder.id}>
-                        <span className="flex items-center gap-2">
-                          <span
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: folder.color }}
-                          />
-                          {folder.name}
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground mt-3">
-                  Cards can be in multiple folders for flexible organization.
-                </p>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsMoveDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleBulkMove} disabled={!selectedFolderForMove}>
-                  Add to Folder
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          {/* Share Dialog */}
-          <ShareDialog
-            open={isShareDialogOpen}
-            onOpenChange={setIsShareDialogOpen}
-            selectedItems={items.filter(item => selectedItems.has(item.id))}
-            preselectedFolderId={shareFolderId}
-          />
-
-          {/* Shares Manager */}
-          <SharesManager
-            open={isSharesManagerOpen}
-            onOpenChange={setIsSharesManagerOpen}
-          />
-
-          <ImportExportDialog
-            open={isImportExportOpen}
-            onOpenChange={setIsImportExportOpen}
-            items={items}
-            onImportComplete={refetch}
-          />
-
-          <ExportDialog
-            open={isExportDialogOpen}
-            onOpenChange={setIsExportDialogOpen}
-            items={items}
-            currentFilter={{
-              category: filters.category,
-              searchTerm: filters.searchTerm,
-            }}
-          />
-        </main>
+            <ExportDialog
+              open={isExportDialogOpen}
+              onOpenChange={setIsExportDialogOpen}
+              items={items}
+              currentFilter={{
+                category: filters.category,
+                searchTerm: filters.searchTerm,
+              }}
+            />
+          </main>
+        </PullToRefresh>
       </PageTransition>
 
       {/* Floating Action Button for Quick Add */}

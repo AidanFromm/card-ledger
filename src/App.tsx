@@ -27,12 +27,19 @@ const Sales = lazy(() => import("./pages/Sales"));
 const Alerts = lazy(() => import("./pages/Alerts"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 const SetCompletion = lazy(() => import("./pages/SetCompletion"));
-const GradingTracker = lazy(() => import("./pages/GradingTracker"));
+const GradingCenter = lazy(() => import("./pages/GradingCenter"));
 const MarketTrends = lazy(() => import("./pages/MarketTrends"));
+const MarketData = lazy(() => import("./pages/MarketData"));
 const TradingHub = lazy(() => import("./pages/TradingHub"));
 const Profile = lazy(() => import("./pages/Profile"));
 const ClientListView = lazy(() => import("./pages/ClientListView"));
+const ClientLists = lazy(() => import("./pages/ClientLists"));
+const ClientListDetail = lazy(() => import("./pages/ClientListDetail"));
 const ShareView = lazy(() => import("./pages/ShareView"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const EbayConnect = lazy(() => import("./pages/EbayConnect"));
+const EbayListings = lazy(() => import("./pages/EbayListings"));
+const Settings = lazy(() => import("./pages/Settings"));
 
 // Lazy load protected route wrapper
 const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
@@ -165,10 +172,15 @@ const App = () => {
                 } />
                 <Route path="/grading" element={
                   <Suspense fallback={<PageLoader />}>
-                    <ProtectedRoute><GradingTracker /></ProtectedRoute>
+                    <ProtectedRoute><GradingCenter /></ProtectedRoute>
                   </Suspense>
                 } />
                 <Route path="/market" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ProtectedRoute><MarketData /></ProtectedRoute>
+                  </Suspense>
+                } />
+                <Route path="/market-legacy" element={
                   <Suspense fallback={<PageLoader />}>
                     <ProtectedRoute><MarketTrends /></ProtectedRoute>
                   </Suspense>
@@ -181,6 +193,41 @@ const App = () => {
                 <Route path="/profile" element={
                   <Suspense fallback={<PageLoader />}>
                     <ProtectedRoute><Profile /></ProtectedRoute>
+                  </Suspense>
+                } />
+                <Route path="/analytics" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ProtectedRoute><Analytics /></ProtectedRoute>
+                  </Suspense>
+                } />
+                <Route path="/lists" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ProtectedRoute><ClientLists /></ProtectedRoute>
+                  </Suspense>
+                } />
+                <Route path="/lists/:id" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ProtectedRoute><ClientListDetail /></ProtectedRoute>
+                  </Suspense>
+                } />
+                <Route path="/ebay" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ProtectedRoute><EbayConnect /></ProtectedRoute>
+                  </Suspense>
+                } />
+                <Route path="/ebay/callback" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ProtectedRoute><EbayConnect /></ProtectedRoute>
+                  </Suspense>
+                } />
+                <Route path="/ebay/listings" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ProtectedRoute><EbayListings /></ProtectedRoute>
+                  </Suspense>
+                } />
+                <Route path="/settings" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ProtectedRoute><Settings /></ProtectedRoute>
                   </Suspense>
                 } />
                 
