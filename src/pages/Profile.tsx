@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -30,6 +30,10 @@ import {
   ArrowLeftRight,
   Settings,
   List,
+  Trophy,
+  Package,
+  TrendingUp,
+  DollarSign,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -40,6 +44,8 @@ import { useTheme } from "@/components/ThemeProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useOnboarding } from "@/hooks/useOnboarding";
+import { useInventoryDb } from "@/hooks/useInventoryDb";
+import { useAchievements } from "@/hooks/useAchievements";
 import BottomNav from "@/components/BottomNav";
 import { PageTransition } from "@/components/PageTransition";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
@@ -141,6 +147,21 @@ const Profile = () => {
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [activeSheet, setActiveSheet] = useState<SheetType>(null);
+  
+  // Inventory and achievements for stats
+  const { items } = useInventoryDb();
+  const { level, completedAchievements, totalXp } = useAchievements();
+  
+  // Calculate quick stats
+  const stats = useMemo(() => {
+    const unsoldItems = items.filter(item => !item.sale_price);
+    const totalCards = unsoldItems.reduce((sum, item) => sum + item.quantity, 0);
+    const totalValue = unsoldItems.reduce((sum, item) => {
+      const price = item.market_price || item.purchase_price;
+      return sum + (price * item.quantity);
+    }, 0);
+    return { totalCards, totalValue };
+  }, [items]);
   
   // Onboarding state
   const {
@@ -400,6 +421,46 @@ const Profile = () => {
                 </div>
               </div>
             </div>
+          </motion.div>
+
+          {/* Quick Stats Grid */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12 }}
+            className="grid grid-cols-2 gap-3 mb-6"
+          >
+            <div className="glass-card p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Package className="w-4 h-4 text-primary" />
+                <span className="text-xs text-muted-foreground">Cards</span>
+              </div>
+              <p className="text-2xl font-bold">{stats.totalCards.toLocaleString()}</p>
+            </div>
+            <div className="glass-card p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <DollarSign className="w-4 h-4 text-emerald-500" />
+                <span className="text-xs text-muted-foreground">Value</span>
+              </div>
+              <p className="text-2xl font-bold">${stats.totalValue.toLocaleString()}</p>
+            </div>
+            <div className="glass-card p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Trophy className="w-4 h-4 text-amber-500" />
+                <span className="text-xs text-muted-foreground">Level</span>
+              </div>
+              <p className="text-2xl font-bold">{level.level}</p>
+            </div>
+            <button 
+              onClick={() => navigate('/achievements')}
+              className="glass-card p-4 text-left hover:bg-secondary/50 transition-colors"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Star className="w-4 h-4 text-purple-500" />
+                <span className="text-xs text-muted-foreground">Achievements</span>
+              </div>
+              <p className="text-2xl font-bold">{completedAchievements.length}</p>
+            </button>
           </motion.div>
 
           {/* Theme Selection */}
