@@ -1,5 +1,6 @@
 export { AddMethodSelector, type AddMethod } from './AddMethodSelector';
 export { CardSearchPanel, type CardSearchResult } from './CardSearchPanel';
+export { SmartCardSearch } from './SmartCardSearch';
 export { ConditionSelector, CONDITIONS, type Condition } from './ConditionSelector';
 export { GradingPanel } from './GradingPanel';
 export { ValuePreview } from './ValuePreview';

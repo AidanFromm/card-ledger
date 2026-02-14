@@ -41,6 +41,7 @@ import CardImage from "@/components/CardImage";
 import { 
   AddMethodSelector, 
   CardSearchPanel,
+  SmartCardSearch,
   ConditionSelector,
   GradingPanel,
   ValuePreview,
@@ -55,6 +56,7 @@ import {
   type CardSearchResult,
   CONDITIONS,
 } from "@/components/addcard";
+import { type SmartSearchResult } from "@/hooks/useSmartSearch";
 
 // Purchase sources
 const PURCHASE_SOURCES = [
@@ -220,12 +222,34 @@ const AddItem = () => {
     }
   };
 
-  const handleCardSelect = (card: CardSearchResult) => {
-    setSelectedCard(card);
+  // Handle card selection from either old CardSearchPanel or new SmartCardSearch
+  const handleCardSelect = (card: CardSearchResult | SmartSearchResult) => {
+    // Normalize SmartSearchResult to CardSearchResult format
+    const normalizedCard: CardSearchResult = 'source' in card ? {
+      id: card.id,
+      name: card.name,
+      set_name: card.setName,
+      set_id: card.setId || '',
+      number: card.number,
+      rarity: card.rarity,
+      image_url: card.imageUrl,
+      image_url_large: card.imageUrlLarge,
+      estimated_value: card.price,
+      prices: card.price ? {
+        market: card.price,
+        low: card.priceLow,
+        high: card.priceHigh,
+        variant: card.priceVariant,
+      } : undefined,
+      category: card.category,
+      tcgplayer_url: card.tcgplayerUrl,
+    } : card;
+    
+    setSelectedCard(normalizedCard);
     
     if (quickAddEnabled) {
       // In quick add mode, add immediately with defaults
-      handleQuickAdd(card);
+      handleQuickAdd(normalizedCard);
     } else {
       // Normal mode, go to details
       setCurrentStep('details');
@@ -239,7 +263,7 @@ const AddItem = () => {
         name: card.name,
         set_name: card.set_name,
         category: card.rarity || null,
-        purchase_price: card.estimated_value || 0,
+        purchase_price: card.estimated_value || card.prices?.market || 0,
         quantity: quickAddDefaults.quantity,
         condition: quickAddDefaults.condition as any,
         grading_company: "raw" as any,
@@ -518,9 +542,10 @@ const AddItem = () => {
                         onClear={() => setSelectedCard(null)}
                       />
 
-                      {/* Card Search */}
-                      <CardSearchPanel
+                      {/* Smart Card Search */}
+                      <SmartCardSearch
                         onSelectCard={handleCardSelect}
+                        autoFocus
                       />
                     </>
                   )}
