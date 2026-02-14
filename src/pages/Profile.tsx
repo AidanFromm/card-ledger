@@ -47,6 +47,7 @@ import { useOnboarding } from "@/hooks/useOnboarding";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { useAchievements } from "@/hooks/useAchievements";
 import BottomNav from "@/components/BottomNav";
+import { ShareStatsButton } from "@/components/ShareStats";
 import { PageTransition } from "@/components/PageTransition";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 
@@ -391,9 +392,10 @@ const Profile = () => {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-8 flex items-center justify-between"
           >
             <h1 className="ios-title-large">Profile</h1>
+            <ShareStatsButton />
           </motion.div>
 
           {/* User Card */}
