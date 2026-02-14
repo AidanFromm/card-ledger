@@ -696,10 +696,13 @@ const Wishlist = () => {
               <div className="space-y-4 py-4">
                 {itemToMove?.image_url && (
                   <div className="flex justify-center">
-                    <img
+                    <CardImage
                       src={itemToMove.image_url}
                       alt={itemToMove.card_name}
-                      className="w-32 h-auto rounded-lg border border-border/40"
+                      size="lg"
+                      rounded="lg"
+                      border
+                      borderColor="border-border/40"
                     />
                   </div>
                 )}
