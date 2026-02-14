@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { PageTransition } from "@/components/PageTransition";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { AchievementsWidget } from "@/components/Achievements";
+import { SmartTips } from "@/components/SmartTips";
 
 // Dashboard components - Premium V4
 import {
@@ -357,6 +358,16 @@ const Dashboard = () => {
             className="mb-8"
           >
             <QuickActions />
+          </motion.div>
+
+          {/* Smart Tips */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.38 }}
+            className="mb-6"
+          >
+            <SmartTips />
           </motion.div>
 
           {/* Achievements Widget */}
