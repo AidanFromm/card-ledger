@@ -14,6 +14,8 @@ import { PageTransition } from "@/components/PageTransition";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 import { AchievementsWidget } from "@/components/Achievements";
 import { SmartTips } from "@/components/SmartTips";
+import { PortfolioInsights } from "@/components/PortfolioInsights";
+import { MarketTrends } from "@/components/MarketTrends";
 
 // Dashboard components - Premium V4
 import {
@@ -370,6 +372,19 @@ const Dashboard = () => {
             <SmartTips />
           </motion.div>
 
+          {/* Portfolio Insights */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.39 }}
+            className="mb-6"
+          >
+            <PortfolioInsights 
+              items={unsoldItems} 
+              totalValue={totalPortfolioValue} 
+            />
+          </motion.div>
+
           {/* Achievements Widget */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -396,11 +411,21 @@ const Dashboard = () => {
             </>
           )}
 
+          {/* Market Trends */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.42 }}
+            className="mb-6"
+          >
+            <MarketTrends />
+          </motion.div>
+
           {/* Analytics Grid */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.44 }}
             className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6"
           >
             {/* Category Breakdown */}
