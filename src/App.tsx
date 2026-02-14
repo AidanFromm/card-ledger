@@ -48,6 +48,9 @@ const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
 // What's New modal for announcing features
 import { WhatsNewModal } from "./components/WhatsNew";
 
+// Command palette for quick navigation
+import { CommandPalette } from "./components/CommandPalette";
+
 const queryClient = new QueryClient();
 
 // Loading fallback for lazy loaded components
@@ -104,6 +107,7 @@ const App = () => {
             <BackgroundTasks />
             <OfflineIndicator />
             <WhatsNewModal />
+            <CommandPalette />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* Public routes - eager loaded */}
