@@ -32,6 +32,7 @@ const MarketTrends = lazy(() => import("./pages/MarketTrends"));
 const MarketData = lazy(() => import("./pages/MarketData"));
 const TradingHub = lazy(() => import("./pages/TradingHub"));
 const Profile = lazy(() => import("./pages/Profile"));
+const AchievementsPage = lazy(() => import("./pages/AchievementsPage"));
 const ClientListView = lazy(() => import("./pages/ClientListView"));
 const ClientLists = lazy(() => import("./pages/ClientLists"));
 const ClientListDetail = lazy(() => import("./pages/ClientListDetail"));
@@ -193,6 +194,11 @@ const App = () => {
                 <Route path="/profile" element={
                   <Suspense fallback={<PageLoader />}>
                     <ProtectedRoute><Profile /></ProtectedRoute>
+                  </Suspense>
+                } />
+                <Route path="/achievements" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ProtectedRoute><AchievementsPage /></ProtectedRoute>
                   </Suspense>
                 } />
                 <Route path="/analytics" element={

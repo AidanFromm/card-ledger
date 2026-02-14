@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageTransition } from "@/components/PageTransition";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
+import { AchievementsWidget } from "@/components/Achievements";
 
 // Dashboard components - Premium V4
 import {
@@ -356,6 +357,16 @@ const Dashboard = () => {
             className="mb-8"
           >
             <QuickActions />
+          </motion.div>
+
+          {/* Achievements Widget */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-8"
+          >
+            <AchievementsWidget />
           </motion.div>
 
           {/* Top Movers Section */}

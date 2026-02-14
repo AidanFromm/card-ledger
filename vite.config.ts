@@ -52,11 +52,17 @@ export default defineConfig(({ mode }) => ({
               id.includes('node_modules/react-day-picker')) {
             return 'vendor-date';
           }
-          // PDF/Export - only load when needed
-          if (id.includes('node_modules/jspdf') || 
-              id.includes('node_modules/xlsx') || 
-              id.includes('node_modules/papaparse')) {
-            return 'vendor-export';
+          // PDF generation - only load on export
+          if (id.includes('node_modules/jspdf')) {
+            return 'vendor-pdf';
+          }
+          // Excel parsing - only load on import
+          if (id.includes('node_modules/xlsx')) {
+            return 'vendor-xlsx';
+          }
+          // CSV parsing - smaller, load with import page
+          if (id.includes('node_modules/papaparse')) {
+            return 'vendor-csv';
           }
           // Radix UI primitives
           if (id.includes('node_modules/@radix-ui')) {
