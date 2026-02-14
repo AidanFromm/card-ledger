@@ -1,279 +1,192 @@
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+/**
+ * Price Alerts Hook
+ * 
+ * Manages price alerts for cards:
+ * - Set target buy/sell prices
+ * - Check alerts on price refresh
+ * - Persistent storage
+ */
+
+import { useState, useCallback, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+
+// ============================================
+// Types
+// ============================================
 
 export interface PriceAlert {
   id: string;
-  user_id: string;
-  card_id: string;
-  card_name: string;
-  set_name: string | null;
-  card_image_url: string | null;
-  current_price: number | null;
-  target_price: number;
-  direction: 'above' | 'below';
-  is_active: boolean;
-  triggered_at: string | null;
-  created_at: string;
-  updated_at: string;
+  itemId: string;
+  itemName: string;
+  setName: string;
+  imageUrl?: string;
+  type: 'above' | 'below';
+  targetPrice: number;
+  currentPrice?: number;
+  createdAt: number;
+  triggered: boolean;
+  triggeredAt?: number;
 }
 
-export interface CreateAlertParams {
-  card_id: string;
-  card_name: string;
-  set_name?: string | null;
-  card_image_url?: string | null;
-  current_price?: number | null;
-  target_price: number;
-  direction: 'above' | 'below';
+export interface UsePriceAlertsReturn {
+  alerts: PriceAlert[];
+  activeAlerts: PriceAlert[];
+  triggeredAlerts: PriceAlert[];
+  addAlert: (alert: Omit<PriceAlert, 'id' | 'createdAt' | 'triggered'>) => void;
+  removeAlert: (id: string) => void;
+  clearTriggered: () => void;
+  checkAlerts: (prices: Map<string, number>) => PriceAlert[];
+  hasAlert: (itemId: string) => boolean;
+  getAlertForItem: (itemId: string) => PriceAlert | undefined;
 }
 
-const ALERTS_LIMIT = 50; // Max alerts per user
+// ============================================
+// Storage
+// ============================================
 
-export const usePriceAlerts = () => {
+const STORAGE_KEY = 'cardledger_price_alerts';
+
+function loadAlerts(): PriceAlert[] {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch {
+    // Ignore
+  }
+  return [];
+}
+
+function saveAlerts(alerts: PriceAlert[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(alerts));
+  } catch {
+    // Storage full
+  }
+}
+
+// ============================================
+// Hook
+// ============================================
+
+export function usePriceAlerts(): UsePriceAlertsReturn {
   const [alerts, setAlerts] = useState<PriceAlert[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Fetch all alerts
-  const fetchAlerts = useCallback(async () => {
-    try {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setAlerts([]);
-        return;
-      }
-
-      const { data, error: fetchError } = await supabase
-        .from('price_alerts')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (fetchError) throw fetchError;
-      setAlerts((data as PriceAlert[]) || []);
-      setError(null);
-    } catch (err: any) {
-      console.error('Error fetching price alerts:', err);
-      setError(err.message);
-      setAlerts([]);
-    } finally {
-      setLoading(false);
-    }
+  // Load on mount
+  useEffect(() => {
+    const loaded = loadAlerts();
+    setAlerts(loaded);
   }, []);
 
-  // Initial fetch
+  // Save on change
   useEffect(() => {
-    fetchAlerts();
-  }, [fetchAlerts]);
-
-  // Create a new alert
-  const createAlert = useCallback(async (params: CreateAlertParams): Promise<boolean> => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          variant: 'destructive',
-          title: 'Not authenticated',
-          description: 'Please sign in to set price alerts.',
-        });
-        return false;
-      }
-
-      // Check limit
-      if (alerts.length >= ALERTS_LIMIT) {
-        toast({
-          variant: 'destructive',
-          title: 'Alert limit reached',
-          description: `You can only have up to ${ALERTS_LIMIT} price alerts.`,
-        });
-        return false;
-      }
-
-      // Check for existing alert on same card with same direction
-      const existing = alerts.find(
-        a => a.card_id === params.card_id && a.direction === params.direction && a.is_active
-      );
-      if (existing) {
-        toast({
-          variant: 'destructive',
-          title: 'Alert already exists',
-          description: `You already have an active "${params.direction}" alert for this card.`,
-        });
-        return false;
-      }
-
-      const { error: insertError } = await supabase
-        .from('price_alerts')
-        .insert({
-          user_id: user.id,
-          card_id: params.card_id,
-          card_name: params.card_name,
-          set_name: params.set_name || null,
-          card_image_url: params.card_image_url || null,
-          current_price: params.current_price || null,
-          target_price: params.target_price,
-          direction: params.direction,
-          is_active: true,
-        });
-
-      if (insertError) throw insertError;
-
-      toast({
-        title: 'Alert created',
-        description: `You'll be notified when ${params.card_name} goes ${params.direction} $${params.target_price.toFixed(2)}`,
-      });
-
-      await fetchAlerts();
-      return true;
-    } catch (err: any) {
-      console.error('Error creating alert:', err);
-      toast({
-        variant: 'destructive',
-        title: 'Failed to create alert',
-        description: err.message,
-      });
-      return false;
-    }
-  }, [alerts, toast, fetchAlerts]);
-
-  // Toggle alert active status
-  const toggleAlert = useCallback(async (alertId: string): Promise<boolean> => {
-    try {
-      const alert = alerts.find(a => a.id === alertId);
-      if (!alert) return false;
-
-      const { error: updateError } = await supabase
-        .from('price_alerts')
-        .update({ 
-          is_active: !alert.is_active,
-          triggered_at: null, // Reset triggered status when reactivating
-        })
-        .eq('id', alertId);
-
-      if (updateError) throw updateError;
-
-      toast({
-        title: alert.is_active ? 'Alert paused' : 'Alert activated',
-        description: alert.is_active 
-          ? 'You won\'t receive notifications for this alert.'
-          : 'Alert is now active and monitoring prices.',
-      });
-
-      await fetchAlerts();
-      return true;
-    } catch (err: any) {
-      console.error('Error toggling alert:', err);
-      toast({
-        variant: 'destructive',
-        title: 'Failed to update alert',
-        description: err.message,
-      });
-      return false;
-    }
-  }, [alerts, toast, fetchAlerts]);
-
-  // Delete an alert
-  const deleteAlert = useCallback(async (alertId: string): Promise<boolean> => {
-    try {
-      const { error: deleteError } = await supabase
-        .from('price_alerts')
-        .delete()
-        .eq('id', alertId);
-
-      if (deleteError) throw deleteError;
-
-      toast({
-        title: 'Alert deleted',
-        description: 'Price alert has been removed.',
-      });
-
-      await fetchAlerts();
-      return true;
-    } catch (err: any) {
-      console.error('Error deleting alert:', err);
-      toast({
-        variant: 'destructive',
-        title: 'Failed to delete alert',
-        description: err.message,
-      });
-      return false;
-    }
-  }, [toast, fetchAlerts]);
-
-  // Update target price
-  const updateTargetPrice = useCallback(async (alertId: string, newPrice: number): Promise<boolean> => {
-    try {
-      const { error: updateError } = await supabase
-        .from('price_alerts')
-        .update({ 
-          target_price: newPrice,
-          triggered_at: null, // Reset triggered status when updating price
-        })
-        .eq('id', alertId);
-
-      if (updateError) throw updateError;
-
-      toast({
-        title: 'Alert updated',
-        description: `Target price changed to $${newPrice.toFixed(2)}`,
-      });
-
-      await fetchAlerts();
-      return true;
-    } catch (err: any) {
-      console.error('Error updating alert:', err);
-      toast({
-        variant: 'destructive',
-        title: 'Failed to update alert',
-        description: err.message,
-      });
-      return false;
-    }
-  }, [toast, fetchAlerts]);
-
-  // Check if card has an active alert
-  const hasAlert = useCallback((cardId: string, direction?: 'above' | 'below'): boolean => {
-    return alerts.some(a => 
-      a.card_id === cardId && 
-      a.is_active && 
-      (direction ? a.direction === direction : true)
-    );
+    saveAlerts(alerts);
   }, [alerts]);
 
-  // Get alert for a specific card
-  const getAlertForCard = useCallback((cardId: string): PriceAlert | undefined => {
-    return alerts.find(a => a.card_id === cardId);
+  // Active alerts (not triggered)
+  const activeAlerts = alerts.filter(a => !a.triggered);
+  
+  // Triggered alerts
+  const triggeredAlerts = alerts.filter(a => a.triggered);
+
+  // Add new alert
+  const addAlert = useCallback((
+    alertData: Omit<PriceAlert, 'id' | 'createdAt' | 'triggered'>
+  ) => {
+    const newAlert: PriceAlert = {
+      ...alertData,
+      id: `alert_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      createdAt: Date.now(),
+      triggered: false,
+    };
+
+    setAlerts(prev => [...prev, newAlert]);
+
+    toast({
+      title: 'Price alert set',
+      description: `Alert when ${alertData.itemName} goes ${alertData.type} $${alertData.targetPrice}`,
+    });
+  }, [toast]);
+
+  // Remove alert
+  const removeAlert = useCallback((id: string) => {
+    setAlerts(prev => prev.filter(a => a.id !== id));
+  }, []);
+
+  // Clear all triggered alerts
+  const clearTriggered = useCallback(() => {
+    setAlerts(prev => prev.filter(a => !a.triggered));
+  }, []);
+
+  // Check alerts against new prices
+  const checkAlerts = useCallback((prices: Map<string, number>): PriceAlert[] => {
+    const triggered: PriceAlert[] = [];
+
+    setAlerts(prev => {
+      const updated = prev.map(alert => {
+        if (alert.triggered) return alert;
+
+        const currentPrice = prices.get(alert.itemId);
+        if (currentPrice === undefined) return alert;
+
+        let shouldTrigger = false;
+        if (alert.type === 'above' && currentPrice >= alert.targetPrice) {
+          shouldTrigger = true;
+        } else if (alert.type === 'below' && currentPrice <= alert.targetPrice) {
+          shouldTrigger = true;
+        }
+
+        if (shouldTrigger) {
+          const triggeredAlert: PriceAlert = {
+            ...alert,
+            currentPrice,
+            triggered: true,
+            triggeredAt: Date.now(),
+          };
+          triggered.push(triggeredAlert);
+          return triggeredAlert;
+        }
+
+        return { ...alert, currentPrice };
+      });
+
+      return updated;
+    });
+
+    // Show notifications for triggered alerts
+    for (const alert of triggered) {
+      toast({
+        title: '🔔 Price Alert Triggered!',
+        description: `${alert.itemName} is now $${alert.currentPrice?.toFixed(2)} (${alert.type} $${alert.targetPrice})`,
+      });
+    }
+
+    return triggered;
+  }, [toast]);
+
+  // Check if item has an alert
+  const hasAlert = useCallback((itemId: string) => {
+    return alerts.some(a => a.itemId === itemId && !a.triggered);
   }, [alerts]);
 
-  // Computed values
-  const activeAlerts = alerts.filter(a => a.is_active && !a.triggered_at);
-  const triggeredAlerts = alerts.filter(a => a.triggered_at);
-  const pausedAlerts = alerts.filter(a => !a.is_active);
+  // Get alert for item
+  const getAlertForItem = useCallback((itemId: string) => {
+    return alerts.find(a => a.itemId === itemId && !a.triggered);
+  }, [alerts]);
 
   return {
     alerts,
-    loading,
-    error,
-    createAlert,
-    toggleAlert,
-    deleteAlert,
-    updateTargetPrice,
-    hasAlert,
-    getAlertForCard,
-    refetch: fetchAlerts,
-    // Computed
     activeAlerts,
     triggeredAlerts,
-    pausedAlerts,
-    activeCount: activeAlerts.length,
-    triggeredCount: triggeredAlerts.length,
-    totalCount: alerts.length,
-    limit: ALERTS_LIMIT,
-    isFull: alerts.length >= ALERTS_LIMIT,
+    addAlert,
+    removeAlert,
+    clearTriggered,
+    checkAlerts,
+    hasAlert,
+    getAlertForItem,
   };
-};
+}
 
 export default usePriceAlerts;

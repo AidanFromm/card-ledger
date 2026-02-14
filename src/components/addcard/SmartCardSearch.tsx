@@ -50,6 +50,8 @@ interface SmartCardSearchProps {
   placeholder?: string;
   autoFocus?: boolean;
   className?: string;
+  showCategoryFilter?: boolean;
+  showAdvancedFilters?: boolean;
 }
 
 // ============================================
@@ -100,12 +102,21 @@ const CATEGORY_CONFIG: Record<CardCategory, { label: string; color: string; icon
 
 export const SmartCardSearch = forwardRef<HTMLInputElement, SmartCardSearchProps>(({
   onSelectCard,
-  category = 'all',
+  category: initialCategory = 'all',
   onCategoryChange,
   placeholder = 'Search cards (e.g., "Charizard ex SV" or "#25/102")...',
   autoFocus = false,
   className,
+  showCategoryFilter = true,
+  showAdvancedFilters = true,
 }, ref) => {
+  const [category, setCategory] = useState<CardCategory>(initialCategory);
+  
+  // Handle category change
+  const handleCategoryChange = (newCategory: CardCategory) => {
+    setCategory(newCategory);
+    onCategoryChange?.(newCategory);
+  };
   const [isOpen, setIsOpen] = useState(false);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   const containerRef = useRef<HTMLDivElement>(null);
@@ -193,7 +204,29 @@ export const SmartCardSearch = forwardRef<HTMLInputElement, SmartCardSearchProps
   const hasContent = query.length > 0 || suggestions.length > 0;
   
   return (
-    <div ref={containerRef} className={cn('relative', className)}>
+    <div ref={containerRef} className={cn('relative space-y-3', className)}>
+      {/* Category Filter */}
+      {showCategoryFilter && (
+        <div className="flex gap-2 flex-wrap">
+          {(Object.entries(CATEGORY_CONFIG) as [CardCategory, typeof CATEGORY_CONFIG[CardCategory]][]).map(([key, config]) => (
+            <button
+              key={key}
+              onClick={() => handleCategoryChange(key)}
+              className={cn(
+                'px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200',
+                'border border-border/50 hover:border-primary/50',
+                category === key
+                  ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                  : 'bg-secondary/30 hover:bg-secondary/50'
+              )}
+            >
+              {config.icon && <span className="mr-1">{config.icon}</span>}
+              {config.label}
+            </button>
+          ))}
+        </div>
+      )}
+      
       {/* Search Input */}
       <div className="relative group">
         <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -441,7 +474,7 @@ export const SmartCardSearch = forwardRef<HTMLInputElement, SmartCardSearchProps
                       </div>
                       
                       {/* Price */}
-                      <div className="text-right flex-shrink-0">
+                      <div className="text-right flex-shrink-0 min-w-[80px]">
                         {result.price ? (
                           <>
                             <p className="font-bold text-primary flex items-center gap-1 justify-end">
@@ -451,6 +484,12 @@ export const SmartCardSearch = forwardRef<HTMLInputElement, SmartCardSearchProps
                             {result.priceLow && result.priceHigh && (
                               <p className="text-xs text-muted-foreground">
                                 ${result.priceLow.toFixed(2)} - ${result.priceHigh.toFixed(2)}
+                              </p>
+                            )}
+                            {/* Price change indicator - show if available */}
+                            {result.source === 'justtcg' && (
+                              <p className="text-xs text-emerald-500">
+                                TCGplayer
                               </p>
                             )}
                           </>
