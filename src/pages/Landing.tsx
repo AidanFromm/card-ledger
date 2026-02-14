@@ -925,6 +925,78 @@ const Navigation = ({ scrolled }: { scrolled: boolean }) => {
 };
 
 // ============================================
+// LIVE ACTIVITY TOAST - Social Proof
+// ============================================
+
+const ACTIVITY_MESSAGES = [
+  { name: "Mike R.", location: "California", action: "added a PSA 10 Charizard", icon: "✨" },
+  { name: "Sarah T.", location: "New York", action: "completed a set", icon: "🎉" },
+  { name: "Jake M.", location: "Texas", action: "sold a card for $450", icon: "💰" },
+  { name: "Emma L.", location: "Florida", action: "reached $10K portfolio", icon: "🚀" },
+  { name: "Chris P.", location: "Ohio", action: "added 25 cards", icon: "📦" },
+  { name: "Alex K.", location: "Washington", action: "graded a BGS 9.5", icon: "⭐" },
+  { name: "Jordan W.", location: "Colorado", action: "earned 'Master Collector'", icon: "🏆" },
+  { name: "Sam D.", location: "Georgia", action: "tracked $5K profit", icon: "📈" },
+];
+
+const LiveActivityToast = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const showToast = () => {
+      setIsVisible(true);
+      setTimeout(() => setIsVisible(false), 4000);
+    };
+
+    // Initial delay
+    const initialTimer = setTimeout(() => {
+      showToast();
+    }, 5000);
+
+    // Recurring
+    const interval = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % ACTIVITY_MESSAGES.length);
+      showToast();
+    }, 12000);
+
+    return () => {
+      clearTimeout(initialTimer);
+      clearInterval(interval);
+    };
+  }, []);
+
+  const activity = ACTIVITY_MESSAGES[currentIndex];
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          initial={{ opacity: 0, y: 50, x: 20 }}
+          animate={{ opacity: 1, y: 0, x: 0 }}
+          exit={{ opacity: 0, y: 20, x: 20 }}
+          className="fixed bottom-24 left-4 z-50 max-w-xs"
+        >
+          <div className="flex items-center gap-3 px-4 py-3 bg-zinc-900/95 backdrop-blur-xl border border-zinc-700/50 rounded-2xl shadow-xl">
+            <div className="w-10 h-10 rounded-full bg-navy-600/30 flex items-center justify-center text-lg">
+              {activity.icon}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-white font-medium truncate">
+                {activity.name} from {activity.location}
+              </p>
+              <p className="text-xs text-zinc-400 truncate">
+                just {activity.action}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+// ============================================
 // MAIN LANDING COMPONENT
 // ============================================
 
@@ -1203,6 +1275,11 @@ const Landing = () => {
       {/* NAVIGATION */}
       {/* ============================================ */}
       <Navigation scrolled={scrolled} />
+
+      {/* ============================================ */}
+      {/* LIVE ACTIVITY TOAST - Social Proof */}
+      {/* ============================================ */}
+      <LiveActivityToast />
 
       {/* ============================================ */}
       {/* HERO SECTION */}
