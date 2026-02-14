@@ -18,6 +18,11 @@ export interface SetProgress {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  // Extended fields for goals and master set tracking
+  goal_percentage?: number;
+  track_master_set?: boolean;
+  master_total?: number;
+  master_owned?: number;
 }
 
 export interface SetCard {
@@ -27,6 +32,11 @@ export interface SetCard {
   image_url: string;
   rarity?: string;
   owned: boolean;
+  // Extended fields for pricing and variants
+  price?: number;
+  variant_type?: 'normal' | 'reverse_holo' | 'holo' | 'secret_rare' | 'promo' | 'special';
+  subtypes?: string[];
+  supertype?: string;
 }
 
 export interface SetInfo {
@@ -34,11 +44,15 @@ export interface SetInfo {
   name: string;
   series?: string;
   total_cards: number;
+  printed_total?: number;
   release_date?: string;
   logo_url?: string;
   symbol_url?: string;
   tcg_type: string;
 }
+
+export type SortOption = 'completion' | 'name' | 'release_date' | 'recently_added';
+export type CardVariantFilter = 'all' | 'normal' | 'reverse_holo' | 'holo' | 'secret_rare' | 'promo';
 
 export const useSetCompletion = () => {
   const [trackedSets, setTrackedSets] = useState<SetProgress[]>([]);
@@ -78,8 +92,31 @@ export const useSetCompletion = () => {
     fetchTrackedSets();
   }, [fetchTrackedSets]);
 
+  // Sort tracked sets
+  const sortTrackedSets = useCallback((sets: SetProgress[], sortBy: SortOption): SetProgress[] => {
+    const sorted = [...sets];
+    switch (sortBy) {
+      case 'completion':
+        return sorted.sort((a, b) => b.completion_percentage - a.completion_percentage);
+      case 'name':
+        return sorted.sort((a, b) => a.set_name.localeCompare(b.set_name));
+      case 'release_date':
+        return sorted.sort((a, b) => {
+          const dateA = a.release_date ? new Date(a.release_date).getTime() : 0;
+          const dateB = b.release_date ? new Date(b.release_date).getTime() : 0;
+          return dateB - dateA; // Newest first
+        });
+      case 'recently_added':
+        return sorted.sort((a, b) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      default:
+        return sorted;
+    }
+  }, []);
+
   // Start tracking a new set
-  const startTrackingSet = useCallback(async (setInfo: SetInfo): Promise<boolean> => {
+  const startTrackingSet = useCallback(async (setInfo: SetInfo, options?: { trackMasterSet?: boolean; goalPercentage?: number }): Promise<boolean> => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -112,9 +149,11 @@ export const useSetCompletion = () => {
           set_logo_url: setInfo.logo_url || null,
           set_symbol_url: setInfo.symbol_url || null,
           release_date: setInfo.release_date || null,
-          total_cards: setInfo.total_cards,
+          total_cards: setInfo.printed_total || setInfo.total_cards,
           owned_cards: 0,
           owned_card_ids: [],
+          goal_percentage: options?.goalPercentage || 100,
+          track_master_set: options?.trackMasterSet || false,
         });
 
       if (insertError) throw insertError;
@@ -164,6 +203,46 @@ export const useSetCompletion = () => {
       return false;
     }
   }, [toast, fetchTrackedSets]);
+
+  // Update set goal
+  const updateSetGoal = useCallback(async (setId: string, goalPercentage: number): Promise<boolean> => {
+    try {
+      const setProgress = trackedSets.find(s => s.set_id === setId);
+      if (!setProgress) return false;
+
+      const { error: updateError } = await supabase
+        .from('set_progress')
+        .update({ goal_percentage: goalPercentage })
+        .eq('id', setProgress.id);
+
+      if (updateError) throw updateError;
+      await fetchTrackedSets();
+      return true;
+    } catch (err: any) {
+      console.error('Error updating goal:', err);
+      return false;
+    }
+  }, [trackedSets, fetchTrackedSets]);
+
+  // Toggle master set tracking
+  const toggleMasterSetTracking = useCallback(async (setId: string, enabled: boolean): Promise<boolean> => {
+    try {
+      const setProgress = trackedSets.find(s => s.set_id === setId);
+      if (!setProgress) return false;
+
+      const { error: updateError } = await supabase
+        .from('set_progress')
+        .update({ track_master_set: enabled })
+        .eq('id', setProgress.id);
+
+      if (updateError) throw updateError;
+      await fetchTrackedSets();
+      return true;
+    } catch (err: any) {
+      console.error('Error toggling master set:', err);
+      return false;
+    }
+  }, [trackedSets, fetchTrackedSets]);
 
   // Toggle card ownership
   const toggleCardOwned = useCallback(async (setId: string, cardId: string, owned: boolean): Promise<boolean> => {
@@ -257,6 +336,33 @@ export const useSetCompletion = () => {
     return setProgress?.owned_card_ids.includes(cardId) ?? false;
   }, [trackedSets]);
 
+  // Determine variant type from Pokemon TCG card data
+  const determineVariantType = (card: any): SetCard['variant_type'] => {
+    const rarity = (card.rarity || '').toLowerCase();
+    const subtypes = card.subtypes || [];
+    const number = card.number || '';
+    const supertype = card.supertype || '';
+    
+    // Check for secret rare (card number > printed total)
+    if (number.includes('/')) {
+      const [num, total] = number.split('/').map(n => parseInt(n));
+      if (num > total) return 'secret_rare';
+    }
+    
+    // Check for promo
+    if (rarity.includes('promo') || card.set?.id?.includes('promo')) return 'promo';
+    
+    // Check for special variants
+    if (rarity.includes('illustration rare') || rarity.includes('special art')) return 'special';
+    if (rarity.includes('secret') || rarity.includes('hyper')) return 'secret_rare';
+    if (rarity.includes('holo') && !subtypes.includes('Basic')) return 'holo';
+    
+    // Check subtypes for reverse holo indicators
+    if (subtypes.some((s: string) => s.toLowerCase().includes('reverse'))) return 'reverse_holo';
+    
+    return 'normal';
+  };
+
   // Fetch sets from TCG APIs
   const fetchPokemonSets = useCallback(async (): Promise<SetInfo[]> => {
     try {
@@ -267,7 +373,8 @@ export const useSetCompletion = () => {
         id: set.id,
         name: set.name,
         series: set.series,
-        total_cards: set.printedTotal || set.total,
+        total_cards: set.total,
+        printed_total: set.printedTotal,
         release_date: set.releaseDate,
         logo_url: set.images?.logo,
         symbol_url: set.images?.symbol,
@@ -292,6 +399,7 @@ export const useSetCompletion = () => {
           name: set.name,
           series: set.set_type,
           total_cards: set.card_count,
+          printed_total: set.card_count,
           release_date: set.released_at,
           logo_url: set.icon_svg_uri,
           symbol_url: set.icon_svg_uri,
@@ -316,6 +424,7 @@ export const useSetCompletion = () => {
           id: set.set_code || set.set_name.toLowerCase().replace(/\s+/g, '-'),
           name: set.set_name,
           total_cards: set.num_of_cards,
+          printed_total: set.num_of_cards,
           release_date: set.tcg_date,
           tcg_type: 'yugioh',
         }));
@@ -325,8 +434,8 @@ export const useSetCompletion = () => {
     }
   }, []);
 
-  // Fetch cards for a specific set
-  const fetchSetCards = useCallback(async (setId: string, tcgType: string): Promise<SetCard[]> => {
+  // Fetch cards for a specific set with pricing
+  const fetchSetCards = useCallback(async (setId: string, tcgType: string, includePrices = true): Promise<SetCard[]> => {
     try {
       // Check cache first
       const { data: cached } = await supabase
@@ -359,6 +468,14 @@ export const useSetCompletion = () => {
           image_url: card.images?.small || card.images?.large,
           rarity: card.rarity,
           owned: false,
+          price: card.tcgplayer?.prices?.holofoil?.market || 
+                 card.tcgplayer?.prices?.normal?.market || 
+                 card.tcgplayer?.prices?.reverseHolofoil?.market ||
+                 card.cardmarket?.prices?.averageSellPrice || 
+                 null,
+          variant_type: determineVariantType(card),
+          subtypes: card.subtypes,
+          supertype: card.supertype,
         }));
       } else if (tcgType === 'mtg') {
         const response = await fetch(`https://api.scryfall.com/cards/search?q=set:${setId}&order=set`);
@@ -371,6 +488,10 @@ export const useSetCompletion = () => {
           image_url: card.image_uris?.small || card.image_uris?.normal,
           rarity: card.rarity,
           owned: false,
+          price: card.prices?.usd ? parseFloat(card.prices.usd) : null,
+          variant_type: card.promo ? 'promo' : 
+                       card.full_art ? 'special' : 
+                       card.foil ? 'holo' : 'normal',
         }));
       }
 
@@ -384,7 +505,15 @@ export const useSetCompletion = () => {
             tcg_type: tcgType,
             set_name: setProgress?.set_name || setId,
             total_cards: cards.length,
-            cards: cards.map(c => ({ id: c.id, name: c.name, number: c.number, image_url: c.image_url, rarity: c.rarity })),
+            cards: cards.map(c => ({ 
+              id: c.id, 
+              name: c.name, 
+              number: c.number, 
+              image_url: c.image_url, 
+              rarity: c.rarity,
+              price: c.price,
+              variant_type: c.variant_type,
+            })),
           });
 
         // Mark owned cards
@@ -402,6 +531,53 @@ export const useSetCompletion = () => {
     }
   }, [trackedSets]);
 
+  // Calculate completion stats (missing value, etc.)
+  const calculateCompletionStats = useCallback((cards: SetCard[], ownedCardIds: string[]) => {
+    const totalCards = cards.length;
+    const ownedCards = cards.filter(c => ownedCardIds.includes(c.id));
+    const missingCards = cards.filter(c => !ownedCardIds.includes(c.id));
+    
+    const missingValue = missingCards.reduce((sum, c) => sum + (c.price || 0), 0);
+    const ownedValue = ownedCards.reduce((sum, c) => sum + (c.price || 0), 0);
+    const totalValue = cards.reduce((sum, c) => sum + (c.price || 0), 0);
+    
+    // Variant breakdowns
+    const variantStats = {
+      normal: { total: 0, owned: 0, missing: 0, missingValue: 0 },
+      reverse_holo: { total: 0, owned: 0, missing: 0, missingValue: 0 },
+      holo: { total: 0, owned: 0, missing: 0, missingValue: 0 },
+      secret_rare: { total: 0, owned: 0, missing: 0, missingValue: 0 },
+      promo: { total: 0, owned: 0, missing: 0, missingValue: 0 },
+      special: { total: 0, owned: 0, missing: 0, missingValue: 0 },
+    };
+    
+    cards.forEach(card => {
+      const variant = card.variant_type || 'normal';
+      if (variantStats[variant]) {
+        variantStats[variant].total++;
+        if (ownedCardIds.includes(card.id)) {
+          variantStats[variant].owned++;
+        } else {
+          variantStats[variant].missing++;
+          variantStats[variant].missingValue += card.price || 0;
+        }
+      }
+    });
+    
+    return {
+      totalCards,
+      ownedCount: ownedCards.length,
+      missingCount: missingCards.length,
+      completionPercentage: totalCards > 0 ? (ownedCards.length / totalCards) * 100 : 0,
+      missingValue,
+      ownedValue,
+      totalValue,
+      estimatedCompletionCost: missingValue,
+      variantStats,
+      cardsWithPrices: cards.filter(c => c.price !== null && c.price !== undefined).length,
+    };
+  }, []);
+
   return {
     trackedSets,
     loading,
@@ -417,6 +593,10 @@ export const useSetCompletion = () => {
     fetchMtgSets,
     fetchYugiohSets,
     fetchSetCards,
+    sortTrackedSets,
+    updateSetGoal,
+    toggleMasterSetTracking,
+    calculateCompletionStats,
     refetch: fetchTrackedSets,
   };
 };

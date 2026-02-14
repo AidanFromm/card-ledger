@@ -7,7 +7,10 @@ import {
   X, 
   Filter,
   Loader2,
-  ImageOff
+  ImageOff,
+  DollarSign,
+  Tag,
+  ChevronDown
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,18 +22,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { useRecentSearches } from "@/hooks/useRecentSearches";
+import { 
+  searchCards, 
+  getSets,
+  type CardSearchResult,
+  type PokemonTcgSet,
+} from "@/lib/pokemonTcgApi";
+import { formatPrice, formatVariant } from "@/hooks/usePokemonTcgApi";
 
-export interface CardSearchResult {
-  id: string;
-  name: string;
-  set_name: string;
-  number?: string;
-  rarity?: string;
-  image_url?: string;
-  estimated_value?: number;
-  category?: string;
-}
+// Re-export for backwards compatibility
+export type { CardSearchResult };
 
 // Popular cards for suggestions
 const POPULAR_CARDS = [
@@ -69,10 +76,48 @@ export const CardSearchPanel = ({
   const [results, setResults] = useState<CardSearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+  const [totalCount, setTotalCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Advanced filters
+  const [selectedSet, setSelectedSet] = useState<string>("");
+  const [selectedRarity, setSelectedRarity] = useState<string>("");
+  const [sets, setSets] = useState<PokemonTcgSet[]>([]);
+  const [loadingSets, setLoadingSets] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   
   const { recentSearches, addSearch, removeSearch, clearSearches } = useRecentSearches();
+
+  // Load sets for filter dropdown
+  useEffect(() => {
+    let cancelled = false;
+    
+    async function loadSets() {
+      setLoadingSets(true);
+      try {
+        const result = await getSets();
+        if (!cancelled) {
+          setSets(result.sets);
+        }
+      } catch (err) {
+        console.warn('Failed to load sets:', err);
+      } finally {
+        if (!cancelled) {
+          setLoadingSets(false);
+        }
+      }
+    }
+    
+    loadSets();
+    
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -85,52 +130,52 @@ export const CardSearchPanel = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Debounced search
-  const searchCards = useCallback(async (searchQuery: string) => {
+  // Debounced search using the new API
+  const performSearch = useCallback(async (searchQuery: string) => {
     if (searchQuery.length < 2) {
       setResults([]);
+      setTotalCount(0);
       return;
     }
 
+    // Cancel any pending request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
     setIsSearching(true);
+    setError(null);
+    
     try {
-      // Pokemon TCG API search
-      const response = await fetch(
-        `https://api.pokemontcg.io/v2/cards?q=name:"${searchQuery}*"&pageSize=20&select=id,name,set,number,rarity,images,tcgplayer`
-      );
+      const result = await searchCards(searchQuery, {
+        set: selectedSet || undefined,
+        rarity: selectedRarity || undefined,
+        pageSize: 25,
+      });
       
-      if (response.ok) {
-        const data = await response.json();
-        const cards: CardSearchResult[] = (data.data || []).map((card: any) => ({
-          id: card.id,
-          name: card.name,
-          set_name: card.set?.name || "Unknown Set",
-          number: card.number,
-          rarity: card.rarity,
-          image_url: card.images?.small,
-          estimated_value: card.tcgplayer?.prices?.holofoil?.market || 
-                          card.tcgplayer?.prices?.normal?.market ||
-                          card.tcgplayer?.prices?.reverseHolofoil?.market,
-          category: "pokemon",
-        }));
-        setResults(cards);
+      setResults(result.cards);
+      setTotalCount(result.totalCount);
+    } catch (err) {
+      if (err instanceof Error && err.name !== 'AbortError') {
+        console.error("Search error:", err);
+        setError("Failed to search. Please try again.");
+        setResults([]);
       }
-    } catch (error) {
-      console.error("Search error:", error);
     } finally {
       setIsSearching(false);
     }
-  }, []);
+  }, [selectedSet, selectedRarity]);
 
   // Debounce effect
   useEffect(() => {
     const timer = setTimeout(() => {
       if (query) {
-        searchCards(query);
+        performSearch(query);
       }
     }, 300);
     return () => clearTimeout(timer);
-  }, [query, searchCards]);
+  }, [query, performSearch]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -153,11 +198,17 @@ export const CardSearchPanel = ({
   const handleClear = () => {
     setQuery("");
     setResults([]);
+    setTotalCount(0);
     inputRef.current?.focus();
   };
 
   const handleImageError = (cardId: string) => {
     setFailedImages(prev => new Set(prev).add(cardId));
+  };
+
+  const handleClearFilters = () => {
+    setSelectedSet("");
+    setSelectedRarity("");
   };
 
   // Filter recent searches based on query
@@ -167,13 +218,28 @@ export const CardSearchPanel = ({
 
   // Show dropdown content
   const hasContent = query.length > 0 || filteredRecent.length > 0;
+  const hasActiveFilters = selectedSet || selectedRarity;
+
+  // Common rarities for quick filter
+  const commonRarities = [
+    "Common",
+    "Uncommon", 
+    "Rare",
+    "Rare Holo",
+    "Rare Holo V",
+    "Rare Ultra",
+    "Rare Rainbow",
+    "Rare Secret",
+    "Special Art Rare",
+    "Illustration Rare",
+  ];
 
   return (
     <div ref={containerRef} className="relative space-y-4">
-      {/* Category Filter */}
-      <div className="flex gap-2">
+      {/* Category & Filters Row */}
+      <div className="flex gap-2 flex-wrap">
         <Select value={category} onValueChange={onCategoryChange}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[160px]">
             <Filter className="h-4 w-4 mr-2" />
             <SelectValue placeholder="Category" />
           </SelectTrigger>
@@ -185,6 +251,108 @@ export const CardSearchPanel = ({
             ))}
           </SelectContent>
         </Select>
+
+        {/* Advanced Filters Popover */}
+        {category === "all" || category === "pokemon" ? (
+          <Popover open={showFilters} onOpenChange={setShowFilters}>
+            <PopoverTrigger asChild>
+              <Button 
+                variant={hasActiveFilters ? "default" : "outline"} 
+                size="sm"
+                className="gap-2"
+              >
+                <Tag className="h-4 w-4" />
+                Filters
+                {hasActiveFilters && (
+                  <Badge variant="secondary" className="ml-1 h-5 px-1.5">
+                    {(selectedSet ? 1 : 0) + (selectedRarity ? 1 : 0)}
+                  </Badge>
+                )}
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="start">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Set</label>
+                  <Select value={selectedSet} onValueChange={setSelectedSet}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={loadingSets ? "Loading..." : "Any set"} />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      <SelectItem value="">Any set</SelectItem>
+                      {sets.map(set => (
+                        <SelectItem key={set.id} value={set.name}>
+                          <div className="flex items-center gap-2">
+                            <img 
+                              src={set.images.symbol} 
+                              alt="" 
+                              className="w-4 h-4 object-contain"
+                              onError={(e) => e.currentTarget.style.display = 'none'}
+                            />
+                            <span className="truncate">{set.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Rarity</label>
+                  <Select value={selectedRarity} onValueChange={setSelectedRarity}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Any rarity" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Any rarity</SelectItem>
+                      {commonRarities.map(rarity => (
+                        <SelectItem key={rarity} value={rarity}>
+                          {rarity}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {hasActiveFilters && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleClearFilters}
+                    className="w-full"
+                  >
+                    Clear Filters
+                  </Button>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+        ) : null}
+
+        {/* Active filter badges */}
+        {hasActiveFilters && (
+          <div className="flex gap-1 items-center">
+            {selectedSet && (
+              <Badge variant="secondary" className="gap-1">
+                {selectedSet}
+                <X 
+                  className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                  onClick={() => setSelectedSet("")}
+                />
+              </Badge>
+            )}
+            {selectedRarity && (
+              <Badge variant="secondary" className="gap-1">
+                {selectedRarity}
+                <X 
+                  className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                  onClick={() => setSelectedRarity("")}
+                />
+              </Badge>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Search Input */}
@@ -222,6 +390,13 @@ export const CardSearchPanel = ({
         </AnimatePresence>
       </div>
 
+      {/* Results count */}
+      {query.length >= 2 && !isSearching && results.length > 0 && (
+        <p className="text-xs text-muted-foreground">
+          Showing {results.length} of {totalCount} results
+        </p>
+      )}
+
       {/* Dropdown */}
       <AnimatePresence>
         {showDropdown && hasContent && (
@@ -231,8 +406,15 @@ export const CardSearchPanel = ({
             exit={{ opacity: 0, y: -10 }}
             className="absolute left-0 right-0 top-full mt-2 bg-card border border-border/50 rounded-xl shadow-xl z-50 max-h-[60vh] overflow-y-auto"
           >
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 text-center text-destructive text-sm">
+                {error}
+              </div>
+            )}
+
             {/* Recent Searches */}
-            {filteredRecent.length > 0 && !results.length && (
+            {filteredRecent.length > 0 && !results.length && !error && (
               <div className="p-3 border-b border-border/30">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
@@ -271,7 +453,7 @@ export const CardSearchPanel = ({
             )}
 
             {/* Popular Suggestions (when no query) */}
-            {!query && !results.length && (
+            {!query && !results.length && !error && (
               <div className="p-3">
                 <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-2">
                   <TrendingUp className="h-3 w-3" />
@@ -304,12 +486,13 @@ export const CardSearchPanel = ({
                     className="flex items-center gap-3 p-3 hover:bg-secondary/50 cursor-pointer transition-colors"
                   >
                     {/* Card Image */}
-                    <div className="w-12 h-16 rounded-md overflow-hidden bg-secondary/50 flex-shrink-0">
+                    <div className="w-12 h-16 rounded-md overflow-hidden bg-secondary/50 flex-shrink-0 relative">
                       {card.image_url && !failedImages.has(card.id) ? (
                         <img
                           src={card.image_url}
                           alt={card.name}
                           className="w-full h-full object-cover"
+                          loading="lazy"
                           onError={() => handleImageError(card.id)}
                         />
                       ) : (
@@ -324,38 +507,75 @@ export const CardSearchPanel = ({
                       <p className="font-medium text-foreground truncate">
                         {card.name}
                       </p>
-                      <p className="text-sm text-muted-foreground truncate">
-                        {card.set_name}
-                        {card.number && ` #${card.number}`}
-                      </p>
-                      {card.rarity && (
-                        <Badge variant="outline" className="text-xs mt-1">
-                          {card.rarity}
-                        </Badge>
-                      )}
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        {card.set_symbol && (
+                          <img 
+                            src={card.set_symbol} 
+                            alt="" 
+                            className="w-4 h-4 object-contain"
+                            onError={(e) => e.currentTarget.style.display = 'none'}
+                          />
+                        )}
+                        <span className="truncate">
+                          {card.set_name}
+                          {card.number && ` · #${card.number}`}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        {card.rarity && (
+                          <Badge variant="outline" className="text-xs py-0">
+                            {card.rarity}
+                          </Badge>
+                        )}
+                        {card.prices?.variant && (
+                          <Badge variant="secondary" className="text-xs py-0">
+                            {formatVariant(card.prices.variant)}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
 
                     {/* Price */}
-                    {card.estimated_value && (
-                      <div className="text-right flex-shrink-0">
-                        <p className="font-semibold text-primary">
-                          ${card.estimated_value.toFixed(2)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Market</p>
-                      </div>
-                    )}
+                    <div className="text-right flex-shrink-0">
+                      {card.prices ? (
+                        <>
+                          <p className="font-semibold text-primary flex items-center gap-1 justify-end">
+                            <DollarSign className="h-3 w-3" />
+                            {card.prices.market?.toFixed(2) || 'N/A'}
+                          </p>
+                          {card.prices.low && card.prices.high && (
+                            <p className="text-xs text-muted-foreground">
+                              ${card.prices.low.toFixed(2)} - ${card.prices.high.toFixed(2)}
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground">TCGplayer</p>
+                        </>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">No price</p>
+                      )}
+                    </div>
                   </motion.div>
                 ))}
               </div>
             )}
 
             {/* No Results */}
-            {query.length >= 2 && !isSearching && results.length === 0 && (
+            {query.length >= 2 && !isSearching && results.length === 0 && !error && (
               <div className="p-6 text-center">
                 <p className="text-muted-foreground">No cards found for "{query}"</p>
                 <p className="text-sm text-muted-foreground mt-1">
                   Try a different search or use manual entry
                 </p>
+                {hasActiveFilters && (
+                  <Button 
+                    variant="link" 
+                    size="sm" 
+                    onClick={handleClearFilters}
+                    className="mt-2"
+                  >
+                    Clear filters and try again
+                  </Button>
+                )}
               </div>
             )}
           </motion.div>

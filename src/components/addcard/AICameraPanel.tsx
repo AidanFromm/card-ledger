@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CardSearchResult } from "./CardSearchPanel";
+import { searchCards, type CardSearchResult } from "@/lib/pokemonTcgApi";
 
 interface AICameraPanelProps {
   onCardRecognized: (card: CardSearchResult) => void;
@@ -61,24 +61,9 @@ export const AICameraPanel = ({
       // For demo, we'll search for a random popular card
       const mockRecognizedName = "Charizard";
       
-      const response = await fetch(
-        `https://api.pokemontcg.io/v2/cards?q=name:"${mockRecognizedName}"&pageSize=5`
-      );
-      
-      if (!response.ok) throw new Error('Failed to search for card');
-      
-      const data = await response.json();
-      const cards: CardSearchResult[] = (data.data || []).map((card: any) => ({
-        id: card.id,
-        name: card.name,
-        set_name: card.set?.name || "Unknown Set",
-        number: card.number,
-        rarity: card.rarity,
-        image_url: card.images?.small,
-        estimated_value: card.tcgplayer?.prices?.holofoil?.market || 
-                        card.tcgplayer?.prices?.normal?.market,
-        category: "pokemon",
-      }));
+      // Use our Pokemon TCG API client
+      const result = await searchCards(mockRecognizedName, { pageSize: 5 });
+      const cards = result.cards;
 
       if (cards.length > 0) {
         setResult({
