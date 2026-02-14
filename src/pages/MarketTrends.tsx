@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import CardImage from "@/components/CardImage";
 import { PageTransition } from "@/components/PageTransition";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -52,18 +53,14 @@ const HotCard = ({ card, index }: { card: TrendingCard; index: number }) => (
     
     {/* Image */}
     <div className="w-full h-[100px] bg-zinc-800/50 relative">
-      {card.card_image_url ? (
-        <img 
-          src={card.card_image_url} 
-          alt={card.card_name}
-          className="w-full h-full object-contain p-2"
-          loading="lazy"
-        />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center">
-          <Sparkles className="h-8 w-8 text-amber-500/30" />
-        </div>
-      )}
+      <CardImage 
+        src={card.card_image_url} 
+        alt={card.card_name}
+        size="md"
+        containerClassName="w-full h-full p-2"
+        className="w-full h-full object-contain"
+        loading="lazy"
+      />
     </div>
     
     {/* Info */}
@@ -121,22 +118,15 @@ const MoverCard = ({ mover, index, type }: { mover: PriceMover; index: number; t
       
       {/* Image */}
       <div className="w-full h-[80px] rounded-xl overflow-hidden bg-zinc-800/50 mb-2">
-        {mover.card_image_url ? (
-          <img 
-            src={mover.card_image_url} 
-            alt={mover.item_name}
-            className="w-full h-full object-contain"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            {isGainer ? (
-              <TrendingUp className="h-6 w-6 text-navy-500/30" />
-            ) : (
-              <TrendingDown className="h-6 w-6 text-red-500/30" />
-            )}
-          </div>
-        )}
+        <CardImage 
+          src={mover.card_image_url} 
+          alt={mover.item_name}
+          size="md"
+          rounded="xl"
+          containerClassName="w-full h-full"
+          className="w-full h-full object-contain"
+          loading="lazy"
+        />
       </div>
       
       {/* Name */}
@@ -193,18 +183,15 @@ const SaleCard = ({ sale, index }: { sale: RecentSale; index: number }) => {
     >
       {/* Image */}
       <div className="w-12 h-12 rounded-lg bg-zinc-800 flex-shrink-0 overflow-hidden">
-        {sale.card_image_url ? (
-          <img 
-            src={sale.card_image_url} 
-            alt={sale.item_name}
-            className="w-full h-full object-contain"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <DollarSign className="h-5 w-5 text-zinc-600" />
-          </div>
-        )}
+        <CardImage 
+          src={sale.card_image_url} 
+          alt={sale.item_name}
+          size="sm"
+          rounded="lg"
+          containerClassName="w-full h-full"
+          className="w-full h-full object-contain"
+          loading="lazy"
+        />
       </div>
       
       {/* Info */}

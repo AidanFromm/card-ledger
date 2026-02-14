@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import CardImage from "@/components/CardImage";
 import { useSalesDb, Sale } from "@/hooks/useSalesDb";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1001,17 +1002,14 @@ const Sales = () => {
 
                   {/* Item Image */}
                   <div className="w-10 h-14 rounded-lg overflow-hidden bg-secondary/50 flex-shrink-0 shadow-sm">
-                    {item.imageUrl ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
-                        <ImageIcon className="w-4 h-4" />
-                      </div>
-                    )}
+                    <CardImage
+                      src={item.imageUrl}
+                      alt={item.name}
+                      size="sm"
+                      rounded="lg"
+                      containerClassName="w-full h-full"
+                      className="w-full h-full object-contain"
+                    />
                   </div>
 
                   {/* Item Details */}
@@ -1346,10 +1344,15 @@ const Sales = () => {
                                                 key={sale.id}
                                                 className="group flex items-center gap-2 p-2 rounded-lg bg-background/50 hover:bg-background/80 transition-colors"
                                               >
-                                                <img
+                                                <CardImage
                                                   src={(sale as any).card_image_url || '/placeholders/pokemon-card.svg'}
                                                   alt={sale.item_name}
-                                                  className="w-8 h-11 object-contain rounded border border-border/30 flex-shrink-0"
+                                                  size="xs"
+                                                  rounded="md"
+                                                  border
+                                                  borderColor="border-border/30"
+                                                  containerClassName="w-8 h-11 flex-shrink-0"
+                                                  className="w-full h-full object-contain"
                                                 />
                                                 <div className="flex-1 min-w-0">
                                                   <p className="text-xs font-semibold truncate">{sale.item_name}</p>
@@ -1394,10 +1397,15 @@ const Sales = () => {
                                       className="group flex items-center gap-3 p-2.5 border border-border/30 rounded-xl bg-card/50 hover:bg-card transition-colors"
                                     >
                                       {/* Card Image */}
-                                      <img
+                                      <CardImage
                                         src={(sale as any).card_image_url || '/placeholders/pokemon-card.svg'}
                                         alt={sale.item_name}
-                                        className="w-12 h-16 object-contain rounded-lg border border-border/30 flex-shrink-0"
+                                        size="lg"
+                                        rounded="lg"
+                                        border
+                                        borderColor="border-border/30"
+                                        containerClassName="w-12 h-16 flex-shrink-0"
+                                        className="w-full h-full object-contain"
                                       />
 
                                       {/* Sale Details */}

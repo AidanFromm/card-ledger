@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, lazy, Suspense } from "react";
 import { useBackgroundImageFetch } from "@/hooks/useBackgroundImageFetch";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useFolders } from "@/hooks/useFolders";
 import { FoldersPanel } from "@/components/FoldersPanel";
 import { BulkFolderDropdown } from "@/components/FolderDropdown";
-import { ShareDialog } from "@/components/ShareDialog";
-import { SharesManager } from "@/components/SharesManager";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { SearchAutocomplete } from "@/components/SearchAutocomplete";
 
@@ -23,19 +21,23 @@ import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { useScrydexPricing } from "@/hooks/useScrydexPricing";
-import { ItemDetailDialog } from "@/components/ItemDetailDialog";
-import RecordSaleDialog from "@/components/RecordSaleDialog";
-import { CreateClientListDialog } from "@/components/CreateClientListDialog";
-import { VirtualizedInventoryGrid } from "@/components/VirtualizedInventoryGrid";
 import { useClientLists } from "@/hooks/useClientLists";
 import { PageTransition } from "@/components/PageTransition";
 import { SkeletonGrid } from "@/components/ui/skeleton-card";
 import { EmptyInventory, EmptySearchResults } from "@/components/EmptyState";
 import { Progress } from "@/components/ui/progress";
-import { ImportExportDialog } from "@/components/ImportExportDialog";
-import { ExportDialog } from "@/components/ExportDialog";
 import { InventoryFilterPanel } from "@/components/InventoryFilterPanel";
 import { useInventoryFilters } from "@/hooks/useInventoryFilters";
+
+// Lazy load heavy dialog components
+const ItemDetailDialog = lazy(() => import("@/components/ItemDetailDialog").then(m => ({ default: m.ItemDetailDialog })));
+const RecordSaleDialog = lazy(() => import("@/components/RecordSaleDialog"));
+const CreateClientListDialog = lazy(() => import("@/components/CreateClientListDialog").then(m => ({ default: m.CreateClientListDialog })));
+const ShareDialog = lazy(() => import("@/components/ShareDialog").then(m => ({ default: m.ShareDialog })));
+const SharesManager = lazy(() => import("@/components/SharesManager").then(m => ({ default: m.SharesManager })));
+const ImportExportDialog = lazy(() => import("@/components/ImportExportDialog").then(m => ({ default: m.ImportExportDialog })));
+const ExportDialog = lazy(() => import("@/components/ExportDialog").then(m => ({ default: m.ExportDialog })));
+const VirtualizedInventoryGrid = lazy(() => import("@/components/VirtualizedInventoryGrid").then(m => ({ default: m.VirtualizedInventoryGrid })));
 import {
   AlertDialog,
   AlertDialogAction,
@@ -703,44 +705,58 @@ const Inventory = () => {
               ) : filteredItems.length === 0 ? (
                 <EmptySearchResults />
               ) : (
-                <VirtualizedInventoryGrid
-                  items={filteredItems}
-                  selectionMode={selectionMode}
-                  selectedItems={selectedItems}
-                  onToggleSelect={toggleItemSelection}
-                  onOpenDetail={(item) => {
-                    setSelectedItem(item);
-                    setIsDetailOpen(true);
-                  }}
-                  onSell={handleSingleSale}
-                  onDelete={deleteItem}
-                  viewMode={filters.viewMode}
-                  onLongPress={handleLongPress}
-                />
+                <Suspense fallback={<SkeletonGrid count={12} />}>
+                  <VirtualizedInventoryGrid
+                    items={filteredItems}
+                    selectionMode={selectionMode}
+                    selectedItems={selectedItems}
+                    onToggleSelect={toggleItemSelection}
+                    onOpenDetail={(item) => {
+                      setSelectedItem(item);
+                      setIsDetailOpen(true);
+                    }}
+                    onSell={handleSingleSale}
+                    onDelete={deleteItem}
+                    viewMode={filters.viewMode}
+                    onLongPress={handleLongPress}
+                  />
+                </Suspense>
               )}
             </motion.div>
 
-            {/* Dialogs */}
-            <ItemDetailDialog
-              item={selectedItem}
-              open={isDetailOpen}
-              onOpenChange={setIsDetailOpen}
-            />
+            {/* Dialogs - Lazy loaded */}
+            <Suspense fallback={null}>
+              {isDetailOpen && (
+                <ItemDetailDialog
+                  item={selectedItem}
+                  open={isDetailOpen}
+                  onOpenChange={setIsDetailOpen}
+                />
+              )}
+            </Suspense>
 
-            <RecordSaleDialog
-              open={isSaleDialogOpen}
-              onOpenChange={setIsSaleDialogOpen}
-              preselectedItems={itemsForSale}
-              onSaleComplete={handleSaleComplete}
-            />
+            <Suspense fallback={null}>
+              {isSaleDialogOpen && (
+                <RecordSaleDialog
+                  open={isSaleDialogOpen}
+                  onOpenChange={setIsSaleDialogOpen}
+                  preselectedItems={itemsForSale}
+                  onSaleComplete={handleSaleComplete}
+                />
+              )}
+            </Suspense>
 
-            <CreateClientListDialog
-              open={isListDialogOpen}
-              onOpenChange={setIsListDialogOpen}
-              selectedItems={items.filter(item => selectedItems.has(item.id))}
-              onCreateList={handleListCreate}
-              onClearSelection={handleClearSelection}
-            />
+            <Suspense fallback={null}>
+              {isListDialogOpen && (
+                <CreateClientListDialog
+                  open={isListDialogOpen}
+                  onOpenChange={setIsListDialogOpen}
+                  selectedItems={items.filter(item => selectedItems.has(item.id))}
+                  onCreateList={handleListCreate}
+                  onClearSelection={handleClearSelection}
+                />
+              )}
+            </Suspense>
 
             {/* Bulk Delete Confirmation */}
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
@@ -813,36 +829,52 @@ const Inventory = () => {
               </DialogContent>
             </Dialog>
 
-            {/* Share Dialog */}
-            <ShareDialog
-              open={isShareDialogOpen}
-              onOpenChange={setIsShareDialogOpen}
-              selectedItems={items.filter(item => selectedItems.has(item.id))}
-              preselectedFolderId={shareFolderId}
-            />
+            {/* Share Dialog - Lazy loaded */}
+            <Suspense fallback={null}>
+              {isShareDialogOpen && (
+                <ShareDialog
+                  open={isShareDialogOpen}
+                  onOpenChange={setIsShareDialogOpen}
+                  selectedItems={items.filter(item => selectedItems.has(item.id))}
+                  preselectedFolderId={shareFolderId}
+                />
+              )}
+            </Suspense>
 
-            {/* Shares Manager */}
-            <SharesManager
-              open={isSharesManagerOpen}
-              onOpenChange={setIsSharesManagerOpen}
-            />
+            {/* Shares Manager - Lazy loaded */}
+            <Suspense fallback={null}>
+              {isSharesManagerOpen && (
+                <SharesManager
+                  open={isSharesManagerOpen}
+                  onOpenChange={setIsSharesManagerOpen}
+                />
+              )}
+            </Suspense>
 
-            <ImportExportDialog
-              open={isImportExportOpen}
-              onOpenChange={setIsImportExportOpen}
-              items={items}
-              onImportComplete={refetch}
-            />
+            <Suspense fallback={null}>
+              {isImportExportOpen && (
+                <ImportExportDialog
+                  open={isImportExportOpen}
+                  onOpenChange={setIsImportExportOpen}
+                  items={items}
+                  onImportComplete={refetch}
+                />
+              )}
+            </Suspense>
 
-            <ExportDialog
-              open={isExportDialogOpen}
-              onOpenChange={setIsExportDialogOpen}
-              items={items}
-              currentFilter={{
-                category: filters.category,
-                searchTerm: filters.searchTerm,
-              }}
-            />
+            <Suspense fallback={null}>
+              {isExportDialogOpen && (
+                <ExportDialog
+                  open={isExportDialogOpen}
+                  onOpenChange={setIsExportDialogOpen}
+                  items={items}
+                  currentFilter={{
+                    category: filters.category,
+                    searchTerm: filters.searchTerm,
+                  }}
+                />
+              )}
+            </Suspense>
           </main>
         </PullToRefresh>
       </PageTransition>

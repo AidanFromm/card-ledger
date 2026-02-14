@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import CardImage from "@/components/CardImage";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Package,
@@ -292,17 +293,14 @@ const EbayListings = () => {
 
                       {/* Image */}
                       <div className="w-20 h-20 flex-shrink-0 rounded-lg bg-muted overflow-hidden">
-                        {listing.imageUrl ? (
-                          <img
-                            src={listing.imageUrl}
-                            alt={listing.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <ImageOff className="w-6 h-6 text-muted-foreground" />
-                          </div>
-                        )}
+                        <CardImage
+                          src={listing.imageUrl}
+                          alt={listing.title}
+                          size="md"
+                          rounded="lg"
+                          containerClassName="w-full h-full"
+                          className="w-full h-full object-cover"
+                        />
                       </div>
 
                       {/* Details */}

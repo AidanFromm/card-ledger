@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import CardImage from "@/components/CardImage";
 import { PageTransition } from "@/components/PageTransition";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -85,18 +86,14 @@ const HotCard = ({ card, index, onClick }: { card: TrendingCard; index: number; 
     </div>
     
     <div className="w-full h-[100px] bg-zinc-800/50 relative">
-      {card.card_image_url ? (
-        <img 
-          src={card.card_image_url} 
-          alt={card.card_name}
-          className="w-full h-full object-contain p-2"
-          loading="lazy"
-        />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center">
-          <Sparkles className="h-8 w-8 text-amber-500/30" />
-        </div>
-      )}
+      <CardImage 
+        src={card.card_image_url} 
+        alt={card.card_name}
+        size="md"
+        containerClassName="w-full h-full p-2"
+        className="w-full h-full object-contain"
+        loading="lazy"
+      />
     </div>
     
     <div className="p-3">
@@ -151,22 +148,15 @@ const MoverCard = ({ mover, index, type, onClick }: { mover: PriceMover; index: 
       </div>
       
       <div className="w-full h-[80px] rounded-xl overflow-hidden bg-zinc-800/50 mb-2">
-        {mover.card_image_url ? (
-          <img 
-            src={mover.card_image_url} 
-            alt={mover.item_name}
-            className="w-full h-full object-contain"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            {isGainer ? (
-              <TrendingUp className="h-6 w-6 text-navy-500/30" />
-            ) : (
-              <TrendingDown className="h-6 w-6 text-red-500/30" />
-            )}
-          </div>
-        )}
+        <CardImage 
+          src={mover.card_image_url} 
+          alt={mover.item_name}
+          size="md"
+          rounded="xl"
+          containerClassName="w-full h-full"
+          className="w-full h-full object-contain"
+          loading="lazy"
+        />
       </div>
       
       <p className="text-xs font-semibold text-white truncate mb-0.5">
@@ -372,7 +362,14 @@ const CardDetailPanel = ({
       <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {card.imageUrl && (
-            <img src={card.imageUrl} alt={card.name} className="w-12 h-16 object-contain rounded" />
+            <CardImage 
+              src={card.imageUrl} 
+              alt={card.name} 
+              size="lg"
+              rounded="md"
+              containerClassName="w-12 h-16"
+              className="w-full h-full object-contain" 
+            />
           )}
           <div>
             <h3 className="font-bold text-white">{card.name}</h3>
@@ -562,17 +559,16 @@ const AlertCard = ({
       )}
       
       <div className="flex items-center gap-3">
-        {alert.card_image_url ? (
-          <img 
-            src={alert.card_image_url} 
-            alt={alert.card_name}
-            className="w-10 h-14 object-contain rounded border border-zinc-700"
-          />
-        ) : (
-          <div className="w-10 h-14 rounded bg-zinc-800 flex items-center justify-center">
-            <Bell className="h-4 w-4 text-zinc-600" />
-          </div>
-        )}
+        <CardImage 
+          src={alert.card_image_url} 
+          alt={alert.card_name}
+          size="sm"
+          rounded="md"
+          border
+          borderColor="border-zinc-700"
+          containerClassName="w-10 h-14"
+          className="w-full h-full object-contain"
+        />
         
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white truncate">{alert.card_name}</p>
@@ -1138,10 +1134,13 @@ const MarketData = () => {
                         className="flex items-center gap-4 p-4 rounded-xl bg-zinc-800/50 border border-zinc-700/50 cursor-pointer hover:border-primary/30 transition-all"
                       >
                         {result.imageUrl && (
-                          <img 
+                          <CardImage 
                             src={result.imageUrl} 
                             alt={result.name}
-                            className="w-12 h-16 object-contain rounded"
+                            size="lg"
+                            rounded="md"
+                            containerClassName="w-12 h-16"
+                            className="w-full h-full object-contain"
                           />
                         )}
                         <div className="flex-1 min-w-0">

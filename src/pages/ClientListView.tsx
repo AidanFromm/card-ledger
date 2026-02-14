@@ -21,6 +21,7 @@ import {
   Award,
   Loader2,
 } from "lucide-react";
+import { CardImage } from "@/components/CardImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -448,18 +449,14 @@ export default function ClientListView() {
                     <Card className="bg-card/50 border-border/50 hover:border-primary/50 transition-all hover:shadow-lg cursor-pointer overflow-hidden">
                       {/* Card Image */}
                       <div className="aspect-[3/4] bg-muted/30 relative overflow-hidden">
-                        {item.card_image_url ? (
-                          <img
-                            src={item.card_image_url}
-                            alt={item.item_name}
-                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Package className="h-12 w-12 text-muted-foreground/30" />
-                          </div>
-                        )}
+                        <CardImage
+                          src={item.card_image_url}
+                          alt={item.item_name}
+                          size="lg"
+                          containerClassName="w-full h-full"
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          loading="lazy"
+                        />
 
                         {/* Quantity Badge */}
                         {item.quantity > 1 && (
@@ -517,17 +514,14 @@ export default function ClientListView() {
                       onClick={() => handleItemClick(item)}
                       className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors cursor-pointer"
                     >
-                      {item.card_image_url ? (
-                        <img
-                          src={item.card_image_url}
-                          alt={item.item_name}
-                          className="w-16 h-22 object-contain rounded"
-                        />
-                      ) : (
-                        <div className="w-16 h-22 bg-muted rounded flex items-center justify-center">
-                          <Package className="h-6 w-6 text-muted-foreground" />
-                        </div>
-                      )}
+                      <CardImage
+                        src={item.card_image_url}
+                        alt={item.item_name}
+                        size="md"
+                        rounded="md"
+                        containerClassName="w-16 h-22"
+                        className="w-full h-full object-contain"
+                      />
 
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold truncate">{item.item_name}</h4>

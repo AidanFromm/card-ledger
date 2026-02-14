@@ -98,6 +98,7 @@ import {
   Pie,
 } from "recharts";
 import { cn } from "@/lib/utils";
+import CardImage from "@/components/CardImage";
 
 // ============================================================================
 // Glass Card Component
@@ -287,18 +288,18 @@ const KanbanCard = memo(({
       <div className="flex gap-3">
         {/* Card Thumbnail */}
         <div className="w-12 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-muted/30">
-          {submission.card_image_url ? (
-            <img
-              src={submission.card_image_url}
-              alt={submission.card_name}
-              className="w-full h-full object-contain"
-              loading="lazy"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <Image className="h-5 w-5 text-muted-foreground/50" />
-            </div>
-          )}
+          <CardImage
+            src={submission.card_image_url}
+            alt={submission.card_name}
+            size="sm"
+            rounded="lg"
+            containerClassName="w-full h-full"
+            className="w-full h-full object-contain"
+            loading="lazy"
+            graded={!!submission.returned_grade}
+            gradingCompany={submission.grading_company}
+            grade={submission.returned_grade}
+          />
         </div>
 
         {/* Card Info */}
@@ -752,7 +753,14 @@ const AddSubmissionDialog = memo(({
                     <SelectItem key={item.id} value={item.id}>
                       <div className="flex items-center gap-2">
                         {item.card_image_url && (
-                          <img src={item.card_image_url} className="w-6 h-8 object-contain rounded" />
+                          <CardImage 
+                            src={item.card_image_url} 
+                            alt={item.name}
+                            size="xs" 
+                            rounded="md"
+                            containerClassName="w-6 h-8"
+                            className="w-full h-full object-contain" 
+                          />
                         )}
                         <span className="truncate">{item.name}</span>
                         <span className="text-muted-foreground text-xs">({item.set_name})</span>
@@ -1061,10 +1069,16 @@ const SubmissionDetailDialog = memo(({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
               {submission.card_image_url && (
-                <img 
+                <CardImage 
                   src={submission.card_image_url} 
                   alt={submission.card_name}
-                  className="w-12 h-16 object-contain rounded-lg"
+                  size="sm"
+                  rounded="lg"
+                  containerClassName="w-12 h-16"
+                  className="w-full h-full object-contain"
+                  graded={!!submission.returned_grade}
+                  gradingCompany={submission.grading_company}
+                  grade={submission.returned_grade}
                 />
               )}
               <div>

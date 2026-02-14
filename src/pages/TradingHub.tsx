@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import CardImage from "@/components/CardImage";
 import { useTradingLocal, type TradeCard, type TradePartner, type TradeProposal, type TradeHistoryEntry, type TradeStatus } from "@/hooks/useTradingLocal";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { Button } from "@/components/ui/button";
@@ -881,23 +882,16 @@ const TradingHub = () => {
                         className="relative aspect-[3/4] rounded-lg overflow-hidden border-2 border-border/40 hover:border-purple-500 transition-all"
                         whileTap={{ scale: 0.95 }}
                       >
-                        {item.card_image_url ? (
-                          <img
-                            src={item.card_image_url}
-                            alt={item.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-muted/30 flex items-center justify-center">
-                            <Package className="h-6 w-6 text-muted-foreground" />
-                          </div>
-                        )}
-                        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-1.5">
-                          <div className="text-[10px] text-white truncate">{item.name}</div>
-                          <div className="text-[10px] text-navy-400 font-bold">
-                            {formatCurrency(item.market_price || item.purchase_price || 0)}
-                          </div>
-                        </div>
+                        <CardImage
+                          src={item.card_image_url}
+                          alt={item.name}
+                          size="md"
+                          rounded="lg"
+                          containerClassName="w-full h-full"
+                          className="w-full h-full object-cover"
+                          showPrice
+                          price={item.market_price || item.purchase_price || 0}
+                        />
                       </motion.button>
                     ))}
                   </div>
@@ -1331,13 +1325,14 @@ const TradeCardItem = ({ card, onRemove, onUpdateValue }: TradeCardItemProps) =>
     >
       {/* Card Image */}
       <div className="w-10 h-14 rounded overflow-hidden flex-shrink-0 bg-muted/30">
-        {card.card_image_url ? (
-          <img src={card.card_image_url} alt={card.name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </div>
-        )}
+        <CardImage 
+          src={card.card_image_url} 
+          alt={card.name} 
+          size="sm"
+          rounded="md"
+          containerClassName="w-full h-full"
+          className="w-full h-full object-cover" 
+        />
       </div>
 
       {/* Card Info */}

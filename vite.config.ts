@@ -15,4 +15,57 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // Core React vendor chunk
+          if (id.includes('node_modules/react/') || 
+              id.includes('node_modules/react-dom/') || 
+              id.includes('node_modules/react-router')) {
+            return 'vendor-react';
+          }
+          // Charts - heavy library
+          if (id.includes('node_modules/recharts')) {
+            return 'vendor-charts';
+          }
+          // Animation library
+          if (id.includes('node_modules/framer-motion')) {
+            return 'vendor-motion';
+          }
+          // Supabase
+          if (id.includes('node_modules/@supabase')) {
+            return 'vendor-supabase';
+          }
+          // Form handling
+          if (id.includes('node_modules/react-hook-form') || 
+              id.includes('node_modules/@hookform') || 
+              id.includes('node_modules/zod')) {
+            return 'vendor-forms';
+          }
+          // Data handling
+          if (id.includes('node_modules/@tanstack')) {
+            return 'vendor-data';
+          }
+          // Date utilities
+          if (id.includes('node_modules/date-fns') || 
+              id.includes('node_modules/react-day-picker')) {
+            return 'vendor-date';
+          }
+          // PDF/Export - only load when needed
+          if (id.includes('node_modules/jspdf') || 
+              id.includes('node_modules/xlsx') || 
+              id.includes('node_modules/papaparse')) {
+            return 'vendor-export';
+          }
+          // Radix UI primitives
+          if (id.includes('node_modules/@radix-ui')) {
+            return 'vendor-ui';
+          }
+        },
+      },
+    },
+    // Increase chunk size warning limit since we're intentionally chunking
+    chunkSizeWarningLimit: 500,
+  },
 }));

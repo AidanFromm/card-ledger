@@ -24,6 +24,7 @@ import { AddToInventoryDialog } from "@/components/AddToInventoryDialog";
 import { PageTransition } from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import CardImage from "@/components/CardImage";
 import { useSubscription } from "@/hooks/useSubscription";
 
 type ScanState =
@@ -423,17 +424,14 @@ const ScanAI = () => {
                       </span>
                     </div>
                     <div className="flex gap-4 p-4">
-                      {selectedMatch.image_url ? (
-                        <img
-                          src={selectedMatch.image_url}
-                          alt={selectedMatch.name}
-                          className="w-28 h-36 object-contain rounded-lg bg-secondary/30"
-                        />
-                      ) : (
-                        <div className="w-28 h-36 rounded-lg bg-secondary/30 flex items-center justify-center">
-                          <Sparkles className="w-10 h-10 text-muted-foreground" />
-                        </div>
-                      )}
+                      <CardImage
+                        src={selectedMatch.image_url}
+                        alt={selectedMatch.name}
+                        size="lg"
+                        rounded="lg"
+                        containerClassName="w-28 h-36 bg-secondary/30"
+                        className="w-full h-full object-contain"
+                      />
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-lg line-clamp-2">
                           {selectedMatch.name}

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow } from "date-fns";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import CardImage from "@/components/CardImage";
 import { PageTransition } from "@/components/PageTransition";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -108,19 +109,17 @@ const SubmissionCard = ({
         <div className="flex gap-4">
           {/* Card Image */}
           <div className="w-20 h-28 flex-shrink-0 rounded-xl overflow-hidden bg-muted/30">
-            {submission.card_image_url ? (
-              <img
-                src={submission.card_image_url}
-                alt={submission.card_name}
-                className="w-full h-full object-contain"
-              />
-            ) : (
-              <img
-                src={getPlaceholderForItem({ category: 'raw', grading_company: 'raw' })}
-                alt="Placeholder"
-                className="w-full h-full object-contain p-2 opacity-50"
-              />
-            )}
+            <CardImage
+              src={submission.card_image_url}
+              alt={submission.card_name}
+              size="md"
+              rounded="xl"
+              containerClassName="w-full h-full"
+              className="w-full h-full object-contain"
+              graded={!!submission.returned_grade}
+              gradingCompany={submission.grading_company}
+              grade={submission.returned_grade}
+            />
           </div>
 
           {/* Card Info */}

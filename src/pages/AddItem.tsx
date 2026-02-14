@@ -168,13 +168,29 @@ const AddItem = () => {
   // Sync selected card to form
   useEffect(() => {
     if (selectedCard) {
+      // Check if it's a sports card (has sport property)
+      const isSportsCard = 'sport' in selectedCard && selectedCard.sport;
+      
       setFormData(prev => ({
         ...prev,
         name: selectedCard.name,
-        set_name: selectedCard.set_name,
+        set_name: selectedCard.set_name || "",
         card_number: selectedCard.number || "",
         category: selectedCard.rarity || "",
+        // Sports card fields
+        player: (selectedCard as any).player || "",
+        team: (selectedCard as any).team || "",
+        sport: (selectedCard as any).sport || "",
+        year: (selectedCard as any).year ? String((selectedCard as any).year) : "",
+        brand: (selectedCard as any).brand || "",
+        rookie: (selectedCard as any).rookie || false,
       }));
+      
+      // If sports card, auto-expand the sports fields section
+      if (isSportsCard) {
+        setShowSportsFields(true);
+      }
+      
       if (selectedCard.image_url) {
         setImagePreview(selectedCard.image_url);
       }
@@ -722,14 +738,42 @@ const AddItem = () => {
                                   <SelectValue placeholder="Select sport" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="baseball">Baseball</SelectItem>
-                                  <SelectItem value="basketball">Basketball</SelectItem>
-                                  <SelectItem value="football">Football</SelectItem>
-                                  <SelectItem value="hockey">Hockey</SelectItem>
-                                  <SelectItem value="soccer">Soccer</SelectItem>
+                                  <SelectItem value="baseball">⚾ Baseball</SelectItem>
+                                  <SelectItem value="basketball">🏀 Basketball</SelectItem>
+                                  <SelectItem value="football">🏈 Football</SelectItem>
+                                  <SelectItem value="hockey">🏒 Hockey</SelectItem>
+                                  <SelectItem value="soccer">⚽ Soccer</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="brand">Brand</Label>
+                              <Select
+                                value={formData.brand}
+                                onValueChange={(value) => setFormData({ ...formData, brand: value })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select brand" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="topps">Topps</SelectItem>
+                                  <SelectItem value="bowman">Bowman</SelectItem>
+                                  <SelectItem value="panini">Panini</SelectItem>
+                                  <SelectItem value="prizm">Panini Prizm</SelectItem>
+                                  <SelectItem value="select">Panini Select</SelectItem>
+                                  <SelectItem value="optic">Donruss Optic</SelectItem>
+                                  <SelectItem value="mosaic">Panini Mosaic</SelectItem>
+                                  <SelectItem value="upper-deck">Upper Deck</SelectItem>
+                                  <SelectItem value="fleer">Fleer</SelectItem>
+                                  <SelectItem value="donruss">Donruss</SelectItem>
+                                  <SelectItem value="hoops">NBA Hoops</SelectItem>
+                                  <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          <div className="grid gap-4 sm:grid-cols-2">
                             <div className="space-y-2">
                               <Label htmlFor="year">Year</Label>
                               <Input

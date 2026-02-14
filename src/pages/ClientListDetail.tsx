@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
+import CardImage from "@/components/CardImage";
 import {
   ArrowLeft,
   Eye,
@@ -516,17 +517,14 @@ const ClientListDetail = () => {
                                 <GripVertical className="h-5 w-5 text-muted-foreground" />
                               </div>
 
-                              {item.card_image_url ? (
-                                <img
-                                  src={item.card_image_url}
-                                  alt={item.item_name}
-                                  className="w-16 h-22 object-contain rounded"
-                                />
-                              ) : (
-                                <div className="w-16 h-22 bg-muted rounded flex items-center justify-center">
-                                  <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                                </div>
-                              )}
+                              <CardImage
+                                src={item.card_image_url}
+                                alt={item.item_name}
+                                size="md"
+                                rounded="md"
+                                containerClassName="w-16 h-22"
+                                className="w-full h-full object-contain"
+                              />
 
                               <div className="flex-1 min-w-0">
                                 <h4 className="font-semibold truncate">{item.item_name}</h4>
@@ -615,15 +613,14 @@ const ClientListDetail = () => {
                     <div className="space-y-3">
                       {analytics.topViewedItems.map(({ item, views }) => (
                         <div key={item.id} className="flex items-center gap-3">
-                          {item.card_image_url ? (
-                            <img
-                              src={item.card_image_url}
-                              alt={item.item_name}
-                              className="w-10 h-14 object-contain rounded"
-                            />
-                          ) : (
-                            <div className="w-10 h-14 bg-muted rounded" />
-                          )}
+                          <CardImage
+                            src={item.card_image_url}
+                            alt={item.item_name}
+                            size="sm"
+                            rounded="md"
+                            containerClassName="w-10 h-14"
+                            className="w-full h-full object-contain"
+                          />
                           <div className="flex-1">
                             <p className="font-medium truncate">{item.item_name}</p>
                             <p className="text-xs text-muted-foreground">{item.set_name}</p>
@@ -998,13 +995,14 @@ const ClientListDetail = () => {
                           {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
                         </div>
                         
-                        {item.card_image_url ? (
-                          <img src={item.card_image_url} alt={item.name} className="w-10 h-14 object-contain rounded" />
-                        ) : (
-                          <div className="w-10 h-14 bg-muted rounded flex items-center justify-center">
-                            <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                          </div>
-                        )}
+                        <CardImage
+                          src={item.card_image_url}
+                          alt={item.name}
+                          size="sm"
+                          rounded="md"
+                          containerClassName="w-10 h-14"
+                          className="w-full h-full object-contain"
+                        />
                         
                         <div className="flex-1 min-w-0">
                           <p className="font-medium truncate">{item.name}</p>

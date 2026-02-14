@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { 
   TrendingUp, 
   ChevronRight, 
-  Sparkles,
+  Sparkles as SparklesIcon,
   BarChart3,
   Bell,
   CheckCircle2,
@@ -56,6 +56,34 @@ import {
   ArrowUpRight,
   MousePointer
 } from "lucide-react";
+
+// Aceternity UI Premium Components
+import {
+  Spotlight,
+  SpotlightCard,
+} from "@/components/aceternity/spotlight";
+import {
+  CardHoverEffect,
+} from "@/components/aceternity/card-hover-effect";
+import {
+  TextGenerateEffect,
+  TypewriterEffect,
+} from "@/components/aceternity/text-generate-effect";
+import {
+  BackgroundGradient,
+  BackgroundBeams,
+  GridBackground,
+} from "@/components/aceternity/background-gradient";
+import {
+  Sparkles,
+  SparklesBadge,
+  ShineEffect,
+} from "@/components/aceternity/sparkles";
+import {
+  NumberTicker,
+  CurrencyTicker,
+  PercentageTicker,
+} from "@/components/aceternity/number-ticker";
 
 // ============================================
 // ANIMATED BACKGROUND - PARTICLES & GRADIENTS
@@ -204,9 +232,10 @@ const GradientOrbs = () => (
 // ANIMATED COMPONENTS
 // ============================================
 
+// Using Aceternity's NumberTicker for smoother animations
 const AnimatedCounter = ({ 
   value, 
-  duration = 2000, 
+  duration = 2, 
   prefix = "", 
   suffix = "",
   decimals = 0
@@ -217,29 +246,10 @@ const AnimatedCounter = ({
   suffix?: string;
   decimals?: number;
 }) => {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-
-  useEffect(() => {
-    if (!isInView) return;
-    
-    let startTime: number;
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      // Eased progress
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(eased * value);
-      if (progress < 1) requestAnimationFrame(animate);
-    };
-    requestAnimationFrame(animate);
-  }, [isInView, value, duration]);
-
   return (
-    <span ref={ref}>
+    <span className="tabular-nums">
       {prefix}
-      {decimals > 0 ? count.toFixed(decimals) : Math.floor(count).toLocaleString()}
+      <NumberTicker value={value} duration={duration} decimalPlaces={decimals} />
       {suffix}
     </span>
   );
@@ -399,29 +409,31 @@ const FeatureCard = ({
   };
   
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 40, scale: 0.95 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ delay, duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
-      whileHover={{ y: -6, transition: { duration: 0.3 } }}
-      className={`group relative rounded-3xl bg-gradient-to-b from-[#141414] to-[#0d0d0d] border border-[#1a1a1a] overflow-hidden hover:border-[#2a2a2a] transition-all duration-500 ${sizeClasses[size]}`}
+    <CardHoverEffect
+      rotationIntensity={8}
+      scaleOnHover={1.02}
+      glareEnabled={true}
+      glareMaxOpacity={0.15}
+      glareColor={accentColor}
+      className={`rounded-3xl ${sizeClasses[size]}`}
     >
-      {/* Glow on hover */}
-      <motion.div 
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{
-          background: `radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), ${accentColor}10, transparent 40%)`
-        }}
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 40, scale: 0.95 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ delay, duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
+        className="group relative h-full rounded-3xl bg-gradient-to-b from-[#141414] to-[#0d0d0d] border border-[#1a1a1a] overflow-hidden hover:border-[#2a2a2a] transition-all duration-500"
+      >
+        {/* SpotlightCard effect on hover */}
+        <SpotlightCard spotlightColor={`${accentColor}20`} className="absolute inset-0 rounded-3xl" />
       
-      {/* Border glow */}
-      <div 
-        className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{
-          background: `linear-gradient(180deg, ${accentColor}15 0%, transparent 50%)`,
-        }}
-      />
+        {/* Border glow */}
+        <div 
+          className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{
+            background: `linear-gradient(180deg, ${accentColor}15 0%, transparent 50%)`,
+          }}
+        />
       
       <div className="relative z-10 p-6 md:p-8 h-full flex flex-col">
         {/* Icon */}
@@ -452,7 +464,8 @@ const FeatureCard = ({
           <ArrowUpRight className="w-4 h-4 text-[#627d98]" />
         </motion.div>
       </div>
-    </motion.div>
+      </motion.div>
+    </CardHoverEffect>
   );
 };
 
@@ -1199,28 +1212,46 @@ const Landing = () => {
         style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
         className="relative min-h-screen flex items-center justify-center pt-24 pb-20 px-6"
       >
+        {/* Aceternity Spotlight Effect */}
+        <Spotlight
+          className="-top-40 left-0 md:left-60 md:-top-20"
+          fill="#627d98"
+        />
+        
+        {/* Background Beams */}
+        <BackgroundBeams className="opacity-40" />
+        
         <div className="max-w-6xl mx-auto text-center relative z-10">
           
-          {/* Badge */}
+          {/* Badge with Sparkles */}
           <RevealOnScroll delay={0}>
-            <motion.div 
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#627d98]/20 to-[#627d98]/5 border border-[#627d98]/30 mb-8 backdrop-blur-sm"
-              whileHover={{ scale: 1.02 }}
-            >
-              <Sparkles className="w-4 h-4 text-[#627d98]" />
-              <span className="text-sm font-semibold text-[#627d98]">The #1 Portfolio Tracker for Collectors</span>
-              <ChevronRight className="w-4 h-4 text-[#627d98]/60" />
-            </motion.div>
+            <SparklesBadge sparkleColor="#627d98">
+              <motion.div 
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#627d98]/20 to-[#627d98]/5 border border-[#627d98]/30 mb-8 backdrop-blur-sm"
+                whileHover={{ scale: 1.02 }}
+              >
+                <SparklesIcon className="w-4 h-4 text-[#627d98]" />
+                <span className="text-sm font-semibold text-[#627d98]">The #1 Portfolio Tracker for Collectors</span>
+                <ChevronRight className="w-4 h-4 text-[#627d98]/60" />
+              </motion.div>
+            </SparklesBadge>
           </RevealOnScroll>
 
-          {/* Main Headline */}
+          {/* Main Headline with Text Generate Effect */}
           <RevealOnScroll delay={0.1}>
             <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-[1.05]">
-              <span className="block">Your Cards</span>
+              <TextGenerateEffect 
+                words="Your Cards"
+                className="block text-white"
+                duration={0.5}
+                staggerDelay={0.08}
+              />
               <span className="block mt-2">
-                <span className="bg-gradient-to-r from-[#627d98] via-[#34d399] to-[#6ee7b7] bg-clip-text text-transparent">
-                  One Ledger
-                </span>
+                <Sparkles sparkleColor="#34d399" sparkleCount={8}>
+                  <span className="bg-gradient-to-r from-[#627d98] via-[#34d399] to-[#6ee7b7] bg-clip-text text-transparent">
+                    One Ledger
+                  </span>
+                </Sparkles>
               </span>
             </h1>
           </RevealOnScroll>
@@ -1239,18 +1270,20 @@ const Landing = () => {
           <RevealOnScroll delay={0.3}>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
               <MagneticButton onClick={() => navigate("/auth")}>
-                <Button
-                  size="lg"
-                  className="h-16 px-10 text-lg font-bold rounded-2xl bg-gradient-to-r from-[#627d98] to-[#059669] hover:from-[#0ea472] hover:to-[#059669] text-black gap-3 shadow-2xl shadow-[#627d98]/30 hover:shadow-[#627d98]/50 transition-all group"
-                >
-                  Start Free
-                  <motion.div
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
+                <ShineEffect>
+                  <Button
+                    size="lg"
+                    className="h-16 px-10 text-lg font-bold rounded-2xl bg-gradient-to-r from-[#627d98] to-[#059669] hover:from-[#0ea472] hover:to-[#059669] text-black gap-3 shadow-2xl shadow-[#627d98]/30 hover:shadow-[#627d98]/50 transition-all group"
                   >
-                    <ChevronRight className="w-6 h-6" />
-                  </motion.div>
-                </Button>
+                    Start Free
+                    <motion.div
+                      animate={{ x: [0, 4, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </motion.div>
+                  </Button>
+                </ShineEffect>
               </MagneticButton>
               
               <Button
@@ -1632,7 +1665,8 @@ const Landing = () => {
           </div>
           
           <RevealOnScroll className="relative">
-            <div className="text-center p-8 md:p-16 rounded-3xl bg-gradient-to-b from-[#111111] to-[#0d0d0d] border border-[#1a1a1a] overflow-hidden">
+            <BackgroundGradient containerClassName="rounded-3xl" className="rounded-3xl">
+            <div className="text-center p-8 md:p-16 rounded-3xl bg-gradient-to-b from-[#111111] to-[#0d0d0d] overflow-hidden">
               {/* Decorative elements */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-px bg-gradient-to-r from-transparent via-[#627d98]/50 to-transparent" />
               
@@ -1686,6 +1720,7 @@ const Landing = () => {
                 </motion.div>
               </div>
             </div>
+            </BackgroundGradient>
           </RevealOnScroll>
         </div>
       </section>

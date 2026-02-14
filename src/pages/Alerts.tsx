@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Bell, BellOff, BellRing, Trash2, TrendingUp, TrendingDown, Filter, Plus, RefreshCw } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import CardImage from "@/components/CardImage";
 import { usePriceAlerts, PriceAlert } from "@/hooks/usePriceAlerts";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -270,17 +271,16 @@ const AlertCard = ({ alert, index, onToggle, onDelete, formatCurrency, formatDat
 
       <div className="flex gap-3">
         {/* Card Image */}
-        {alert.card_image_url ? (
-          <img
-            src={alert.card_image_url}
-            alt={alert.card_name}
-            className="w-16 h-22 object-contain rounded-lg border border-border/40 flex-shrink-0"
-          />
-        ) : (
-          <div className="w-16 h-22 rounded-lg bg-muted/30 flex items-center justify-center flex-shrink-0">
-            <Bell className="h-6 w-6 text-muted-foreground" />
-          </div>
-        )}
+        <CardImage
+          src={alert.card_image_url}
+          alt={alert.card_name}
+          size="md"
+          rounded="lg"
+          border
+          borderColor="border-border/40"
+          containerClassName="w-16 h-22 flex-shrink-0"
+          className="w-full h-full object-contain"
+        />
 
         {/* Alert Details */}
         <div className="flex-1 min-w-0">

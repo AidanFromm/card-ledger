@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import CardImage from "@/components/CardImage";
 import { useSetCompletion, SetProgress, SetInfo, SetCard, SortOption, CardVariantFilter } from "@/hooks/useSetCompletion";
 import { useWishlistDb } from "@/hooks/useWishlistDb";
 import { useCelebration, triggerCelebration } from "@/components/Celebration";
@@ -852,10 +853,12 @@ const SetProgressCard = ({ set, index, onClick, onDelete, onSetGoal }: SetProgre
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             {(set.set_logo_url || set.set_symbol_url) && (
-              <img
+              <CardImage
                 src={set.set_logo_url || set.set_symbol_url || ''}
                 alt=""
-                className="w-5 h-5 object-contain"
+                size="xs"
+                containerClassName="w-5 h-5"
+                className="w-full h-full object-contain"
               />
             )}
             <h3 className="font-bold text-sm truncate">{set.set_name}</h3>
@@ -929,10 +932,12 @@ const BrowseSetCard = ({ set, isTracking, onTrack }: BrowseSetCardProps) => {
       className="flex items-center gap-4 p-3 rounded-xl bg-card/50 border border-border/30 hover:border-border/50 transition-all"
     >
       {set.logo_url || set.symbol_url ? (
-        <img
+        <CardImage
           src={set.logo_url || set.symbol_url || ''}
           alt={set.name}
-          className="w-10 h-10 object-contain"
+          size="sm"
+          containerClassName="w-10 h-10"
+          className="w-full h-full object-contain"
         />
       ) : (
         <div className="w-10 h-10 rounded-lg bg-muted/30 flex items-center justify-center">
@@ -1053,10 +1058,12 @@ const ChecklistView = ({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               {(set.set_logo_url || set.set_symbol_url) && (
-                <img
+                <CardImage
                   src={set.set_logo_url || set.set_symbol_url || ''}
                   alt=""
-                  className="w-8 h-8 object-contain"
+                  size="sm"
+                  containerClassName="w-8 h-8"
+                  className="w-full h-full object-contain"
                 />
               )}
               <h2 className="font-bold text-lg truncate">{set.set_name}</h2>
@@ -1272,11 +1279,14 @@ const ChecklistCardGrid = ({
         variantGradient && `bg-gradient-to-br ${variantGradient}`
       )}
     >
-      <img
+      <CardImage
         src={card.image_url}
         alt={card.name}
+        size="md"
+        containerClassName="w-full h-full"
         className="w-full h-full object-cover"
         loading="lazy"
+        owned={card.owned}
       />
       
       {/* Owned Badge */}
@@ -1353,10 +1363,13 @@ const ChecklistCardList = ({
         "w-10 h-14 rounded overflow-hidden flex-shrink-0 transition-all",
         !card.owned && "grayscale opacity-50"
       )}>
-        <img
+        <CardImage
           src={card.image_url}
           alt={card.name}
+          size="sm"
+          containerClassName="w-full h-full"
           className="w-full h-full object-cover"
+          owned={card.owned}
         />
       </div>
       

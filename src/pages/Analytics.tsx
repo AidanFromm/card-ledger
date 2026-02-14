@@ -38,6 +38,7 @@ import {
 } from "recharts";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import CardImage from "@/components/CardImage";
 import { PageTransition } from "@/components/PageTransition";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { useSalesDb } from "@/hooks/useSalesDb";
@@ -665,17 +666,14 @@ const PerformersTable = memo(({ title, icon: Icon, iconColor, data, isGainers }:
             className="grid grid-cols-12 gap-2 px-3 py-3 hover:bg-zinc-800/30 transition-colors"
           >
             <div className="col-span-5 flex items-center gap-2">
-              {item.imageUrl ? (
-                <img 
-                  src={item.imageUrl} 
-                  alt={item.name}
-                  className="w-8 h-8 rounded-lg object-cover bg-zinc-800"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-600 text-xs">
-                  🃏
-                </div>
-              )}
+              <CardImage 
+                src={item.imageUrl} 
+                alt={item.name}
+                size="sm"
+                rounded="lg"
+                containerClassName="w-8 h-8 bg-zinc-800"
+                className="w-full h-full object-cover"
+              />
               <span className="text-sm text-white truncate">{item.name}</span>
             </div>
             <div className="col-span-2 text-right text-sm text-zinc-400">

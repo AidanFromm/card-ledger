@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePublicShare } from "@/hooks/useSharing";
 import { Logo } from "@/components/Logo";
+import CardImage from "@/components/CardImage";
 
 const ShareView = () => {
   const { shareToken } = useParams<{ shareToken: string }>();
@@ -205,18 +206,14 @@ const ShareView = () => {
               >
                 {/* Card Image */}
                 <div className="aspect-[3/4] bg-secondary/30 relative overflow-hidden">
-                  {item.card_image_url ? (
-                    <img
-                      src={item.card_image_url}
-                      alt={item.name}
-                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Package className="h-12 w-12 text-muted-foreground/30" />
-                    </div>
-                  )}
+                  <CardImage
+                    src={item.card_image_url}
+                    alt={item.name}
+                    size="lg"
+                    containerClassName="w-full h-full"
+                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                    loading="lazy"
+                  />
 
                   {/* Quantity Badge */}
                   {item.quantity > 1 && (

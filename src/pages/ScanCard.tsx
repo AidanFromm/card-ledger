@@ -22,6 +22,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import CardImage from "@/components/CardImage";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { AddToInventoryDialog } from "@/components/AddToInventoryDialog";
@@ -885,18 +886,14 @@ const ScanCard = () => {
                         >
                           {/* Card Image */}
                           <div className="relative aspect-[3/4] bg-secondary/30">
-                            {item.image_url ? (
-                              <img
-                                src={item.image_url}
-                                alt={item.product_name}
-                                className="w-full h-full object-contain p-4 transition-transform duration-300 group-hover:scale-105"
-                                loading="lazy"
-                              />
-                            ) : (
-                              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30">
-                                <ImageIcon className="h-12 w-12" />
-                              </div>
-                            )}
+                            <CardImage
+                              src={item.image_url}
+                              alt={item.product_name}
+                              size="lg"
+                              containerClassName="w-full h-full p-4"
+                              className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                              loading="lazy"
+                            />
 
                             {/* Remove Button - top right */}
                             <Button
@@ -1051,21 +1048,14 @@ const ScanCard = () => {
                     >
                       {/* Card Image - Clickable to open details */}
                       <div className="relative aspect-[3/4] bg-secondary/30">
-                        {product.image_url ? (
-                          <img
-                            src={product.image_url}
-                            alt={product.name}
-                            className="w-full h-full object-contain p-4 transition-transform duration-300 group-hover:scale-105"
-                            loading="lazy"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30">
-                            <ImageIcon className="h-12 w-12" />
-                          </div>
-                        )}
+                        <CardImage
+                          src={product.image_url}
+                          alt={product.name}
+                          size="lg"
+                          containerClassName="w-full h-full p-4"
+                          className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                        />
 
                         {/* Sealed Badge */}
                         {product.category === 'sealed' && (

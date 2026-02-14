@@ -1,82 +1,133 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+import { getPlaceholderForItem } from '@/lib/cardNameUtils';
 
-// Size dimensions (5:7 aspect ratio)
-const SIZE_DIMENSIONS = {
-  xs: { width: 40, height: 56 },
-  sm: { width: 60, height: 84 },
-  md: { width: 80, height: 112 },
-  lg: { width: 120, height: 168 },
-  xl: { width: 160, height: 224 },
-  '2xl': { width: 200, height: 280 },
-  full: { width: 300, height: 420 },
+// Size dimensions (width classes)
+const SIZE_CLASSES = {
+  xs: 'w-10 h-14',    // 40x56 - thumbnail (5:7 aspect)
+  sm: 'w-16 h-22',    // 64x88
+  md: 'w-20 h-28',    // 80x112
+  lg: 'w-28 h-40',    // 112x160
+  xl: 'w-32 h-44',    // 128x176
+  '2xl': 'w-40 h-56', // 160x224
+  full: 'w-full h-full', // flexible
+} as const;
+
+// Rounded variants
+const ROUNDED_VARIANTS = {
+  none: 'rounded-none',
+  sm: 'rounded-sm',
+  md: 'rounded-md',
+  lg: 'rounded-lg',
+  xl: 'rounded-xl',
+  '2xl': 'rounded-2xl',
+  '3xl': 'rounded-3xl',
+  full: 'rounded-full',
 } as const;
 
 // Grading company colors
-const GRADING_COLORS = {
-  PSA: {
+const GRADING_COLORS: Record<string, { frame: string; badge: string; text: string }> = {
+  psa: {
     frame: '#E31837', // PSA Red
     badge: '#E31837',
     text: '#FFFFFF',
   },
-  CGC: {
+  cgc: {
     frame: '#1A1A1A', // CGC Black
     badge: '#1A1A1A',
     text: '#FFFFFF',
   },
-  BGS: {
+  bgs: {
     frame: '#C5A028', // BGS Gold
     badge: '#1A1A1A',
     text: '#C5A028',
   },
-  SGC: {
+  sgc: {
     frame: '#00A3A3', // SGC Teal
     badge: '#00A3A3',
     text: '#FFFFFF',
   },
-} as const;
+  beckett: {
+    frame: '#C5A028', // Same as BGS
+    badge: '#1A1A1A',
+    text: '#C5A028',
+  },
+};
 
 // Condition badge colors
-const CONDITION_COLORS = {
+const CONDITION_COLORS: Record<string, { bg: string; text: string; label: string }> = {
   mint: { bg: 'bg-green-500', text: 'text-white', label: 'MT' },
+  'near mint': { bg: 'bg-green-500', text: 'text-white', label: 'NM' },
   nm: { bg: 'bg-green-500', text: 'text-white', label: 'NM' },
+  'lightly played': { bg: 'bg-yellow-500', text: 'text-black', label: 'LP' },
   lp: { bg: 'bg-yellow-500', text: 'text-black', label: 'LP' },
+  'moderately played': { bg: 'bg-orange-500', text: 'text-white', label: 'MP' },
   mp: { bg: 'bg-orange-500', text: 'text-white', label: 'MP' },
+  'heavily played': { bg: 'bg-red-500', text: 'text-white', label: 'HP' },
   hp: { bg: 'bg-red-500', text: 'text-white', label: 'HP' },
   damaged: { bg: 'bg-red-700', text: 'text-white', label: 'D' },
-} as const;
+};
 
 export interface CardImageProps {
-  src: string;
+  src?: string | null;
   alt: string;
-  size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
-  graded?: {
-    company: 'PSA' | 'CGC' | 'BGS' | 'SGC';
-    grade: number;
-  };
-  condition?: 'mint' | 'nm' | 'lp' | 'mp' | 'hp' | 'damaged';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+  
+  // Grading - accepts either object or separate props
+  graded?: boolean | { company: string; grade: number | string };
+  gradingCompany?: string;
+  grade?: string | number | null;
+  
+  // Styling
+  rounded?: keyof typeof ROUNDED_VARIANTS;
+  border?: boolean;
+  borderColor?: string;
+  
+  // Condition
+  condition?: string;
   owned?: boolean;
+  
+  // Loading
   loading?: 'lazy' | 'eager';
-  onClick?: () => void;
-  showPrice?: number;
+  
+  // Price display
+  showPrice?: boolean;
+  price?: number | null;
   priceChange?: number;
+  
+  // Container/class customization
+  containerClassName?: string;
   className?: string;
+  
+  // Behavior
+  onClick?: () => void;
+  hoverScale?: boolean;
   showMissingText?: boolean;
+  placeholder?: 'card' | 'sealed' | 'default';
 }
 
 export function CardImage({
   src,
   alt,
-  size,
+  size = 'md',
   graded,
+  gradingCompany,
+  grade,
+  rounded = 'lg',
+  border = false,
+  borderColor = 'border-border',
   condition,
   owned = true,
   loading = 'lazy',
-  onClick,
-  showPrice,
+  showPrice = false,
+  price,
   priceChange,
+  containerClassName,
   className,
+  onClick,
+  hoverScale = true,
   showMissingText = false,
+  placeholder = 'card',
 }: CardImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -84,7 +135,18 @@ export function CardImage({
   const imgRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const dimensions = SIZE_DIMENSIONS[size];
+  // Normalize grading props
+  const resolvedGradingCompany = typeof graded === 'object' 
+    ? graded.company 
+    : gradingCompany;
+  const resolvedGrade = typeof graded === 'object' 
+    ? graded.grade 
+    : grade;
+  const isGraded = !!(
+    (typeof graded === 'boolean' && graded) ||
+    (typeof graded === 'object' && graded) ||
+    (resolvedGradingCompany && resolvedGradingCompany.toLowerCase() !== 'raw' && resolvedGrade)
+  );
 
   // IntersectionObserver for lazy loading
   useEffect(() => {
@@ -125,21 +187,34 @@ export function CardImage({
     setIsLoaded(true);
   }, []);
 
-  // Calculate slab dimensions (slightly larger to wrap the card)
-  const slabPadding = graded ? Math.max(4, dimensions.width * 0.08) : 0;
-  const slabTopPadding = graded ? Math.max(16, dimensions.height * 0.12) : 0;
-  const slabWidth = dimensions.width + slabPadding * 2;
-  const slabHeight = dimensions.height + slabTopPadding + slabPadding;
+  // Get placeholder image
+  const getPlaceholder = () => {
+    try {
+      return getPlaceholderForItem({
+        category: placeholder === 'sealed' ? 'sealed' : 'raw',
+        grading_company: 'raw',
+      });
+    } catch {
+      return '/placeholders/pokemon-card.svg';
+    }
+  };
 
-  const gradingColors = graded ? GRADING_COLORS[graded.company] : null;
-  const conditionStyle = condition ? CONDITION_COLORS[condition] : null;
+  // Get grading colors
+  const gradingColors = resolvedGradingCompany 
+    ? GRADING_COLORS[resolvedGradingCompany.toLowerCase()] 
+    : null;
+
+  // Get condition style
+  const conditionStyle = condition 
+    ? CONDITION_COLORS[condition.toLowerCase()] 
+    : null;
 
   // Format price display
-  const formatPrice = (price: number) => {
-    if (price >= 1000) {
-      return `$${(price / 1000).toFixed(1)}k`;
+  const formatPrice = (p: number) => {
+    if (p >= 1000) {
+      return `$${(p / 1000).toFixed(1)}k`;
     }
-    return `$${price.toFixed(2)}`;
+    return `$${p.toFixed(2)}`;
   };
 
   // Format price change
@@ -151,197 +226,116 @@ export function CardImage({
     return `${sign}$${change.toFixed(2)}`;
   };
 
+  const sizeClass = SIZE_CLASSES[size];
+  const roundedClass = ROUNDED_VARIANTS[rounded];
+
   return (
     <div
       ref={containerRef}
       className={cn(
-        'relative inline-block',
+        'relative inline-block overflow-hidden',
+        size !== 'full' && sizeClass,
+        roundedClass,
+        border && `border ${borderColor}`,
         onClick && 'cursor-pointer',
-        className
+        onClick && hoverScale && 'transition-transform hover:scale-105',
+        !owned && 'grayscale opacity-50',
+        containerClassName
       )}
       onClick={onClick}
-      style={{
-        width: graded ? slabWidth : dimensions.width,
-        height: graded ? slabHeight : dimensions.height,
-      }}
     >
-      {/* Graded Slab Frame */}
-      {graded && gradingColors && (
-        <div
-          className="absolute inset-0 rounded-lg shadow-lg"
-          style={{
-            background: `linear-gradient(135deg, ${gradingColors.frame} 0%, ${gradingColors.frame}dd 100%)`,
-            border: `2px solid ${gradingColors.frame}`,
-          }}
-        >
-          {/* Slab Top Label */}
+      {/* Skeleton Placeholder */}
+      {(!isInView || !isLoaded) && !hasError && (
+        <div className="absolute inset-0 bg-muted/50 overflow-hidden">
+          {/* Shimmer Effect */}
           <div
-            className="absolute top-0 left-0 right-0 flex items-center justify-between px-1.5"
-            style={{ height: slabTopPadding - 2 }}
-          >
-            {/* Company Badge */}
-            <div
-              className="text-[8px] font-bold tracking-wider uppercase px-1 py-0.5 rounded"
-              style={{
-                backgroundColor: gradingColors.badge,
-                color: gradingColors.text,
-                fontSize: Math.max(6, dimensions.width * 0.08),
-              }}
-            >
-              {graded.company}
-            </div>
-            {/* Grade Number */}
-            <div
-              className="font-bold"
-              style={{
-                color: gradingColors.text,
-                fontSize: Math.max(10, dimensions.width * 0.14),
-              }}
-            >
-              {graded.grade}
-            </div>
-          </div>
+            className="absolute inset-0 animate-pulse"
+            style={{
+              background:
+                'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)',
+              backgroundSize: '200% 100%',
+            }}
+          />
         </div>
       )}
 
-      {/* Card Container */}
-      <div
-        className={cn(
-          'relative overflow-hidden rounded-md transition-all duration-300',
-          onClick && 'hover:scale-105 hover:shadow-xl',
-          !owned && 'grayscale opacity-50'
-        )}
-        style={{
-          width: dimensions.width,
-          height: dimensions.height,
-          marginTop: graded ? slabTopPadding : 0,
-          marginLeft: graded ? slabPadding : 0,
-        }}
-      >
-        {/* Skeleton Placeholder */}
-        {(!isInView || !isLoaded) && !hasError && (
-          <div
-            className="absolute inset-0 bg-muted/50 overflow-hidden rounded-md"
-            style={{
-              width: dimensions.width,
-              height: dimensions.height,
-            }}
-          >
-            {/* Shimmer Effect */}
-            <div
-              className="absolute inset-0 animate-shimmer"
-              style={{
-                background:
-                  'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)',
-                backgroundSize: '200% 100%',
-              }}
-            />
-            {/* Card shape hint */}
-            <div className="absolute inset-2 rounded bg-muted/30" />
-          </div>
-        )}
+      {/* Actual Image */}
+      {isInView && (
+        <img
+          ref={imgRef}
+          src={hasError || !src ? getPlaceholder() : src}
+          alt={alt}
+          onLoad={handleLoad}
+          onError={handleError}
+          className={cn(
+            'w-full h-full object-contain transition-opacity duration-300',
+            isLoaded ? 'opacity-100' : 'opacity-0',
+            className
+          )}
+          draggable={false}
+        />
+      )}
 
-        {/* Actual Image */}
-        {isInView && (
-          <img
-            ref={imgRef}
-            src={hasError ? '/card-placeholder.svg' : src}
-            alt={alt}
-            onLoad={handleLoad}
-            onError={handleError}
-            className={cn(
-              'w-full h-full object-cover rounded-md transition-opacity duration-300',
-              isLoaded ? 'opacity-100' : 'opacity-0'
-            )}
-            style={{
-              width: dimensions.width,
-              height: dimensions.height,
-            }}
-            draggable={false}
-          />
-        )}
+      {/* Missing Overlay */}
+      {!owned && showMissingText && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+          <span className="text-white font-bold uppercase tracking-wider text-xs">
+            Missing
+          </span>
+        </div>
+      )}
 
-        {/* Error Fallback Display */}
-        {hasError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-muted/80 rounded-md">
-            <div className="text-center text-muted-foreground">
-              <svg
-                className="mx-auto h-6 w-6 mb-1 opacity-50"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-            </div>
-          </div>
-        )}
+      {/* Grading Badge - shown if graded */}
+      {isGraded && resolvedGradingCompany && resolvedGrade && (
+        <div
+          className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[9px] font-bold shadow-sm"
+          style={{
+            backgroundColor: gradingColors?.badge || '#333',
+            color: gradingColors?.text || '#fff',
+          }}
+        >
+          {resolvedGradingCompany.toUpperCase()} {resolvedGrade}
+        </div>
+      )}
 
-        {/* Missing Overlay */}
-        {!owned && showMissingText && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-md">
-            <span
-              className="text-white font-bold uppercase tracking-wider"
-              style={{ fontSize: Math.max(8, dimensions.width * 0.1) }}
-            >
-              Missing
+      {/* Condition Badge */}
+      {condition && conditionStyle && owned && !isGraded && (
+        <div
+          className={cn(
+            'absolute top-1 right-1 px-1.5 py-0.5 rounded-full font-bold text-[9px]',
+            conditionStyle.bg,
+            conditionStyle.text
+          )}
+        >
+          {conditionStyle.label}
+        </div>
+      )}
+
+      {/* Price Overlay */}
+      {showPrice && price !== undefined && price !== null && (
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-white font-bold text-xs">
+              {formatPrice(price)}
             </span>
-          </div>
-        )}
-
-        {/* Condition Badge */}
-        {condition && conditionStyle && owned && (
-          <div
-            className={cn(
-              'absolute top-1 right-1 rounded-full font-bold flex items-center justify-center',
-              conditionStyle.bg,
-              conditionStyle.text
-            )}
-            style={{
-              width: Math.max(16, dimensions.width * 0.22),
-              height: Math.max(16, dimensions.width * 0.22),
-              fontSize: Math.max(7, dimensions.width * 0.1),
-            }}
-          >
-            {conditionStyle.label}
-          </div>
-        )}
-
-        {/* Price Overlay */}
-        {showPrice !== undefined && (
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-1.5 rounded-b-md">
-            <div className="flex items-center justify-between">
+            {priceChange !== undefined && (
               <span
-                className="text-white font-bold"
-                style={{ fontSize: Math.max(8, dimensions.width * 0.1) }}
+                className={cn(
+                  'font-semibold text-[10px]',
+                  priceChange >= 0 ? 'text-green-400' : 'text-red-400'
+                )}
               >
-                {formatPrice(showPrice)}
+                {formatChange(priceChange)}
               </span>
-              {priceChange !== undefined && (
-                <span
-                  className={cn(
-                    'font-semibold',
-                    priceChange >= 0 ? 'text-green-400' : 'text-red-400'
-                  )}
-                  style={{ fontSize: Math.max(7, dimensions.width * 0.09) }}
-                >
-                  {formatChange(priceChange)}
-                </span>
-              )}
-            </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
 
-// Export size dimensions for external use
-export { SIZE_DIMENSIONS, GRADING_COLORS, CONDITION_COLORS };
+// Export for external use
+export { SIZE_CLASSES, GRADING_COLORS, CONDITION_COLORS };
 
 export default CardImage;

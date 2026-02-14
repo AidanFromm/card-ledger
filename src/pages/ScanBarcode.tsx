@@ -21,6 +21,7 @@ import { AddToInventoryDialog } from "@/components/AddToInventoryDialog";
 import { PageTransition } from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import CardImage from "@/components/CardImage";
 import { triggerSuccessHaptic, triggerHaptic, triggerDestructiveHaptic } from "@/lib/haptics";
 
 type ScanState =
@@ -411,17 +412,14 @@ const ScanBarcode = () => {
                   transition={{ delay: 0.1 }}
                 >
                   <div className="flex gap-4 p-4">
-                    {lookupResult.product.image_url ? (
-                      <img
-                        src={lookupResult.product.image_url}
-                        alt={lookupResult.product.name}
-                        className="w-24 h-32 object-contain rounded-xl bg-secondary/30"
-                      />
-                    ) : (
-                      <div className="w-24 h-32 rounded-xl bg-secondary/30 flex items-center justify-center">
-                        <Package className="w-8 h-8 text-muted-foreground" />
-                      </div>
-                    )}
+                    <CardImage
+                      src={lookupResult.product.image_url}
+                      alt={lookupResult.product.name}
+                      size="lg"
+                      rounded="xl"
+                      containerClassName="w-24 h-32 bg-secondary/30"
+                      className="w-full h-full object-contain"
+                    />
                     <div className="flex-1">
                       <div className="flex items-start justify-between">
                         <div>
