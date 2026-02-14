@@ -51,6 +51,9 @@ import { WhatsNewModal } from "./components/WhatsNew";
 // Command palette for quick navigation
 import { CommandPalette } from "./components/CommandPalette";
 
+// Keyboard shortcuts hint
+import { KeyboardShortcutsHint } from "./components/KeyboardShortcuts";
+
 const queryClient = new QueryClient();
 
 // Loading fallback for lazy loaded components
@@ -108,6 +111,7 @@ const App = () => {
             <OfflineIndicator />
             <WhatsNewModal />
             <CommandPalette />
+            <KeyboardShortcutsHint />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* Public routes - eager loaded */}
