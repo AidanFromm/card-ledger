@@ -9,6 +9,7 @@ import {
   RARITY_XP,
 } from '@/lib/achievements';
 import { useToast } from './use-toast';
+import { triggerCelebration } from '@/components/Celebration';
 
 const STORAGE_KEY = 'cardledger_achievements';
 const NOTIFIED_KEY = 'cardledger_achievements_notified';
@@ -217,11 +218,17 @@ export function useAchievements(): UseAchievementsReturn {
     // Save updated achievements
     saveAchievements(newAchievements);
 
-    // Show toast for newly completed achievements
+    // Show toast and confetti for newly completed achievements
     newlyCompleted.forEach(id => {
       if (!notifiedIds.has(id)) {
         const achievement = ACHIEVEMENTS.find(a => a.id === id);
         if (achievement) {
+          // Trigger confetti based on rarity
+          const intensity = achievement.rarity === 'legendary' ? 'big' 
+            : achievement.rarity === 'epic' ? 'medium' 
+            : 'subtle';
+          triggerCelebration(intensity);
+          
           toast({
             title: "🏆 Achievement Unlocked!",
             description: `${achievement.name}: ${achievement.description}`,

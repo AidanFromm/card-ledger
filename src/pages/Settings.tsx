@@ -35,6 +35,7 @@ import {
   Loader2,
   AlertTriangle,
   ArrowLeft,
+  Trophy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -626,6 +627,13 @@ const Settings = () => {
                 label="Edit Profile"
                 description={profile.displayName || "Set up your profile"}
                 onClick={() => setActiveSheet("profile")}
+              />
+              <div className="border-t border-border/50" />
+              <MenuItem
+                icon={Trophy}
+                label="Achievements"
+                description="Track your progress and milestones"
+                onClick={() => navigate("/achievements")}
               />
             </div>
           </motion.div>
