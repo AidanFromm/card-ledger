@@ -124,6 +124,62 @@ interface PortfolioChanges {
   hasHistoricalData: boolean;
 }
 
+interface PortfolioHistoryReturn {
+  values: number[];
+  loading: boolean;
+}
+
+/**
+ * Hook to get recent portfolio value history for sparkline
+ * Returns last 7 days of portfolio values
+ */
+export function usePortfolioHistory(currentValue: number, days: number = 7): PortfolioHistoryReturn {
+  const [values, setValues] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setValues([currentValue]);
+          setLoading(false);
+          return;
+        }
+
+        // Get portfolio value history
+        const { data, error } = await supabase.rpc(
+          "get_portfolio_value_history",
+          { p_user_id: user.id, p_days: days }
+        );
+
+        if (error || !data || data.length === 0) {
+          // No history - just use current value
+          setValues([currentValue]);
+        } else {
+          // Add current value to the end
+          const historicalValues = data.map((d: { value: number }) => d.value);
+          setValues([...historicalValues, currentValue]);
+        }
+      } catch (err) {
+        console.error("Portfolio history fetch error:", err);
+        setValues([currentValue]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (currentValue > 0) {
+      fetchHistory();
+    } else {
+      setValues([]);
+      setLoading(false);
+    }
+  }, [currentValue, days]);
+
+  return { values, loading };
+}
+
 /**
  * Hook to calculate today's portfolio change
  */

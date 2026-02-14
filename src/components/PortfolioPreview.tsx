@@ -2,8 +2,9 @@ import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
-import { useTodayChange } from "@/hooks/usePriceHistory";
+import { useTodayChange, usePortfolioHistory } from "@/hooks/usePriceHistory";
 import { AnimatedNumber } from "@/components/ui/animated-number";
+import { Sparkline } from "@/components/ui/sparkline";
 
 export function PortfolioPreview() {
   const navigate = useNavigate();
@@ -18,6 +19,9 @@ export function PortfolioPreview() {
 
   // Get today's change
   const { todayChange, todayChangePercent, hasHistoricalData, loading: changeLoading } = useTodayChange(totalValue);
+  
+  // Get portfolio history for sparkline
+  const { values: portfolioHistory, loading: historyLoading } = usePortfolioHistory(totalValue, 7);
 
   const isPositive = todayChange >= 0;
 
@@ -87,11 +91,18 @@ export function PortfolioPreview() {
         </div>
       </div>
 
-      {/* Mini Sparkline Placeholder */}
-      {hasHistoricalData && (
+      {/* Mini Sparkline */}
+      {!historyLoading && portfolioHistory.length >= 2 && (
         <div className="mt-3 h-8 w-full relative overflow-hidden rounded-lg">
-          <div className={`absolute inset-0 opacity-20 ${isPositive ? 'bg-gradient-to-t from-navy-500/40' : 'bg-gradient-to-t from-red-500/40'}`} />
-          {/* TODO: Add actual sparkline chart here */}
+          <Sparkline
+            data={portfolioHistory}
+            width={320}
+            height={32}
+            strokeWidth={2}
+            fillOpacity={0.15}
+            color={isPositive ? "#1e3a5f" : "#ef4444"}
+            className="w-full h-full"
+          />
         </div>
       )}
     </motion.button>

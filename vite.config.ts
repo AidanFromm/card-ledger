@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => ({
               id.includes('node_modules/react-router')) {
             return 'vendor-react';
           }
-          // Charts - heavy library
+          // Charts - heavy library, lazy loaded
           if (id.includes('node_modules/recharts')) {
             return 'vendor-charts';
           }
@@ -43,7 +43,7 @@ export default defineConfig(({ mode }) => ({
               id.includes('node_modules/zod')) {
             return 'vendor-forms';
           }
-          // Data handling
+          // Data handling (TanStack)
           if (id.includes('node_modules/@tanstack')) {
             return 'vendor-data';
           }
@@ -62,10 +62,16 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('node_modules/@radix-ui')) {
             return 'vendor-ui';
           }
+          // Utility libraries
+          if (id.includes('node_modules/clsx') || 
+              id.includes('node_modules/tailwind-merge') ||
+              id.includes('node_modules/class-variance-authority')) {
+            return 'vendor-utils';
+          }
         },
       },
     },
-    // Increase chunk size warning limit since we're intentionally chunking
-    chunkSizeWarningLimit: 500,
+    // Set reasonable warning limit
+    chunkSizeWarningLimit: 300,
   },
 }));
