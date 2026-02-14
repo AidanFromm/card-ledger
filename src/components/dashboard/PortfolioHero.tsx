@@ -35,7 +35,7 @@ export const PortfolioHero = memo(({
   const displayValue = hoveredValue ?? totalValue;
   const isPeriodPositive = periodChange >= 0;
   const isTodayPositive = todayChange >= 0;
-  const chartColor = isPositive ? "#10b981" : "#ef4444";
+  const chartColor = isPositive ? "#627d98" : "#ef4444";
   const glowColor = isPositive ? "rgba(16, 185, 129, 0.2)" : "rgba(239, 68, 68, 0.2)";
 
   // Gradient ID for this instance
@@ -74,7 +74,7 @@ export const PortfolioHero = memo(({
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.5 }}
         transition={{ duration: 2, delay: 0.5 }}
-        className="absolute -top-20 right-0 w-64 h-64 rounded-full blur-[80px] pointer-events-none bg-teal-500/10"
+        className="absolute -top-20 right-0 w-64 h-64 rounded-full blur-[80px] pointer-events-none bg-navy-500/10"
       />
 
       {/* Portfolio Label with hide toggle */}
@@ -201,7 +201,7 @@ export const PortfolioHero = memo(({
             <div className={`
               relative flex items-center gap-1.5 px-3 py-1.5 rounded-full overflow-hidden
               ${isPeriodPositive 
-                ? 'bg-emerald-500/10' 
+                ? 'bg-navy-500/10' 
                 : 'bg-red-500/10'
               }
             `}>
@@ -209,7 +209,7 @@ export const PortfolioHero = memo(({
               <div className={`
                 absolute inset-0 rounded-full
                 ${isPeriodPositive 
-                  ? 'bg-gradient-to-r from-emerald-500/30 via-emerald-400/20 to-emerald-500/30' 
+                  ? 'bg-gradient-to-r from-navy-500/30 via-navy-400/20 to-navy-500/30' 
                   : 'bg-gradient-to-r from-red-500/30 via-red-400/20 to-red-500/30'
                 }
               `} style={{ padding: '1px' }}>
@@ -218,18 +218,18 @@ export const PortfolioHero = memo(({
               
               <div className="relative z-10 flex items-center gap-1.5">
                 {isPeriodPositive ? (
-                  <TrendingUp className="h-4 w-4 text-emerald-400" />
+                  <TrendingUp className="h-4 w-4 text-navy-400" />
                 ) : (
                   <TrendingDown className="h-4 w-4 text-red-400" />
                 )}
-                <span className={`text-sm font-bold ${isPeriodPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+                <span className={`text-sm font-bold ${isPeriodPositive ? 'text-navy-400' : 'text-red-400'}`}>
                   {isPeriodPositive ? '+' : ''}{periodChangePercent.toFixed(2)}%
                 </span>
               </div>
             </div>
             
             {/* Dollar change */}
-            <span className={`text-base font-semibold ${isPeriodPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+            <span className={`text-base font-semibold ${isPeriodPositive ? 'text-navy-400' : 'text-red-400'}`}>
               {isPeriodPositive ? '+' : '-'}$
               {Math.abs(periodChange).toLocaleString('en-US', { 
                 minimumFractionDigits: 2, 
@@ -255,16 +255,16 @@ export const PortfolioHero = memo(({
         >
           <span className="text-xs text-zinc-500 font-medium">Today:</span>
           <div className={`flex items-center gap-1 px-2 py-0.5 rounded-md ${
-            isTodayPositive ? 'bg-emerald-500/10' : 'bg-red-500/10'
+            isTodayPositive ? 'bg-navy-500/10' : 'bg-red-500/10'
           }`}>
-            <span className={`text-sm font-semibold ${isTodayPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+            <span className={`text-sm font-semibold ${isTodayPositive ? 'text-navy-400' : 'text-red-400'}`}>
               {isTodayPositive ? '+' : '-'}$
               {Math.abs(todayChange).toLocaleString('en-US', { 
                 minimumFractionDigits: 2, 
                 maximumFractionDigits: 2 
               })}
             </span>
-            <span className={`text-xs ${isTodayPositive ? 'text-emerald-400/70' : 'text-red-400/70'}`}>
+            <span className={`text-xs ${isTodayPositive ? 'text-navy-400/70' : 'text-red-400/70'}`}>
               ({isTodayPositive ? '+' : ''}{todayChangePercent.toFixed(2)}%)
             </span>
           </div>

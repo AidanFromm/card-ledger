@@ -218,7 +218,7 @@ export const BulkImportPanel = ({ onImport }: BulkImportPanelProps) => {
               </div>
             </div>
             <div className="flex gap-2">
-              <Badge variant="default" className="bg-emerald-500">
+              <Badge variant="default" className="bg-navy-500">
                 {stats.valid} valid
               </Badge>
               {stats.invalid > 0 && (
@@ -258,7 +258,7 @@ export const BulkImportPanel = ({ onImport }: BulkImportPanelProps) => {
                     <TableCell className="text-right">${card.purchase_price.toFixed(2)}</TableCell>
                     <TableCell>
                       {card.isValid ? (
-                        <Check className="h-4 w-4 text-emerald-500" />
+                        <Check className="h-4 w-4 text-navy-500" />
                       ) : (
                         <div className="flex items-center gap-1" title={card.errors.join(', ')}>
                           <AlertCircle className="h-4 w-4 text-red-500" />
@@ -340,7 +340,7 @@ export const BulkImportPanel = ({ onImport }: BulkImportPanelProps) => {
           animate={{ opacity: 1, scale: 1 }}
           className="p-8 text-center"
         >
-          <div className="w-16 h-16 mx-auto bg-emerald-500 rounded-full flex items-center justify-center mb-4">
+          <div className="w-16 h-16 mx-auto bg-navy-500 rounded-full flex items-center justify-center mb-4">
             <Check className="h-8 w-8 text-white" />
           </div>
           <h3 className="text-xl font-semibold text-foreground mb-2">

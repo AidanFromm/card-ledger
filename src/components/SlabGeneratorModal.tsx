@@ -51,7 +51,7 @@ const GRADE_OPTIONS: Record<GradingCompany, string[]> = {
 const COMPANY_STYLES: Record<GradingCompany, { gradient: string; accent: string; name: string }> = {
   PSA: { gradient: 'from-red-600 to-red-800', accent: 'bg-red-500', name: 'Professional Sports Authenticator' },
   BGS: { gradient: 'from-amber-500 to-amber-700', accent: 'bg-amber-500', name: 'Beckett Grading Services' },
-  CGC: { gradient: 'from-teal-500 to-teal-700', accent: 'bg-teal-500', name: 'Certified Guaranty Company' },
+  CGC: { gradient: 'from-navy-600 to-navy-800', accent: 'bg-navy-500', name: 'Certified Guaranty Company' },
   SGC: { gradient: 'from-gray-700 to-gray-900', accent: 'bg-gray-600', name: 'Sportscard Guaranty' },
 };
 

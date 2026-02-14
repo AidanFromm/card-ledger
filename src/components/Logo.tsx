@@ -38,9 +38,9 @@ export const Logo = ({
         transition={{ type: "spring", stiffness: 400, damping: 15 }}
         className="relative"
       >
-        {/* CL Logo Icon */}
+        {/* CL Logo Icon - Navy theme */}
         <img 
-          src="/logo-icon.jpg" 
+          src="/logo-light.jpg" 
           alt="CL" 
           width={size}
           height={size}

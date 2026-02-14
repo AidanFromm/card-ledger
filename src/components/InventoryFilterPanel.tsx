@@ -302,7 +302,7 @@ export const InventoryFilterPanel = ({
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                             filters.profitFilter === opt.value
                               ? opt.value === 'profitable' 
-                                ? 'bg-emerald-500/20 text-emerald-500 shadow-md'
+                                ? 'bg-navy-500/20 text-navy-500 shadow-md'
                                 : opt.value === 'losing'
                                 ? 'bg-red-500/20 text-red-500 shadow-md'
                                 : 'bg-primary text-primary-foreground shadow-md'
@@ -680,7 +680,7 @@ const FilterChip = ({
   variant?: 'default' | 'success' | 'destructive';
 }) => {
   const colorClass = variant === 'success' 
-    ? 'bg-emerald-500/10 text-emerald-500'
+    ? 'bg-navy-500/10 text-navy-500'
     : variant === 'destructive'
     ? 'bg-red-500/10 text-red-500'
     : 'bg-primary/10 text-primary';

@@ -145,8 +145,8 @@ const Index = () => {
             >
               {phase === 'ready' ? (
                 <>
-                  <CheckCircle className="w-4 h-4 text-emerald-500" />
-                  <span className="text-emerald-500">Ready</span>
+                  <CheckCircle className="w-4 h-4 text-navy-500" />
+                  <span className="text-navy-500">Ready</span>
                 </>
               ) : (
                 <>
@@ -163,7 +163,7 @@ const Index = () => {
           <div className="relative h-1.5 bg-secondary/50 rounded-full overflow-hidden">
             <motion.div
               className={`absolute inset-y-0 left-0 rounded-full transition-colors duration-300 ${
-                phase === 'ready' ? 'bg-emerald-500' : 'bg-primary'
+                phase === 'ready' ? 'bg-navy-500' : 'bg-primary'
               }`}
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}

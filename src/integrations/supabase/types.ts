@@ -847,6 +847,10 @@ export type Database = {
           completion_percentage: number
           owned_card_ids: string[]
           notes: string | null
+          goal_percentage: number | null
+          track_master_set: boolean | null
+          master_total: number | null
+          master_owned: number | null
           created_at: string
           updated_at: string
         }
@@ -863,6 +867,10 @@ export type Database = {
           owned_cards?: number
           owned_card_ids?: string[]
           notes?: string | null
+          goal_percentage?: number | null
+          track_master_set?: boolean | null
+          master_total?: number | null
+          master_owned?: number | null
           created_at?: string
           updated_at?: string
         }
@@ -879,6 +887,10 @@ export type Database = {
           owned_cards?: number
           owned_card_ids?: string[]
           notes?: string | null
+          goal_percentage?: number | null
+          track_master_set?: boolean | null
+          master_total?: number | null
+          master_owned?: number | null
           created_at?: string
           updated_at?: string
         }

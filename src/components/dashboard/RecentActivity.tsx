@@ -14,6 +14,7 @@ import {
   Zap
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
+import CardImage from "@/components/CardImage";
 
 interface InventoryItem {
   id: string;
@@ -52,11 +53,11 @@ interface RecentActivityProps {
 const activityConfig = {
   added: { 
     icon: Plus, 
-    color: 'text-emerald-400', 
-    bg: 'bg-emerald-500/15',
-    borderColor: 'border-emerald-500/30',
+    color: 'text-navy-400', 
+    bg: 'bg-navy-500/15',
+    borderColor: 'border-navy-500/30',
     label: 'Added to collection',
-    gradient: 'from-emerald-500/20 to-transparent'
+    gradient: 'from-navy-500/20 to-transparent'
   },
   sold: { 
     icon: DollarSign, 
@@ -68,11 +69,11 @@ const activityConfig = {
   },
   price_up: { 
     icon: TrendingUp, 
-    color: 'text-emerald-400', 
-    bg: 'bg-emerald-500/15',
-    borderColor: 'border-emerald-500/30',
+    color: 'text-navy-400', 
+    bg: 'bg-navy-500/15',
+    borderColor: 'border-navy-500/30',
     label: 'Price increased',
-    gradient: 'from-emerald-500/20 to-transparent'
+    gradient: 'from-navy-500/20 to-transparent'
   },
   price_down: { 
     icon: TrendingDown, 
@@ -173,23 +174,19 @@ const ActivityRow = memo(({ activity, index, isLast, onClick }: ActivityRowProps
 
       {/* Card image */}
       <div className="relative w-12 h-16 rounded-lg overflow-hidden bg-zinc-800/50 flex-shrink-0 border border-zinc-700/50">
-        {activity.item.card_image_url ? (
-          <motion.img 
-            src={activity.item.card_image_url} 
-            alt={activity.item.name}
-            className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
-            loading="lazy"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Package className="w-5 h-5 text-zinc-600" />
-          </div>
-        )}
+        <CardImage
+          src={activity.item.card_image_url}
+          alt={activity.item.name}
+          size="xs"
+          rounded="lg"
+          containerClassName="w-full h-full"
+          className="transition-transform duration-300 group-hover:scale-110"
+          loading="lazy"
+          hoverScale={false}
+        />
         
         {/* Hover gradient */}
-        <div className={`absolute inset-0 bg-gradient-to-t ${config.gradient} opacity-0 group-hover:opacity-100 transition-opacity`} />
+        <div className={`absolute inset-0 bg-gradient-to-t ${config.gradient} opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none`} />
       </div>
 
       {/* Content */}
@@ -208,7 +205,7 @@ const ActivityRow = memo(({ activity, index, isLast, onClick }: ActivityRowProps
               transition={{ delay: index * 0.06 + 0.2 }}
               className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
                 activity.details.profit >= 0 
-                  ? 'bg-emerald-500/20 text-emerald-400' 
+                  ? 'bg-navy-500/20 text-navy-400' 
                   : 'bg-red-500/20 text-red-400'
               }`}
             >
@@ -359,7 +356,7 @@ export const RecentActivity = memo(({
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                  className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-navy-500/15 text-navy-400 border border-navy-500/30"
                 >
                   <Zap className="w-2.5 h-2.5" />
                   Live

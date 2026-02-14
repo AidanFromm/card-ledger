@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import CardImage from "@/components/CardImage";
 import { useWishlistDb, WishlistItem } from "@/hooks/useWishlistDb";
 import { usePriceAlerts, PriceAlert } from "@/hooks/usePriceAlerts";
 import { Button } from "@/components/ui/button";
@@ -422,7 +423,7 @@ const Wishlist = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/scan')}
-                className="gap-1.5 text-teal-400 hover:text-teal-300 hover:bg-teal-500/10"
+                className="gap-1.5 text-navy-400 hover:text-navy-300 hover:bg-navy-500/10"
               >
                 <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">Add Card</span>
@@ -445,7 +446,7 @@ const Wishlist = () => {
               icon={Wallet}
               label="Current Value"
               value={formatCurrency(stats.totalCurrentValue)}
-              color="teal"
+              color="navy"
             />
             <StatsCard
               icon={Target}
@@ -457,7 +458,7 @@ const Wishlist = () => {
               icon={PiggyBank}
               label="Potential Savings"
               value={formatCurrency(stats.potentialSavings)}
-              color="emerald"
+              color="navy"
               highlight={stats.potentialSavings > 0}
             />
             <StatsCard
@@ -474,14 +475,14 @@ const Wishlist = () => {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-teal-500/10 border border-emerald-500/30"
+              className="mb-6 p-4 rounded-xl bg-gradient-to-r from-navy-500/10 via-navy-500/5 to-navy-500/10 border border-navy-500/30"
             >
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-emerald-500/20">
-                  <Sparkles className="h-5 w-5 text-emerald-400" />
+                <div className="p-2 rounded-lg bg-navy-500/20">
+                  <Sparkles className="h-5 w-5 text-navy-400" />
                 </div>
                 <div>
-                  <p className="font-semibold text-emerald-400">
+                  <p className="font-semibold text-navy-400">
                     🔔 {stats.itemsAtTarget} card{stats.itemsAtTarget > 1 ? 's' : ''} at or below target price!
                   </p>
                   <p className="text-sm text-muted-foreground">
@@ -492,7 +493,7 @@ const Wishlist = () => {
                   size="sm"
                   variant="outline"
                   onClick={() => setFilter('target-hit')}
-                  className="ml-auto border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+                  className="ml-auto border-navy-500/30 text-navy-400 hover:bg-navy-500/10"
                 >
                   View
                 </Button>
@@ -556,7 +557,7 @@ const Wishlist = () => {
                 variant="outline"
                 size="icon"
                 onClick={() => setShowFilters(!showFilters)}
-                className={`shrink-0 ${showFilters ? 'bg-teal-500/10 border-teal-500/30 text-teal-400' : ''}`}
+                className={`shrink-0 ${showFilters ? 'bg-navy-500/10 border-navy-500/30 text-navy-400' : ''}`}
               >
                 <SlidersHorizontal className="h-4 w-4" />
               </Button>
@@ -607,7 +608,7 @@ const Wishlist = () => {
                   onClick={() => setFilter(key)}
                   className={`relative flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                     isSelected
-                      ? 'bg-teal-500 text-white'
+                      ? 'bg-navy-500 text-white'
                       : 'bg-muted/30 text-muted-foreground hover:bg-muted/50'
                   }`}
                   whileTap={{ scale: 0.95 }}
@@ -684,7 +685,7 @@ const Wishlist = () => {
             <DialogContent className="bg-card border-2 border-border/50">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5 text-emerald-500" />
+                  <Package className="h-5 w-5 text-navy-500" />
                   Add to Collection
                 </DialogTitle>
                 <DialogDescription>
@@ -732,7 +733,7 @@ const Wishlist = () => {
                 <Button
                   onClick={confirmMove}
                   disabled={!purchasePrice || isMoving}
-                  className="bg-emerald-500 hover:bg-emerald-600"
+                  className="bg-navy-500 hover:bg-navy-600"
                 >
                   {isMoving ? 'Adding...' : 'Add to Collection'}
                 </Button>
@@ -745,7 +746,7 @@ const Wishlist = () => {
             <DialogContent className="bg-card border-2 border-border/50 max-w-md">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <Edit3 className="h-5 w-5 text-teal-500" />
+                  <Edit3 className="h-5 w-5 text-navy-500" />
                   Edit Wishlist Item
                 </DialogTitle>
                 <DialogDescription>
@@ -757,10 +758,13 @@ const Wishlist = () => {
                 {/* Card Preview */}
                 {editItem?.image_url && (
                   <div className="flex justify-center">
-                    <img
+                    <CardImage
                       src={editItem.image_url}
                       alt={editItem.card_name}
-                      className="w-28 h-auto rounded-lg border border-border/40"
+                      size="lg"
+                      rounded="lg"
+                      border
+                      borderColor="border-border/40"
                     />
                   </div>
                 )}
@@ -768,7 +772,7 @@ const Wishlist = () => {
                 {/* Target Price */}
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
-                    <Target className="h-4 w-4 text-teal-400" />
+                    <Target className="h-4 w-4 text-navy-400" />
                     Target Price
                   </Label>
                   <div className="relative">
@@ -836,7 +840,7 @@ const Wishlist = () => {
                 <Button
                   onClick={handleSaveEdit}
                   disabled={isSaving}
-                  className="bg-teal-500 hover:bg-teal-600"
+                  className="bg-navy-500 hover:bg-navy-600"
                 >
                   {isSaving ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -856,15 +860,14 @@ interface StatsCardProps {
   label: string;
   value: string;
   subtext?: string;
-  color: 'teal' | 'amber' | 'emerald' | 'pink';
+  color: 'navy' | 'amber' | 'pink';
   highlight?: boolean;
 }
 
 const StatsCard = ({ icon: Icon, label, value, subtext, color, highlight }: StatsCardProps) => {
   const colorClasses = {
-    teal: 'from-teal-500/20 to-cyan-500/10 border-teal-500/30 text-teal-400',
+    navy: 'from-navy-500/20 to-navy-400/10 border-navy-500/30 text-navy-400',
     amber: 'from-amber-500/20 to-orange-500/10 border-amber-500/30 text-amber-400',
-    emerald: 'from-emerald-500/20 to-green-500/10 border-emerald-500/30 text-emerald-400',
     pink: 'from-pink-500/20 to-rose-500/10 border-pink-500/30 text-pink-400',
   };
 
@@ -873,7 +876,7 @@ const StatsCard = ({ icon: Icon, label, value, subtext, color, highlight }: Stat
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className={`p-4 rounded-xl bg-gradient-to-br ${colorClasses[color]} border ${
-        highlight ? 'ring-2 ring-emerald-500/30' : ''
+        highlight ? 'ring-2 ring-navy-500/30' : ''
       }`}
     >
       <div className="flex items-center gap-2 mb-2">
@@ -931,13 +934,13 @@ const WishlistCard = ({
       transition={{ delay: index * 0.02 }}
       className={`relative rounded-2xl border-2 overflow-hidden bg-card/50 transition-all ${
         priceHitTarget
-          ? 'border-emerald-500/60 ring-2 ring-emerald-500/20'
-          : 'border-border/40 hover:border-teal-500/30'
+          ? 'border-navy-500/60 ring-2 ring-navy-500/20'
+          : 'border-border/40 hover:border-navy-400/40'
       }`}
     >
       {/* Price Drop Badge */}
       {priceHitTarget && (
-        <div className="absolute top-2 left-2 z-10 px-2 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-bold shadow-lg flex items-center gap-1">
+        <div className="absolute top-2 left-2 z-10 px-2 py-1 rounded-full bg-navy-500 text-white text-[10px] font-bold shadow-lg flex items-center gap-1">
           <BellRing className="h-3 w-3" />
           Price dropped!
         </div>
@@ -950,23 +953,22 @@ const WishlistCard = ({
 
       {/* Card Image */}
       <div className="aspect-[3/4] relative group">
-        {item.image_url ? (
-          <img
-            src={item.image_url}
-            alt={item.card_name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full bg-muted/30 flex items-center justify-center">
-            <Heart className="h-12 w-12 text-muted-foreground/30" />
-          </div>
-        )}
+        <CardImage
+          src={item.image_url}
+          alt={item.card_name}
+          size="full"
+          rounded="none"
+          containerClassName="w-full h-full"
+          className="w-full h-full object-cover"
+          loading="lazy"
+          showPrice={hasTarget}
+          price={item.current_price}
+        />
 
         {/* Price Trend Indicator */}
         {item.price_trend && item.price_trend !== 'stable' && (
           <div className={`absolute top-2 left-2 ${priceHitTarget ? 'top-10' : ''} p-1.5 rounded-lg backdrop-blur-sm ${
-            item.price_trend === 'down' ? 'bg-emerald-500/80' : 'bg-red-500/80'
+            item.price_trend === 'down' ? 'bg-navy-500/80' : 'bg-red-500/80'
           }`}>
             {item.price_trend === 'down' ? (
               <TrendingDown className="h-3 w-3 text-white" />
@@ -982,7 +984,7 @@ const WishlistCard = ({
             <TooltipTrigger asChild>
               <motion.button
                 onClick={onEdit}
-                className="p-2.5 rounded-full bg-teal-500 text-white shadow-lg"
+                className="p-2.5 rounded-full bg-navy-500 text-white shadow-lg"
                 whileTap={{ scale: 0.9 }}
               >
                 <Edit3 className="h-5 w-5" />
@@ -994,7 +996,7 @@ const WishlistCard = ({
             <TooltipTrigger asChild>
               <motion.button
                 onClick={onMove}
-                className="p-2.5 rounded-full bg-emerald-500 text-white shadow-lg"
+                className="p-2.5 rounded-full bg-navy-500 text-white shadow-lg"
                 whileTap={{ scale: 0.9 }}
               >
                 <Package className="h-5 w-5" />
@@ -1032,7 +1034,7 @@ const WishlistCard = ({
             <div className="flex items-center gap-1.5">
               {item.price_change_percent && Math.abs(item.price_change_percent) > 1 && (
                 <span className={`text-[10px] font-medium ${
-                  item.price_change_percent < 0 ? 'text-emerald-400' : 'text-red-400'
+                  item.price_change_percent < 0 ? 'text-navy-400' : 'text-red-400'
                 }`}>
                   {item.price_change_percent > 0 ? '+' : ''}{item.price_change_percent.toFixed(1)}%
                 </span>
@@ -1052,7 +1054,7 @@ const WishlistCard = ({
                   </span>
                 )}
                 <span className={`text-sm font-semibold ${
-                  priceHitTarget ? 'text-emerald-400' : 'text-teal-400'
+                  priceHitTarget ? 'text-navy-400' : 'text-navy-400'
                 }`}>
                   {formatCurrency(item.target_price)}
                 </span>
@@ -1069,7 +1071,7 @@ const WishlistCard = ({
                   width: `${Math.min(100, (item.target_price! / item.current_price) * 100)}%`
                 }}
                 className={`absolute inset-y-0 left-0 rounded-full ${
-                  priceHitTarget ? 'bg-emerald-500' : 'bg-teal-500/60'
+                  priceHitTarget ? 'bg-navy-500' : 'bg-navy-500/60'
                 }`}
               />
               {priceHitTarget && (
@@ -1233,7 +1235,7 @@ const EmptyState = ({ hasItems, searchQuery, filter, onSearch, onClearFilters }:
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <Button
           onClick={onSearch}
-          className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold gap-2"
+          className="bg-gradient-to-r from-navy-600 to-navy-400 hover:from-navy-700 hover:to-navy-500 text-white font-semibold gap-2"
         >
           <Search className="h-4 w-4" />
           Search Cards
@@ -1248,7 +1250,7 @@ const EmptyState = ({ hasItems, searchQuery, filter, onSearch, onClearFilters }:
           { icon: TrendingDown, title: 'Track Trends', desc: 'See price trends and find the best time to buy' },
         ].map(({ icon: Icon, title, desc }) => (
           <div key={title} className="p-4 rounded-xl bg-muted/20 border border-border/40">
-            <Icon className="h-6 w-6 text-teal-400 mb-2" />
+            <Icon className="h-6 w-6 text-navy-400 mb-2" />
             <h4 className="font-semibold text-sm">{title}</h4>
             <p className="text-xs text-muted-foreground">{desc}</p>
           </div>

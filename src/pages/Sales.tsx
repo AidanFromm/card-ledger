@@ -131,7 +131,7 @@ const AnimatedProfit = ({ value, formatCurrency }: { value: number; formatCurren
   const isProfit = value >= 0;
 
   return (
-    <span className={`text-2xl font-bold ${isProfit ? 'text-emerald-500' : 'text-red-500'}`}>
+    <span className={`text-2xl font-bold ${isProfit ? 'text-navy-500' : 'text-red-500'}`}>
       {isProfit ? '+' : '-'}${formatCurrency(animatedValue)}
     </span>
   );
@@ -140,7 +140,7 @@ const AnimatedProfit = ({ value, formatCurrency }: { value: number; formatCurren
 // Status Badge Component
 const StatusBadge = ({ status }: { status: SaleStatus }) => {
   const config = {
-    completed: { icon: CheckCircle2, label: "Completed", className: "bg-emerald-500/20 text-emerald-500 border-emerald-500/30" },
+    completed: { icon: CheckCircle2, label: "Completed", className: "bg-navy-500/20 text-navy-500 border-navy-500/30" },
     pending: { icon: Clock, label: "Pending", className: "bg-amber-500/20 text-amber-500 border-amber-500/30" },
     shipped: { icon: Truck, label: "Shipped", className: "bg-blue-500/20 text-blue-500 border-blue-500/30" },
   };
@@ -725,15 +725,15 @@ const Sales = () => {
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Profit</span>
-              <div className={`p-1.5 rounded-lg ${totalProfit >= 0 ? 'bg-emerald-500/20' : 'bg-red-500/20'}`}>
+              <div className={`p-1.5 rounded-lg ${totalProfit >= 0 ? 'bg-navy-500/20' : 'bg-red-500/20'}`}>
                 {totalProfit >= 0 ? (
-                  <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
+                  <TrendingUp className="h-3.5 w-3.5 text-navy-500" />
                 ) : (
                   <TrendingDown className="h-3.5 w-3.5 text-red-500" />
                 )}
               </div>
             </div>
-            <div className={`text-xl font-bold ${totalProfit >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+            <div className={`text-xl font-bold ${totalProfit >= 0 ? 'text-navy-500' : 'text-red-500'}`}>
               {totalProfit >= 0 ? '+' : '-'}$<AnimatedValue value={Math.abs(totalProfit)} formatFn={formatCurrency} />
             </div>
             <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -748,11 +748,11 @@ const Sales = () => {
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Avg Margin</span>
-              <div className={`p-1.5 rounded-lg ${averageMargin >= 0 ? 'bg-emerald-500/20' : 'bg-red-500/20'}`}>
+              <div className={`p-1.5 rounded-lg ${averageMargin >= 0 ? 'bg-navy-500/20' : 'bg-red-500/20'}`}>
                 <Percent className="h-3.5 w-3.5" style={{ color: averageMargin >= 0 ? 'rgb(16, 185, 129)' : 'rgb(239, 68, 68)' }} />
               </div>
             </div>
-            <div className={`text-xl font-bold ${averageMargin >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+            <div className={`text-xl font-bold ${averageMargin >= 0 ? 'text-navy-500' : 'text-red-500'}`}>
               {averageMargin >= 0 ? '+' : ''}{averageMargin.toFixed(1)}%
             </div>
             <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -879,7 +879,7 @@ const Sales = () => {
                         }}
                         labelStyle={{ color: "hsl(var(--muted-foreground))", fontSize: "11px", marginBottom: "4px" }}
                         formatter={(value: number) => [
-                          <span className={`font-bold ${value >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                          <span className={`font-bold ${value >= 0 ? 'text-navy-500' : 'text-red-500'}`}>
                             ${formatCurrency(value)}
                           </span>,
                           "Cumulative Profit"
@@ -934,7 +934,7 @@ const Sales = () => {
                           padding: "10px 14px",
                         }}
                         formatter={(value: number, name: string) => [
-                          <span className={`font-bold ${name === 'profit' ? (value >= 0 ? 'text-emerald-500' : 'text-red-500') : 'text-primary'}`}>
+                          <span className={`font-bold ${name === 'profit' ? (value >= 0 ? 'text-navy-500' : 'text-red-500') : 'text-primary'}`}>
                             ${formatCurrency(value)}
                           </span>,
                           name === 'revenue' ? 'Revenue' : 'Profit'
@@ -1023,7 +1023,7 @@ const Sales = () => {
                   </div>
 
                   {/* Profit */}
-                  <div className={`text-base font-bold flex-shrink-0 ${item.totalProfit >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                  <div className={`text-base font-bold flex-shrink-0 ${item.totalProfit >= 0 ? 'text-navy-500' : 'text-red-500'}`}>
                     {item.totalProfit >= 0 ? '+' : ''}${formatCurrency(Math.abs(item.totalProfit))}
                   </div>
                 </motion.div>

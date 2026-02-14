@@ -134,7 +134,7 @@ export const PageLoader = ({ message = "Loading..." }: PageLoaderProps) => {
         />
         
         {/* Icon container */}
-        <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center shadow-lg shadow-primary/30">
+        <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-navy-800 to-navy-600 flex items-center justify-center shadow-lg shadow-primary/30">
           <span className="text-3xl">💎</span>
         </div>
       </motion.div>
@@ -218,7 +218,7 @@ export const ProgressLoader = ({
     <div className={`space-y-2 ${className}`}>
       <div className="h-2 rounded-full bg-muted overflow-hidden">
         <motion.div
-          className="h-full bg-gradient-to-r from-primary to-emerald-500 rounded-full"
+          className="h-full bg-gradient-to-r from-primary to-navy-500 rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.3, ease: "easeOut" }}

@@ -68,7 +68,7 @@ export const SuccessCelebration = ({
             {/* Success Card */}
             <div className="bg-card border border-border/50 rounded-2xl shadow-2xl overflow-hidden">
               {/* Success Header */}
-              <div className="relative bg-gradient-to-br from-emerald-500 to-green-600 p-6 text-center">
+              <div className="relative bg-gradient-to-br from-navy-500 to-navy-600 p-6 text-center">
                 {/* Animated Background Elements */}
                 <motion.div
                   initial={{ scale: 0 }}
@@ -105,7 +105,7 @@ export const SuccessCelebration = ({
                   transition={{ type: "spring", delay: 0.1, damping: 10 }}
                   className="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg"
                 >
-                  <Check className="h-10 w-10 text-emerald-500" strokeWidth={3} />
+                  <Check className="h-10 w-10 text-navy-500" strokeWidth={3} />
                 </motion.div>
 
                 <motion.h2

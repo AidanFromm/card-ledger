@@ -293,7 +293,7 @@ const AlertCard = ({ alert, index, onToggle, onDelete, formatCurrency, formatDat
           <div className="flex items-center gap-3 mt-2">
             <div className="flex items-center gap-1.5">
               {alert.direction === 'below' ? (
-                <TrendingDown className="h-4 w-4 text-emerald-500" />
+                <TrendingDown className="h-4 w-4 text-navy-500" />
               ) : (
                 <TrendingUp className="h-4 w-4 text-amber-500" />
               )}

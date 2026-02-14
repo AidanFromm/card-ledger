@@ -6,7 +6,7 @@
 @tailwind utilities;
 
 /* Card Ledger Premium Design System
-   - Primary: Emerald/Teal (#10b981)
+   - Primary: Navy Blue (#1e3a5f - matches CL logo)
    - Feel: Premium/Luxury like Robinhood/Cash App
    - Style: Clean dark with subtle glassmorphism
    - Corners: Very rounded (20-24pt)
@@ -27,8 +27,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 9%;
 
-    /* Emerald/Teal Primary (#10b981) */
-    --primary: 160 84% 39%;
+    /* Navy Blue Primary (#1e3a5f - matches CL logo) */
+    --primary: 213 55% 25%;
     --primary-foreground: 0 0% 100%;
 
     /* Light secondary */
@@ -39,8 +39,8 @@
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
-    /* Teal accent */
-    --accent: 160 84% 39%;
+    /* Navy accent */
+    --accent: 213 55% 25%;
     --accent-foreground: 0 0% 100%;
 
     /* Destructive states */
@@ -48,14 +48,14 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Success states */
-    --success: 160 84% 39%;
+    --success: 213 55% 35%;
     --success-foreground: 0 0% 100%;
 
     /* Warning states */
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    /* Robinhood-style Gain/Loss colors */
+    /* Robinhood-style Gain/Loss colors - keep green/red for financial data */
     --gain: 160 84% 39%;
     --gain-foreground: 0 0% 100%;
     --loss: 0 84% 60%;
@@ -64,7 +64,7 @@
     /* Borders */
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 160 84% 39%;
+    --ring: 213 55% 35%;
 
     /* iOS 18 style - very rounded */
     --radius: 1.25rem;
@@ -72,10 +72,10 @@
     --radius-lg: 1.5rem;
     --radius-xl: 2rem;
 
-    /* Chart colors */
-    --chart-1: 160 84% 39%;
-    --chart-2: 200 80% 50%;
-    --chart-3: 280 80% 60%;
+    /* Chart colors - navy palette */
+    --chart-1: 213 55% 35%;
+    --chart-2: 213 45% 45%;
+    --chart-3: 213 35% 55%;
     --chart-4: 38 92% 50%;
     --chart-5: 0 84% 60%;
 
@@ -88,7 +88,7 @@
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.03);
     --shadow-card: 0 4px 6px -1px hsl(0 0% 0% / 0.05), 0 2px 4px -2px hsl(0 0% 0% / 0.05);
     --shadow-card-hover: 0 20px 25px -5px hsl(0 0% 0% / 0.1), 0 8px 10px -6px hsl(0 0% 0% / 0.1);
-    --shadow-glow: 0 0 20px hsl(160 84% 39% / 0.15);
+    --shadow-glow: 0 0 20px hsl(213 55% 35% / 0.15);
     --shadow-glass: 0 8px 32px hsl(0 0% 0% / 0.05);
 
     --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -112,8 +112,8 @@
     --popover: 0 0% 10%;
     --popover-foreground: 0 0% 98%;
 
-    /* Emerald/Teal Primary (#10b981) */
-    --primary: 160 84% 39%;
+    /* Navy Blue Primary (#1e3a5f - matches CL logo) */
+    --primary: 213 55% 35%;
     --primary-foreground: 0 0% 100%;
 
     /* Dark secondary #1f1f1f */
@@ -124,8 +124,8 @@
     --muted: 0 0% 15%;
     --muted-foreground: 0 0% 60%;
 
-    /* Teal accent */
-    --accent: 160 84% 39%;
+    /* Navy accent */
+    --accent: 213 55% 35%;
     --accent-foreground: 0 0% 100%;
 
     /* Destructive states */
@@ -133,14 +133,14 @@
     --destructive-foreground: 0 0% 100%;
 
     /* Success states */
-    --success: 160 84% 39%;
+    --success: 213 55% 45%;
     --success-foreground: 0 0% 100%;
 
     /* Warning states */
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    /* Robinhood-style Gain/Loss colors */
+    /* Robinhood-style Gain/Loss colors - keep green/red for financial data */
     --gain: 160 84% 45%;
     --gain-foreground: 0 0% 100%;
     --loss: 0 84% 60%;
@@ -149,12 +149,12 @@
     /* Borders - subtle gray-800 style */
     --border: 0 0% 18%;
     --input: 0 0% 15%;
-    --ring: 160 84% 39%;
+    --ring: 213 55% 45%;
 
-    /* Chart colors */
-    --chart-1: 160 84% 45%;
-    --chart-2: 200 80% 55%;
-    --chart-3: 280 80% 65%;
+    /* Chart colors - navy palette */
+    --chart-1: 213 55% 45%;
+    --chart-2: 213 45% 55%;
+    --chart-3: 213 35% 65%;
     --chart-4: 38 92% 55%;
     --chart-5: 0 84% 65%;
 
@@ -166,8 +166,8 @@
     /* Shadows - stronger for dark mode */
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.4);
     --shadow-card: 0 4px 6px -1px hsl(0 0% 0% / 0.5), 0 2px 4px -2px hsl(0 0% 0% / 0.4);
-    --shadow-card-hover: 0 20px 25px -5px hsl(160 84% 39% / 0.1), 0 8px 10px -6px hsl(0 0% 0% / 0.4);
-    --shadow-glow: 0 0 30px hsl(160 84% 39% / 0.2);
+    --shadow-card-hover: 0 20px 25px -5px hsl(213 55% 45% / 0.1), 0 8px 10px -6px hsl(0 0% 0% / 0.4);
+    --shadow-glow: 0 0 30px hsl(213 55% 45% / 0.2);
     --shadow-glass: 0 8px 32px hsl(0 0% 0% / 0.4);
   }
 }
@@ -931,7 +931,7 @@ body.barcode-scanner-active #root > *:not(.scanner-visible) {
 
 /* Gradient text */
 .text-gradient-primary {
-  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(160 84% 50%) 100%);
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(213 55% 45%) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -992,10 +992,10 @@ body.barcode-scanner-active #root > *:not(.scanner-visible) {
 
 .btn-premium-primary {
   @apply btn-premium;
-  @apply bg-gradient-to-r from-primary to-emerald-600;
+  @apply bg-gradient-to-r from-navy-800 to-navy-600;
   @apply text-white;
-  @apply shadow-lg shadow-primary/25;
-  @apply hover:shadow-xl hover:shadow-primary/30;
+  @apply shadow-lg shadow-navy-900/25;
+  @apply hover:shadow-xl hover:shadow-navy-900/30;
   @apply hover:scale-[1.02] hover:-translate-y-0.5;
 }
 
@@ -1126,4 +1126,214 @@ html {
   );
   background-size: 200% 100%;
   animation: premium-shimmer 1.5s infinite linear;
+}
+
+/* ===== CARD IMAGE SYSTEM ===== */
+/* Fixed size classes (5:7 aspect ratio) */
+.card-img-xs {
+  width: 40px;
+  height: 56px;
+}
+
+.card-img-sm {
+  width: 60px;
+  height: 84px;
+}
+
+.card-img-md {
+  width: 80px;
+  height: 112px;
+}
+
+.card-img-lg {
+  width: 120px;
+  height: 168px;
+}
+
+.card-img-xl {
+  width: 160px;
+  height: 224px;
+}
+
+.card-img-2xl {
+  width: 200px;
+  height: 280px;
+}
+
+.card-img-full {
+  width: 300px;
+  height: 420px;
+}
+
+/* Card image container styles */
+.card-img-container {
+  @apply relative overflow-hidden rounded-md;
+  aspect-ratio: 5/7;
+}
+
+/* Graded slab styles */
+.card-slab {
+  @apply relative rounded-lg shadow-lg overflow-hidden;
+}
+
+.card-slab-psa {
+  background: linear-gradient(135deg, #E31837 0%, #c41230 100%);
+  border: 2px solid #E31837;
+}
+
+.card-slab-cgc {
+  background: linear-gradient(135deg, #1A1A1A 0%, #333333 100%);
+  border: 2px solid #1A1A1A;
+}
+
+.card-slab-bgs {
+  background: linear-gradient(135deg, #C5A028 0%, #8B7020 100%);
+  border: 2px solid #C5A028;
+}
+
+.card-slab-sgc {
+  background: linear-gradient(135deg, #00A3A3 0%, #007575 100%);
+  border: 2px solid #00A3A3;
+}
+
+/* Slab label styling */
+.card-slab-label {
+  @apply absolute top-0 left-0 right-0 flex items-center justify-between px-2 py-1;
+}
+
+.card-slab-company {
+  @apply text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded;
+}
+
+.card-slab-grade {
+  @apply font-bold text-white;
+}
+
+/* Card grayscale for missing/unowned cards */
+.card-grayscale {
+  filter: grayscale(100%);
+  opacity: 0.5;
+}
+
+/* Card hover effects */
+.card-img-hover {
+  @apply transition-all duration-200 ease-out;
+}
+
+.card-img-hover:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 4px 10px -5px rgba(0, 0, 0, 0.1);
+}
+
+.card-img-hover:active {
+  transform: scale(1.02);
+}
+
+/* Card condition badges */
+.card-condition-badge {
+  @apply absolute top-1 right-1 rounded-full font-bold flex items-center justify-center;
+  width: 20px;
+  height: 20px;
+  font-size: 8px;
+}
+
+.card-condition-mint {
+  @apply bg-green-500 text-white;
+}
+
+.card-condition-nm {
+  @apply bg-green-500 text-white;
+}
+
+.card-condition-lp {
+  @apply bg-yellow-500 text-black;
+}
+
+.card-condition-mp {
+  @apply bg-orange-500 text-white;
+}
+
+.card-condition-hp {
+  @apply bg-red-500 text-white;
+}
+
+.card-condition-damaged {
+  @apply bg-red-700 text-white;
+}
+
+/* Card price overlay */
+.card-price-overlay {
+  @apply absolute bottom-0 left-0 right-0 p-1.5 rounded-b-md;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+}
+
+/* Card image grid - responsive */
+.card-image-grid {
+  display: grid;
+  --card-grid-cols: var(--card-grid-cols-mobile, 3);
+}
+
+@media (min-width: 480px) {
+  .card-image-grid {
+    --card-grid-cols: var(--card-grid-cols-tablet, 4);
+  }
+}
+
+@media (min-width: 768px) {
+  .card-image-grid {
+    --card-grid-cols: var(--card-grid-cols-desktop, 5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-image-grid {
+    --card-grid-cols: var(--card-grid-cols-desktop, 6);
+  }
+}
+
+.card-image-grid {
+  grid-template-columns: repeat(var(--card-grid-cols), minmax(0, 1fr));
+}
+
+/* Card shimmer loading animation */
+@keyframes card-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.card-img-skeleton {
+  @apply relative overflow-hidden bg-muted/50 rounded-md;
+}
+
+.card-img-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  animation: card-shimmer 1.5s infinite;
+}
+
+/* Card fade-in animation */
+@keyframes card-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.card-img-loaded {
+  animation: card-fade-in 0.3s ease-out forwards;
 }

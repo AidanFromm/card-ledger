@@ -262,7 +262,7 @@ export const AnimatedValue = memo(({
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
           className={`text-sm font-medium mt-1 ${
-            isPositive ? 'text-emerald-400' : 'text-red-400'
+            isPositive ? 'text-navy-400' : 'text-red-400'
           }`}
         >
           {isPositive ? '+' : ''}{change.toLocaleString('en-US', {

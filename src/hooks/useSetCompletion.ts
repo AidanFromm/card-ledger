@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getSets, getSetCards as fetchPokemonSetCards } from '@/lib/pokemonTcgApi';
 
 export interface SetProgress {
   id: string;
@@ -366,10 +367,9 @@ export const useSetCompletion = () => {
   // Fetch sets from TCG APIs
   const fetchPokemonSets = useCallback(async (): Promise<SetInfo[]> => {
     try {
-      const response = await fetch('https://api.pokemontcg.io/v2/sets?orderBy=-releaseDate');
-      const data = await response.json();
+      const result = await getSets();
       
-      return data.data.map((set: any) => ({
+      return result.sets.map((set) => ({
         id: set.id,
         name: set.name,
         series: set.series,
@@ -458,22 +458,23 @@ export const useSetCompletion = () => {
       let cards: SetCard[] = [];
 
       if (tcgType === 'pokemon') {
-        const response = await fetch(`https://api.pokemontcg.io/v2/cards?q=set.id:${setId}&orderBy=number`);
-        const data = await response.json();
+        const result = await fetchPokemonSetCards(setId);
         
-        cards = data.data.map((card: any) => ({
+        cards = result.cards.map((card) => ({
           id: card.id,
           name: card.name,
-          number: card.number,
-          image_url: card.images?.small || card.images?.large,
+          number: card.number || '',
+          image_url: card.image_url || card.image_url_large || '',
           rarity: card.rarity,
           owned: false,
-          price: card.tcgplayer?.prices?.holofoil?.market || 
-                 card.tcgplayer?.prices?.normal?.market || 
-                 card.tcgplayer?.prices?.reverseHolofoil?.market ||
-                 card.cardmarket?.prices?.averageSellPrice || 
-                 null,
-          variant_type: determineVariantType(card),
+          price: card.estimated_value || null,
+          variant_type: determineVariantType({
+            rarity: card.rarity,
+            subtypes: card.subtypes,
+            number: card.number,
+            supertype: card.supertype,
+            set: { id: card.set_id },
+          }),
           subtypes: card.subtypes,
           supertype: card.supertype,
         }));

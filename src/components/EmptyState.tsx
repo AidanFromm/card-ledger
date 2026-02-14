@@ -316,7 +316,7 @@ const SalesIllustration = () => (
     {/* Trend line going up */}
     <motion.path
       d="M40 90 L70 70 L100 75 L130 40"
-      className="stroke-emerald-500/60"
+      className="stroke-navy-500/60"
       strokeWidth="3"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -338,7 +338,7 @@ const SalesIllustration = () => (
         cx={point.cx}
         cy={point.cy}
         r="5"
-        className="fill-emerald-500/80"
+        className="fill-navy-500/80"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ duration: 0.3, delay: point.delay, type: "spring" }}
@@ -348,7 +348,7 @@ const SalesIllustration = () => (
     {/* Arrow at end */}
     <motion.path
       d="M130 40 L140 35 M130 40 L140 50"
-      className="stroke-emerald-500/60"
+      className="stroke-navy-500/60"
       strokeWidth="2"
       strokeLinecap="round"
       initial={{ opacity: 0 }}
@@ -360,7 +360,7 @@ const SalesIllustration = () => (
     <motion.text
       x="150"
       y="25"
-      className="fill-emerald-500/40 text-lg font-bold"
+      className="fill-navy-500/40 text-lg font-bold"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 1.1 }}

@@ -586,8 +586,8 @@ const Profile = () => {
             onClick={handleExportData}
             className="w-full flex items-center gap-4 p-4 rounded-xl bg-secondary/30 hover:bg-secondary/50 transition-colors"
           >
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-              <Download className="w-5 h-5 text-emerald-500" />
+            <div className="w-10 h-10 rounded-xl bg-navy-500/20 flex items-center justify-center">
+              <Download className="w-5 h-5 text-navy-500" />
             </div>
             <div className="flex-1 text-left">
               <p className="font-medium">Export My Data</p>
@@ -760,7 +760,7 @@ const Profile = () => {
               <ul className="space-y-2">
                 {plan.features.map((feature, idx) => (
                   <li key={idx} className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <Check className="w-4 h-4 text-navy-500 flex-shrink-0" />
                     <span className="text-muted-foreground">{feature}</span>
                   </li>
                 ))}

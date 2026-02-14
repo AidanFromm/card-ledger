@@ -111,7 +111,7 @@ export const PerformanceChart = memo(({
 }: PerformanceChartProps) => {
   const [isHovering, setIsHovering] = useState(false);
   
-  const chartColor = isPositive ? "#10b981" : "#ef4444";
+  const chartColor = isPositive ? "#627d98" : "#ef4444";
   const gradientId = `chartGradient-${isPositive ? 'positive' : 'negative'}-${timeRange}`;
 
   const formatXAxis = (dateStr: string) => {

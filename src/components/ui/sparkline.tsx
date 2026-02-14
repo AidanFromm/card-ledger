@@ -146,7 +146,7 @@ export function SparklineBadge({ data, className = "" }: SparklineBadgeProps) {
         showArea={false}
         animate={false}
       />
-      <span className={`text-xs font-medium ${isPositive ? "text-emerald-500" : "text-red-500"}`}>
+      <span className={`text-xs font-medium ${isPositive ? "text-navy-500" : "text-red-500"}`}>
         {isPositive ? "+" : ""}{changePercent.toFixed(1)}%
       </span>
     </div>

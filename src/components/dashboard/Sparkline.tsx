@@ -24,7 +24,7 @@ interface SparklineProps {
 export const Sparkline = memo(({
   data,
   height = 80,
-  color = "#10b981",
+  color = "#627d98",
   gradientOpacity = 0.3,
   strokeWidth = 2,
   showTooltip = true,
@@ -42,7 +42,7 @@ export const Sparkline = memo(({
     return data[data.length - 1].value >= data[0].value;
   }, [data]);
 
-  const activeColor = color || (isPositive ? "#10b981" : "#ef4444");
+  const activeColor = color || (isPositive ? "#627d98" : "#ef4444");
   const gradientId = `sparklineGradient-${Math.random().toString(36).substr(2, 9)}`;
 
   const handleMouseMove = useCallback((e: any) => {
@@ -191,7 +191,7 @@ export const MiniSparkline = memo(({
   className = "",
 }: MiniSparklineProps) => {
   const isPositive = data.length >= 2 && data[data.length - 1] >= data[0];
-  const activeColor = color || (isPositive ? "#10b981" : "#ef4444");
+  const activeColor = color || (isPositive ? "#627d98" : "#ef4444");
   
   const points = useMemo(() => {
     if (data.length < 2) return "";

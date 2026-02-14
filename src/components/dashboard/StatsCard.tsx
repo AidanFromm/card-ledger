@@ -141,16 +141,16 @@ export const StatsCard = memo(({
           >
             <div className={`
               flex items-center gap-1 px-2 py-0.5 rounded-lg
-              ${isPositive ? 'bg-emerald-500/15' : 'bg-red-500/15'}
+              ${isPositive ? 'bg-navy-500/15' : 'bg-red-500/15'}
             `}>
               {isPositive ? (
-                <TrendingUp className="w-3 h-3 text-emerald-400" />
+                <TrendingUp className="w-3 h-3 text-navy-400" />
               ) : (
                 <TrendingDown className="w-3 h-3 text-red-400" />
               )}
               <span className={`
                 text-sm font-semibold
-                ${isPositive ? 'text-emerald-400' : 'text-red-400'}
+                ${isPositive ? 'text-navy-400' : 'text-red-400'}
               `}>
                 {isPositive ? '+' : ''}{change.toFixed(2)}%
               </span>
@@ -198,7 +198,7 @@ export const MiniStat = memo(({
           }
         </span>
         {change !== undefined && (
-          <span className={`text-xs font-semibold ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+          <span className={`text-xs font-semibold ${isPositive ? 'text-navy-400' : 'text-red-400'}`}>
             {isPositive ? '+' : ''}{change.toFixed(1)}%
           </span>
         )}
@@ -250,7 +250,7 @@ export const BestPerformerCard = memo(({
         relative overflow-hidden group cursor-pointer
         bg-gradient-to-br from-zinc-900/95 via-zinc-900/80 to-zinc-900/60 
         backdrop-blur-xl border border-zinc-800/50 rounded-2xl p-4
-        transition-all duration-300 hover:border-emerald-500/30
+        transition-all duration-300 hover:border-navy-400/40
         ${className}
       `}
       style={{ 
@@ -296,7 +296,7 @@ export const BestPerformerCard = memo(({
             </span>
             <div className={`
               flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-xs font-bold
-              ${isPositive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}
+              ${isPositive ? 'bg-navy-500/20 text-navy-400' : 'bg-red-500/20 text-red-400'}
             `}>
               {isPositive ? '+' : ''}{changePercent.toFixed(1)}%
             </div>

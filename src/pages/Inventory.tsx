@@ -433,7 +433,7 @@ const Inventory = () => {
                     ${(totalValue * (portfolioPercent / 100)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                   {/* Total Profit/Loss indicator */}
-                  <div className={`flex items-center gap-1 mt-1 text-sm font-medium ${totalProfit >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                  <div className={`flex items-center gap-1 mt-1 text-sm font-medium ${totalProfit >= 0 ? 'text-navy-500' : 'text-red-500'}`}>
                     {totalProfit >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                     <span>
                       {totalProfit >= 0 ? '+' : ''}${totalProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

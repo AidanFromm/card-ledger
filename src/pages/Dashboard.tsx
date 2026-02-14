@@ -305,8 +305,8 @@ const Dashboard = () => {
               prefix={isPositive ? '+$' : '-$'}
               change={profitPercent}
               icon={TrendingUp}
-              iconColor={isPositive ? "text-emerald-400" : "text-red-400"}
-              iconBg={isPositive ? "bg-emerald-500/15" : "bg-red-500/15"}
+              iconColor={isPositive ? "text-navy-400" : "text-red-400"}
+              iconBg={isPositive ? "bg-navy-500/15" : "bg-red-500/15"}
               glowColor={isPositive ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)"}
               index={1}
             />
@@ -441,7 +441,7 @@ const Dashboard = () => {
                 whileHover={{ scale: 1.03, y: -2 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => window.location.href = '/scan'}
-                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/25 border border-emerald-400/20"
+                className="px-6 py-3 bg-gradient-to-r from-navy-600 to-navy-500 text-white font-semibold rounded-xl shadow-lg shadow-navy-500/25 border border-navy-400/20"
               >
                 Scan Your First Card
               </motion.button>

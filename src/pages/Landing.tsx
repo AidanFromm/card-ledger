@@ -1,7 +1,16 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
+import { 
+  motion, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  AnimatePresence,
+  useMotionValue,
+  useSpring,
+  useAnimation
+} from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { 
   TrendingUp, 
@@ -26,22 +35,191 @@ import {
   Instagram,
   Youtube,
   Mail,
-  ExternalLink
+  ExternalLink,
+  Zap,
+  Shield,
+  Scan,
+  Target,
+  Search,
+  Play,
+  X,
+  Check,
+  Minus,
+  Camera,
+  Clock,
+  DollarSign,
+  TrendingDown,
+  Globe,
+  Smartphone,
+  CreditCard,
+  Gift,
+  ArrowUpRight,
+  MousePointer
 } from "lucide-react";
+
+// ============================================
+// ANIMATED BACKGROUND - PARTICLES & GRADIENTS
+// ============================================
+
+const ParticleField = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    let animationId: number;
+    const particles: Array<{
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      size: number;
+      opacity: number;
+      hue: number;
+    }> = [];
+    
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    
+    resize();
+    window.addEventListener('resize', resize);
+    
+    // Create particles
+    for (let i = 0; i < 60; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        size: Math.random() * 2 + 1,
+        opacity: Math.random() * 0.5 + 0.1,
+        hue: Math.random() * 30 + 155 // Teal range
+      });
+    }
+    
+    const animate = () => {
+      ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      particles.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        
+        // Draw particle
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${p.hue}, 70%, 50%, ${p.opacity})`;
+        ctx.fill();
+        
+        // Connect nearby particles
+        particles.slice(i + 1).forEach(p2 => {
+          const dx = p.x - p2.x;
+          const dy = p.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < 150) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(16, 185, 129, ${0.1 * (1 - dist / 150)})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        });
+      });
+      
+      animationId = requestAnimationFrame(animate);
+    };
+    
+    animate();
+    
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+  
+  return (
+    <canvas 
+      ref={canvasRef} 
+      className="fixed inset-0 pointer-events-none opacity-60"
+      style={{ zIndex: 0 }}
+    />
+  );
+};
+
+// Animated gradient orbs
+const GradientOrbs = () => (
+  <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+    <motion.div
+      animate={{
+        x: [0, 100, 0],
+        y: [0, -50, 0],
+        scale: [1, 1.2, 1],
+      }}
+      transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+      className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-[#627d98]/10 rounded-full blur-[180px]"
+    />
+    <motion.div
+      animate={{
+        x: [0, -80, 0],
+        y: [0, 80, 0],
+        scale: [1, 0.9, 1],
+      }}
+      transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+      className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/8 rounded-full blur-[160px]"
+    />
+    <motion.div
+      animate={{
+        x: [0, 60, 0],
+        y: [0, -40, 0],
+      }}
+      transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+      className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-purple-500/8 rounded-full blur-[120px]"
+    />
+    {/* Grid overlay */}
+    <div 
+      className="absolute inset-0 opacity-[0.02]"
+      style={{
+        backgroundImage: `linear-gradient(rgba(255,255,255,1) 1px, transparent 1px),
+                         linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)`,
+        backgroundSize: '60px 60px'
+      }}
+    />
+    {/* Radial gradient at top */}
+    <div className="absolute top-0 inset-x-0 h-[600px] bg-gradient-to-b from-[#627d98]/5 via-transparent to-transparent" />
+  </div>
+);
 
 // ============================================
 // ANIMATED COMPONENTS
 // ============================================
 
-const AnimatedCounter = ({ value, duration = 2000, prefix = "", suffix = "" }: { 
+const AnimatedCounter = ({ 
+  value, 
+  duration = 2000, 
+  prefix = "", 
+  suffix = "",
+  decimals = 0
+}: { 
   value: number; 
   duration?: number; 
   prefix?: string; 
   suffix?: string;
+  decimals?: number;
 }) => {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   useEffect(() => {
     if (!isInView) return;
@@ -50,103 +228,390 @@ const AnimatedCounter = ({ value, duration = 2000, prefix = "", suffix = "" }: {
     const animate = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
       const progress = Math.min((timestamp - startTime) / duration, 1);
-      setCount(Math.floor(progress * value));
+      // Eased progress
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(eased * value);
       if (progress < 1) requestAnimationFrame(animate);
     };
     requestAnimationFrame(animate);
   }, [isInView, value, duration]);
 
-  return <span ref={ref}>{prefix}{count.toLocaleString()}{suffix}</span>;
+  return (
+    <span ref={ref}>
+      {prefix}
+      {decimals > 0 ? count.toFixed(decimals) : Math.floor(count).toLocaleString()}
+      {suffix}
+    </span>
+  );
 };
 
-// Floating animation wrapper
+// Floating animation wrapper with enhanced physics
 const FloatingElement = ({ 
   children, 
   className, 
   delay = 0,
-  duration = 4
+  duration = 4,
+  range = 8
 }: { 
   children: React.ReactNode; 
   className?: string;
   delay?: number;
   duration?: number;
+  range?: number;
 }) => (
   <motion.div
-    initial={{ y: 0 }}
-    animate={{ y: [-8, 8, -8] }}
-    transition={{ duration, repeat: Infinity, ease: "easeInOut", delay }}
+    initial={{ y: 0, rotate: 0 }}
+    animate={{ 
+      y: [-range, range, -range],
+      rotate: [-1, 1, -1]
+    }}
+    transition={{ 
+      duration, 
+      repeat: Infinity, 
+      ease: "easeInOut", 
+      delay,
+      times: [0, 0.5, 1]
+    }}
     className={className}
   >
     {children}
   </motion.div>
 );
 
-// Staggered reveal animation
+// Staggered reveal animation with enhanced easing
 const RevealOnScroll = ({ 
   children, 
   delay = 0,
-  className = ""
+  className = "",
+  direction = "up"
 }: { 
   children: React.ReactNode;
   delay?: number;
   className?: string;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 40 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-50px" }}
-    transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
-    className={className}
-  >
-    {children}
-  </motion.div>
+  direction?: "up" | "down" | "left" | "right";
+}) => {
+  const directionMap = {
+    up: { y: 60, x: 0 },
+    down: { y: -60, x: 0 },
+    left: { x: 60, y: 0 },
+    right: { x: -60, y: 0 }
+  };
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, ...directionMap[direction] }}
+      whileInView={{ opacity: 1, y: 0, x: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ 
+        duration: 0.8, 
+        delay, 
+        ease: [0.21, 0.47, 0.32, 0.98]
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// Magnetic button effect
+const MagneticButton = ({ children, className, onClick }: { 
+  children: React.ReactNode; 
+  className?: string;
+  onClick?: () => void;
+}) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  
+  const springX = useSpring(x, { stiffness: 300, damping: 20 });
+  const springY = useSpring(y, { stiffness: 300, damping: 20 });
+  
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    x.set((e.clientX - centerX) * 0.15);
+    y.set((e.clientY - centerY) * 0.15);
+  };
+  
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+  
+  return (
+    <motion.div
+      style={{ x: springX, y: springY }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={className}
+      onClick={onClick}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// Text reveal animation
+const TextReveal = ({ children, delay = 0 }: { children: string; delay?: number }) => (
+  <motion.span className="inline-block overflow-hidden">
+    <motion.span
+      initial={{ y: "100%" }}
+      whileInView={{ y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, delay, ease: [0.21, 0.47, 0.32, 0.98] }}
+      className="inline-block"
+    >
+      {children}
+    </motion.span>
+  </motion.span>
 );
 
 // ============================================
-// FEATURE CARD
+// BENTO GRID FEATURE CARDS
 // ============================================
+
+interface FeatureCardProps {
+  icon: any;
+  title: string;
+  description: string;
+  gradient: string;
+  size?: "small" | "medium" | "large";
+  delay?: number;
+  accentColor?: string;
+  visual?: React.ReactNode;
+}
 
 const FeatureCard = ({ 
   icon: Icon, 
   title, 
   description, 
   gradient,
-  delay = 0 
-}: { 
-  icon: any; 
-  title: string; 
-  description: string;
-  gradient: string;
-  delay?: number;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ delay, duration: 0.5 }}
-    whileHover={{ y: -8, transition: { duration: 0.2 } }}
-    className="group relative p-6 rounded-2xl bg-[#111111] border border-[#1f1f1f] overflow-hidden hover:border-[#10b981]/50 transition-all duration-300"
-  >
-    {/* Glow effect on hover */}
-    <div className={`absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 ${gradient}`} />
-    
-    <div className="relative z-10">
-      <div className={`w-12 h-12 rounded-xl ${gradient} flex items-center justify-center mb-4 shadow-lg`}>
-        <Icon className="w-6 h-6 text-white" />
+  size = "small",
+  delay = 0,
+  accentColor = "#627d98",
+  visual
+}: FeatureCardProps) => {
+  const sizeClasses = {
+    small: "col-span-1 row-span-1",
+    medium: "col-span-1 md:col-span-2 row-span-1",
+    large: "col-span-1 md:col-span-2 row-span-2"
+  };
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 40, scale: 0.95 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ delay, duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
+      whileHover={{ y: -6, transition: { duration: 0.3 } }}
+      className={`group relative rounded-3xl bg-gradient-to-b from-[#141414] to-[#0d0d0d] border border-[#1a1a1a] overflow-hidden hover:border-[#2a2a2a] transition-all duration-500 ${sizeClasses[size]}`}
+    >
+      {/* Glow on hover */}
+      <motion.div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{
+          background: `radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), ${accentColor}10, transparent 40%)`
+        }}
+      />
+      
+      {/* Border glow */}
+      <div 
+        className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{
+          background: `linear-gradient(180deg, ${accentColor}15 0%, transparent 50%)`,
+        }}
+      />
+      
+      <div className="relative z-10 p-6 md:p-8 h-full flex flex-col">
+        {/* Icon */}
+        <div className={`w-14 h-14 rounded-2xl ${gradient} flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+          <Icon className="w-7 h-7 text-white" />
+        </div>
+        
+        {/* Content */}
+        <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-[#627d98] transition-colors duration-300">
+          {title}
+        </h3>
+        <p className="text-[15px] text-gray-400 leading-relaxed flex-grow">
+          {description}
+        </p>
+        
+        {/* Visual element for larger cards */}
+        {visual && (
+          <div className="mt-6 flex-grow flex items-end">
+            {visual}
+          </div>
+        )}
+        
+        {/* Arrow indicator */}
+        <motion.div 
+          className="absolute bottom-6 right-6 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+          whileHover={{ scale: 1.1 }}
+        >
+          <ArrowUpRight className="w-4 h-4 text-[#627d98]" />
+        </motion.div>
       </div>
-      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
-      <p className="text-sm text-gray-400 leading-relaxed">{description}</p>
+    </motion.div>
+  );
+};
+
+// Mini chart visual for feature cards
+const MiniChart = ({ color = "#627d98" }: { color?: string }) => (
+  <div className="w-full h-24 flex items-end gap-1">
+    {[40, 65, 45, 80, 55, 90, 70, 100, 85].map((height, i) => (
+      <motion.div
+        key={i}
+        initial={{ height: 0 }}
+        whileInView={{ height: `${height}%` }}
+        viewport={{ once: true }}
+        transition={{ delay: i * 0.05, duration: 0.5, ease: "easeOut" }}
+        className="flex-1 rounded-t-sm"
+        style={{ backgroundColor: `${color}${Math.floor(40 + (height / 100) * 60).toString(16)}` }}
+      />
+    ))}
+  </div>
+);
+
+// Portfolio value visual
+const PortfolioValueVisual = () => (
+  <div className="bg-[#0a0a0a] rounded-2xl p-4 border border-[#1a1a1a]">
+    <div className="flex items-center justify-between mb-4">
+      <span className="text-xs text-gray-500">Total Value</span>
+      <span className="text-xs text-[#627d98] font-medium">+12.4%</span>
     </div>
-  </motion.div>
+    <div className="text-3xl font-bold text-white mb-4">
+      $24,847<span className="text-gray-500">.50</span>
+    </div>
+    <MiniChart />
+  </div>
 );
 
 // ============================================
-// PRICING CARD
+// HOW IT WORKS
 // ============================================
+
+const HowItWorks = () => {
+  const steps = [
+    {
+      number: "01",
+      title: "Add Your Cards",
+      description: "Scan barcodes, search our database of millions, or import from a spreadsheet.",
+      icon: Scan,
+      color: "#627d98"
+    },
+    {
+      number: "02",
+      title: "Track Value",
+      description: "Watch your portfolio value update in real-time with market prices.",
+      icon: TrendingUp,
+      color: "#3b82f6"
+    },
+    {
+      number: "03",
+      title: "Maximize Profit",
+      description: "Make data-driven decisions with analytics, alerts, and insights.",
+      icon: Target,
+      color: "#8b5cf6"
+    }
+  ];
+  
+  return (
+    <div className="relative">
+      {/* Connection line */}
+      <div className="absolute top-[60px] left-[60px] right-[60px] h-0.5 bg-gradient-to-r from-[#627d98] via-[#3b82f6] to-[#8b5cf6] hidden lg:block opacity-30" />
+      <motion.div 
+        className="absolute top-[60px] left-[60px] right-[60px] h-0.5 bg-gradient-to-r from-[#627d98] via-[#3b82f6] to-[#8b5cf6] hidden lg:block"
+        initial={{ scaleX: 0, transformOrigin: "left" }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
+      />
+      
+      <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+        {steps.map((step, i) => (
+          <RevealOnScroll key={i} delay={i * 0.2}>
+            <div className="relative text-center lg:text-left">
+              {/* Step number bubble */}
+              <motion.div 
+                className="relative z-10 w-[120px] h-[120px] rounded-full mx-auto lg:mx-0 mb-6 flex items-center justify-center"
+                style={{ 
+                  background: `linear-gradient(135deg, ${step.color}15 0%, transparent 60%)`,
+                  border: `1px solid ${step.color}30`
+                }}
+                whileHover={{ scale: 1.05 }}
+              >
+                <div 
+                  className="w-16 h-16 rounded-full flex items-center justify-center"
+                  style={{ background: `linear-gradient(135deg, ${step.color} 0%, ${step.color}80 100%)` }}
+                >
+                  <step.icon className="w-8 h-8 text-white" />
+                </div>
+                
+                {/* Step number */}
+                <span 
+                  className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold"
+                  style={{ 
+                    background: '#0a0a0a',
+                    border: `2px solid ${step.color}`,
+                    color: step.color
+                  }}
+                >
+                  {step.number}
+                </span>
+              </motion.div>
+              
+              <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
+              <p className="text-gray-400 leading-relaxed max-w-xs mx-auto lg:mx-0">
+                {step.description}
+              </p>
+            </div>
+          </RevealOnScroll>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ============================================
+// PRICING SECTION
+// ============================================
+
+const PricingToggle = ({ 
+  isAnnual, 
+  setIsAnnual 
+}: { 
+  isAnnual: boolean; 
+  setIsAnnual: (v: boolean) => void;
+}) => (
+  <div className="flex items-center justify-center gap-4 mb-12">
+    <span className={`text-sm font-medium transition-colors ${!isAnnual ? 'text-white' : 'text-gray-500'}`}>
+      Monthly
+    </span>
+    <button
+      onClick={() => setIsAnnual(!isAnnual)}
+      className="relative w-16 h-8 rounded-full bg-[#1a1a1a] border border-[#2a2a2a] transition-colors"
+    >
+      <motion.div
+        className="absolute top-1 w-6 h-6 rounded-full bg-[#627d98] shadow-lg"
+        animate={{ left: isAnnual ? '34px' : '4px' }}
+        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      />
+    </button>
+    <span className={`text-sm font-medium transition-colors ${isAnnual ? 'text-white' : 'text-gray-500'}`}>
+      Annual
+    </span>
+    <span className="px-2 py-1 rounded-full bg-[#627d98]/20 text-[#627d98] text-xs font-semibold">
+      Save 40%
+    </span>
+  </div>
+);
 
 const PricingCard = ({ 
   name, 
-  price, 
+  monthlyPrice,
+  annualPrice,
+  isAnnual,
   period, 
   description,
   features, 
@@ -155,225 +620,294 @@ const PricingCard = ({
   onSelect
 }: { 
   name: string; 
-  price: string; 
+  monthlyPrice: number;
+  annualPrice: number;
+  isAnnual: boolean;
   period: string;
   description: string;
-  features: string[];
+  features: Array<{ text: string; included: boolean }>;
   popular?: boolean;
   delay?: number;
   onSelect: () => void;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ delay }}
-    className={`relative p-8 rounded-2xl border transition-all duration-300 ${
-      popular 
-        ? 'bg-gradient-to-b from-[#10b981]/10 to-[#0a0a0a] border-[#10b981]/50 shadow-2xl shadow-[#10b981]/10 scale-105' 
-        : 'bg-[#111111] border-[#1f1f1f] hover:border-[#2a2a2a]'
-    }`}
-  >
-    {popular && (
-      <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-[#10b981] text-black text-xs font-bold uppercase tracking-wider">
-        Most Popular
-      </div>
-    )}
-    
-    <div className="mb-6">
-      <h3 className="text-xl font-bold text-white mb-2">{name}</h3>
-      <p className="text-sm text-gray-500">{description}</p>
-    </div>
-    
-    <div className="flex items-baseline gap-1 mb-6">
-      <span className="text-5xl font-bold text-white">{price}</span>
-      {period !== "forever" && <span className="text-gray-500">/{period}</span>}
-    </div>
-    
-    <ul className="space-y-3 mb-8">
-      {features.map((feature, i) => (
-        <li key={i} className="flex items-start gap-3 text-sm">
-          <CheckCircle2 className={`w-5 h-5 flex-shrink-0 mt-0.5 ${popular ? 'text-[#10b981]' : 'text-gray-500'}`} />
-          <span className="text-gray-300">{feature}</span>
-        </li>
-      ))}
-    </ul>
-    
-    <Button 
-      onClick={onSelect}
-      className={`w-full h-12 font-semibold rounded-xl transition-all ${
-        popular 
-          ? 'bg-[#10b981] hover:bg-[#0ea472] text-black shadow-lg shadow-[#10b981]/30' 
-          : 'bg-white/10 hover:bg-white/20 text-white border border-[#2a2a2a]'
-      }`}
-    >
-      Get Started
-      <ArrowRight className="w-4 h-4 ml-2" />
-    </Button>
-  </motion.div>
-);
-
-// ============================================
-// FAQ ACCORDION
-// ============================================
-
-const FAQItem = ({ question, answer, delay = 0 }: { question: string; answer: string; delay?: number }) => {
-  const [isOpen, setIsOpen] = useState(false);
+}) => {
+  const price = isAnnual ? annualPrice : monthlyPrice;
+  const displayPrice = price === 0 ? "Free" : `$${price.toFixed(2)}`;
   
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ delay }}
-      className="border-b border-[#1f1f1f]"
+      transition={{ delay, duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
+      className={`relative rounded-3xl border transition-all duration-500 ${
+        popular 
+          ? 'bg-gradient-to-b from-[#627d98]/10 via-[#0d0d0d] to-[#0d0d0d] border-[#627d98]/40 shadow-2xl shadow-[#627d98]/10 scale-[1.02] z-10' 
+          : 'bg-gradient-to-b from-[#141414] to-[#0d0d0d] border-[#1a1a1a] hover:border-[#2a2a2a]'
+      }`}
     >
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between py-5 text-left group"
-      >
-        <span className="font-medium text-white group-hover:text-[#10b981] transition-colors">{question}</span>
-        <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${isOpen ? 'rotate-180 text-[#10b981]' : ''}`} />
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
+      {popular && (
+        <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+          <div className="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#627d98] to-[#059669] text-black text-xs font-bold uppercase tracking-wider shadow-lg">
+            Most Popular
+          </div>
+        </div>
+      )}
+      
+      <div className="p-8">
+        <div className="mb-6">
+          <h3 className="text-2xl font-bold text-white mb-2">{name}</h3>
+          <p className="text-sm text-gray-500">{description}</p>
+        </div>
+        
+        <div className="flex items-baseline gap-1 mb-8">
+          <motion.span 
+            key={displayPrice}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl font-bold text-white"
           >
-            <p className="pb-5 text-gray-400 text-sm leading-relaxed">{answer}</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {displayPrice}
+          </motion.span>
+          {price > 0 && (
+            <span className="text-gray-500">/{isAnnual ? 'year' : 'month'}</span>
+          )}
+        </div>
+        
+        <ul className="space-y-4 mb-8">
+          {features.map((feature, i) => (
+            <li key={i} className="flex items-start gap-3">
+              {feature.included ? (
+                <CheckCircle2 className={`w-5 h-5 flex-shrink-0 mt-0.5 ${popular ? 'text-[#627d98]' : 'text-gray-400'}`} />
+              ) : (
+                <div className="w-5 h-5 flex-shrink-0 mt-0.5 flex items-center justify-center">
+                  <Minus className="w-4 h-4 text-gray-700" />
+                </div>
+              )}
+              <span className={feature.included ? 'text-gray-300' : 'text-gray-600'}>
+                {feature.text}
+              </span>
+            </li>
+          ))}
+        </ul>
+        
+        <MagneticButton onClick={onSelect} className="w-full">
+          <Button 
+            className={`w-full h-14 text-base font-semibold rounded-2xl transition-all ${
+              popular 
+                ? 'bg-gradient-to-r from-[#627d98] to-[#059669] hover:from-[#0ea472] hover:to-[#059669] text-black shadow-lg shadow-[#627d98]/30 hover:shadow-xl hover:shadow-[#627d98]/40' 
+                : 'bg-white/5 hover:bg-white/10 text-white border border-[#2a2a2a] hover:border-[#3a3a3a]'
+            }`}
+          >
+            Get Started
+            <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+        </MagneticButton>
+      </div>
     </motion.div>
   );
 };
 
 // ============================================
-// TESTIMONIAL CARD
+// TESTIMONIALS CAROUSEL
 // ============================================
 
-const TestimonialCard = ({ 
-  name, 
-  role, 
-  text, 
-  rating,
-  avatar,
-  delay = 0 
-}: { 
-  name: string; 
-  role: string; 
+const TestimonialCarousel = ({ testimonials }: { testimonials: Array<{
+  name: string;
+  role: string;
   text: string;
   rating: number;
-  avatar?: string;
-  delay?: number;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ delay }}
-    className="p-6 rounded-2xl bg-[#111111] border border-[#1f1f1f] hover:border-[#2a2a2a] transition-all"
-  >
-    <div className="flex gap-1 mb-4">
-      {[...Array(5)].map((_, i) => (
-        <Star 
-          key={i} 
-          className={`w-4 h-4 ${i < rating ? 'fill-[#10b981] text-[#10b981]' : 'text-gray-700'}`} 
-        />
-      ))}
-    </div>
-    <p className="text-gray-300 mb-5 leading-relaxed">"{text}"</p>
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#10b981] to-[#059669] flex items-center justify-center text-white font-bold">
-        {name.charAt(0)}
-      </div>
-      <div>
-        <p className="font-medium text-white">{name}</p>
-        <p className="text-xs text-gray-500">{role}</p>
-      </div>
-    </div>
-  </motion.div>
-);
-
-// ============================================
-// SCREENSHOT CAROUSEL
-// ============================================
-
-const ScreenshotCarousel = () => {
+  image?: string;
+}> }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   
-  const screenshots = [
-    { title: "Dashboard", description: "See your entire collection at a glance with real-time valuations" },
-    { title: "Inventory", description: "Browse, search, and filter your complete card inventory" },
-    { title: "Analytics", description: "Track P&L, ROI, and portfolio performance over time" },
-    { title: "Add Card", description: "Quickly add cards with smart search and auto-fill" }
-  ];
-
-  const nextSlide = () => setActiveIndex((prev) => (prev + 1) % screenshots.length);
-  const prevSlide = () => setActiveIndex((prev) => (prev - 1 + screenshots.length) % screenshots.length);
-
   useEffect(() => {
-    const interval = setInterval(nextSlide, 5000);
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
     return () => clearInterval(interval);
-  }, []);
-
+  }, [testimonials.length]);
+  
   return (
-    <div className="relative">
-      {/* Screenshot Display */}
-      <div className="relative aspect-[16/10] rounded-2xl bg-[#111111] border border-[#1f1f1f] overflow-hidden">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeIndex}
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#10b981]/5 to-[#0a0a0a]"
-          >
-            <div className="text-center p-8">
-              <div className="w-20 h-20 rounded-2xl bg-[#10b981]/20 border border-[#10b981]/30 flex items-center justify-center mx-auto mb-6">
-                <Layers className="w-10 h-10 text-[#10b981]" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-2">{screenshots[activeIndex].title}</h3>
-              <p className="text-gray-400 max-w-md mx-auto">{screenshots[activeIndex].description}</p>
+    <div className="relative max-w-4xl mx-auto">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeIndex}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.5 }}
+          className="text-center"
+        >
+          {/* Quote */}
+          <p className="text-2xl md:text-3xl text-white font-medium leading-relaxed mb-10">
+            "{testimonials[activeIndex].text}"
+          </p>
+          
+          {/* Stars */}
+          <div className="flex justify-center gap-1 mb-6">
+            {[...Array(5)].map((_, i) => (
+              <Star 
+                key={i} 
+                className={`w-5 h-5 ${i < testimonials[activeIndex].rating ? 'fill-[#627d98] text-[#627d98]' : 'text-gray-700'}`} 
+              />
+            ))}
+          </div>
+          
+          {/* Author */}
+          <div className="flex items-center justify-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#627d98] to-[#059669] flex items-center justify-center text-white text-xl font-bold">
+              {testimonials[activeIndex].name.charAt(0)}
             </div>
-          </motion.div>
-        </AnimatePresence>
-        
-        {/* Navigation Arrows */}
-        <button 
-          onClick={prevSlide}
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 border border-[#2a2a2a] flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <button 
-          onClick={nextSlide}
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 border border-[#2a2a2a] flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
+            <div className="text-left">
+              <p className="font-semibold text-white">{testimonials[activeIndex].name}</p>
+              <p className="text-sm text-gray-500">{testimonials[activeIndex].role}</p>
+            </div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
       
-      {/* Dots Indicator */}
-      <div className="flex items-center justify-center gap-2 mt-6">
-        {screenshots.map((_, i) => (
+      {/* Dots */}
+      <div className="flex justify-center gap-2 mt-10">
+        {testimonials.map((_, i) => (
           <button
             key={i}
             onClick={() => setActiveIndex(i)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+            className={`h-2 rounded-full transition-all duration-300 ${
               i === activeIndex 
-                ? 'w-8 bg-[#10b981]' 
-                : 'bg-gray-600 hover:bg-gray-500'
+                ? 'w-8 bg-[#627d98]' 
+                : 'w-2 bg-gray-700 hover:bg-gray-600'
             }`}
           />
         ))}
       </div>
     </div>
+  );
+};
+
+// ============================================
+// FAQ ACCORDION
+// ============================================
+
+const FAQItem = ({ 
+  question, 
+  answer, 
+  delay = 0,
+  isOpen,
+  onClick
+}: { 
+  question: string; 
+  answer: string; 
+  delay?: number;
+  isOpen: boolean;
+  onClick: () => void;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ delay, duration: 0.5 }}
+    className="border-b border-[#1a1a1a]"
+  >
+    <button
+      onClick={onClick}
+      className="w-full flex items-center justify-between py-6 text-left group"
+    >
+      <span className="text-lg font-medium text-white group-hover:text-[#627d98] transition-colors pr-8">
+        {question}
+      </span>
+      <motion.div
+        animate={{ rotate: isOpen ? 180 : 0 }}
+        transition={{ duration: 0.3 }}
+        className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+          isOpen ? 'bg-[#627d98] text-black' : 'bg-[#1a1a1a] text-gray-400'
+        }`}
+      >
+        <ChevronDown className="w-5 h-5" />
+      </motion.div>
+    </button>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.3, ease: [0.21, 0.47, 0.32, 0.98] }}
+          className="overflow-hidden"
+        >
+          <p className="pb-6 text-gray-400 leading-relaxed pr-16">{answer}</p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </motion.div>
+);
+
+// ============================================
+// NAVIGATION
+// ============================================
+
+const Navigation = ({ scrolled }: { scrolled: boolean }) => {
+  const navigate = useNavigate();
+  
+  return (
+    <motion.nav
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300 ${
+        scrolled 
+          ? 'backdrop-blur-xl bg-[#0a0a0a]/90 border-b border-[#1a1a1a]' 
+          : 'bg-transparent'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        {/* Logo */}
+        <motion.div 
+          className="flex items-center gap-3 cursor-pointer"
+          whileHover={{ scale: 1.02 }}
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#627d98] via-[#059669] to-[#047857] flex items-center justify-center shadow-lg shadow-[#627d98]/20">
+            <Layers className="w-6 h-6 text-white" />
+          </div>
+          <span className="text-xl font-bold tracking-tight">
+            Card<span className="text-[#627d98]">Ledger</span>
+          </span>
+        </motion.div>
+        
+        {/* Nav Links */}
+        <div className="hidden md:flex items-center gap-10">
+          {['Features', 'How It Works', 'Pricing', 'FAQ'].map((item) => (
+            <a 
+              key={item}
+              href={`#${item.toLowerCase().replace(/\s+/g, '-')}`} 
+              className="text-sm text-gray-400 hover:text-white transition-colors relative group"
+            >
+              {item}
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#627d98] group-hover:w-full transition-all duration-300" />
+            </a>
+          ))}
+        </div>
+        
+        {/* CTA Buttons */}
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate("/auth")} 
+            className="hidden sm:flex text-gray-300 hover:text-white hover:bg-white/5"
+          >
+            Sign In
+          </Button>
+          <MagneticButton onClick={() => navigate("/auth")}>
+            <Button 
+              className="bg-gradient-to-r from-[#627d98] to-[#059669] hover:from-[#0ea472] hover:to-[#059669] text-black font-semibold rounded-xl gap-2 shadow-lg shadow-[#627d98]/20 hover:shadow-[#627d98]/30 transition-all"
+            >
+              Start Free
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </MagneticButton>
+        </div>
+      </div>
+    </motion.nav>
   );
 };
 
@@ -384,6 +918,10 @@ const ScreenshotCarousel = () => {
 const Landing = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(true);
+  const [openFAQ, setOpenFAQ] = useState<number | null>(null);
+  
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -392,7 +930,7 @@ const Landing = () => {
   
   const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
-  const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 100]);
+  const heroY = useTransform(scrollYProgress, [0, 0.5], [0, 150]);
 
   useEffect(() => {
     // Check auth status
@@ -404,6 +942,10 @@ const Landing = () => {
       }
     });
     
+    // Scroll listener
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
@@ -412,16 +954,30 @@ const Landing = () => {
         target?.scrollIntoView({ behavior: 'smooth' });
       });
     });
+    
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [navigate]);
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="w-8 h-8 border-2 border-[#10b981] border-t-transparent rounded-full animate-spin"
-        />
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#627d98] to-[#059669] flex items-center justify-center">
+            <Layers className="w-8 h-8 text-white animate-pulse" />
+          </div>
+          <div className="w-48 h-1 bg-[#1a1a1a] rounded-full overflow-hidden">
+            <motion.div 
+              className="h-full bg-gradient-to-r from-[#627d98] to-[#059669]"
+              initial={{ width: "0%" }}
+              animate={{ width: "100%" }}
+              transition={{ duration: 1, ease: "easeOut" }}
+            />
+          </div>
+        </motion.div>
       </div>
     );
   }
@@ -433,64 +989,100 @@ const Landing = () => {
   const features = [
     {
       icon: LineChart,
-      title: "Portfolio Tracking",
-      description: "Track your entire collection with real-time market prices from major marketplaces.",
-      gradient: "bg-gradient-to-br from-[#10b981] to-[#059669]"
+      title: "Real-time Portfolio Value",
+      description: "Watch your collection's worth update instantly with prices from eBay, TCGPlayer, and major marketplaces.",
+      gradient: "bg-gradient-to-br from-[#627d98] to-[#059669]",
+      size: "medium" as const,
+      accentColor: "#627d98",
+      visual: <PortfolioValueVisual />
     },
     {
       icon: TrendingUp,
       title: "P&L Analytics",
-      description: "See your profit & loss, ROI, and portfolio performance with beautiful charts.",
-      gradient: "bg-gradient-to-br from-blue-500 to-cyan-500"
-    },
-    {
-      icon: Package,
-      title: "Grading Pipeline",
-      description: "Track cards through the grading process - from submission to slab in hand.",
-      gradient: "bg-gradient-to-br from-purple-500 to-pink-500"
+      description: "Track profit & loss, ROI, and performance with beautiful visualizations.",
+      gradient: "bg-gradient-to-br from-blue-500 to-cyan-500",
+      size: "small" as const,
+      accentColor: "#3b82f6"
     },
     {
       icon: Bell,
       title: "Price Alerts",
-      description: "Get notified instantly when cards hit your target prices. Never miss a deal.",
-      gradient: "bg-gradient-to-br from-orange-500 to-red-500"
+      description: "Get notified when cards hit your target price. Never miss a deal.",
+      gradient: "bg-gradient-to-br from-orange-500 to-red-500",
+      size: "small" as const,
+      accentColor: "#f97316"
+    },
+    {
+      icon: Package,
+      title: "Grading Pipeline",
+      description: "Track submissions through PSA, BGS, CGC - from raw to slab.",
+      gradient: "bg-gradient-to-br from-purple-500 to-pink-500",
+      size: "small" as const,
+      accentColor: "#a855f7"
     },
     {
       icon: Users,
       title: "Wholesale Client Lists",
-      description: "Manage your buyers and sellers with integrated CRM for serious dealers.",
-      gradient: "bg-gradient-to-br from-yellow-500 to-amber-500"
+      description: "Built-in CRM for dealers. Manage buyers, sellers, and transactions.",
+      gradient: "bg-gradient-to-br from-yellow-500 to-amber-500",
+      size: "small" as const,
+      accentColor: "#eab308"
     },
     {
       icon: ShoppingCart,
       title: "eBay Integration",
-      description: "Sync your eBay listings and sales. Auto-import purchases and track everything.",
-      gradient: "bg-gradient-to-br from-indigo-500 to-violet-500"
+      description: "Sync listings, track sales, auto-import purchases. Everything in one place.",
+      gradient: "bg-gradient-to-br from-indigo-500 to-violet-500",
+      size: "small" as const,
+      accentColor: "#6366f1"
+    },
+    {
+      icon: Camera,
+      title: "AI Card Scanner",
+      description: "Snap a photo and let AI identify your card. Add to your collection in seconds.",
+      gradient: "bg-gradient-to-br from-rose-500 to-pink-500",
+      size: "small" as const,
+      accentColor: "#f43f5e"
+    },
+    {
+      icon: Award,
+      title: "Set Completion",
+      description: "Track your progress on completing sets. See what you need at a glance.",
+      gradient: "bg-gradient-to-br from-navy-600 to-navy-400",
+      size: "small" as const,
+      accentColor: "#14b8a6"
     }
   ];
 
   const stats = [
-    { value: 10, label: "Cards Tracked", suffix: "K+" },
-    { value: 2, label: "Portfolio Value", prefix: "$", suffix: "M+" },
+    { value: 5, label: "Portfolio Value Tracked", prefix: "$", suffix: "M+", decimals: 0 },
+    { value: 50, label: "Cards Managed", suffix: "K+" },
+    { value: 4.9, label: "App Store Rating", suffix: "★", decimals: 1 },
   ];
 
   const testimonials = [
     {
       name: "Jake Morrison",
-      role: "Pokemon Collector",
-      text: "CardLedger changed the game for me. I finally know exactly what my collection is worth and which cards are actually making me money.",
+      role: "Pokémon Collector, 15k+ cards",
+      text: "CardLedger is a game-changer. I finally know exactly what my collection is worth and which cards are actually making me money. The P&L tracking alone is worth the subscription.",
       rating: 5
     },
     {
       name: "Sarah Chen",
       role: "Sports Card Investor",
-      text: "The P&L tracking is incredible. I've been able to identify which card types give me the best ROI and focus my buying there.",
+      text: "I've tried every tracking app out there. CardLedger's analytics helped me identify which card types give me the best ROI. My returns have increased 40% since I started using it.",
       rating: 5
     },
     {
       name: "Marcus Williams",
       role: "Card Shop Owner",
-      text: "The wholesale client list feature alone is worth the Business plan. Managing hundreds of customers has never been easier.",
+      text: "The wholesale client list feature alone is worth the Business plan. Managing hundreds of customers has never been easier. This is built by people who actually understand the business.",
+      rating: 5
+    },
+    {
+      name: "Alex Rodriguez",
+      role: "MTG Collector",
+      text: "The grading pipeline tracker saved me from losing track of my PSA submissions. I know exactly where every card is and when to expect it back. Incredible attention to detail.",
       rating: 5
     }
   ];
@@ -498,48 +1090,54 @@ const Landing = () => {
   const pricingPlans = [
     {
       name: "Free",
-      price: "$0",
+      monthlyPrice: 0,
+      annualPrice: 0,
       period: "forever",
       description: "Perfect for casual collectors",
       features: [
-        "Track up to 100 cards",
-        "Basic portfolio value",
-        "Manual price lookup",
-        "1 collection",
-        "Community support"
+        { text: "Track up to 100 cards", included: true },
+        { text: "Basic portfolio value", included: true },
+        { text: "Manual price lookup", included: true },
+        { text: "1 collection", included: true },
+        { text: "Community support", included: true },
+        { text: "Real-time price tracking", included: false },
+        { text: "P&L analytics", included: false },
+        { text: "Price alerts", included: false },
       ]
     },
     {
       name: "Pro",
-      price: "$6.99",
+      monthlyPrice: 6.99,
+      annualPrice: 49.99,
       period: "mo",
       description: "For serious collectors",
       popular: true,
       features: [
-        "Unlimited cards",
-        "Real-time price tracking",
-        "P&L and ROI analytics",
-        "Price alerts",
-        "Export to CSV/PDF",
-        "Grading pipeline tracker",
-        "Unlimited collections",
-        "Priority support"
+        { text: "Unlimited cards", included: true },
+        { text: "Real-time price tracking", included: true },
+        { text: "P&L and ROI analytics", included: true },
+        { text: "Price alerts", included: true },
+        { text: "Export to CSV/PDF", included: true },
+        { text: "Grading pipeline tracker", included: true },
+        { text: "Unlimited collections", included: true },
+        { text: "Priority support", included: true },
       ]
     },
     {
       name: "Business",
-      price: "$14.99",
+      monthlyPrice: 14.99,
+      annualPrice: 99.99,
       period: "mo",
       description: "For dealers & shops",
       features: [
-        "Everything in Pro",
-        "Wholesale client lists",
-        "API access",
-        "Team collaboration",
-        "Custom branding",
-        "Tax & inventory reports",
-        "eBay integration",
-        "Dedicated account manager"
+        { text: "Everything in Pro", included: true },
+        { text: "Wholesale client lists", included: true },
+        { text: "API access", included: true },
+        { text: "Team collaboration", included: true },
+        { text: "Custom branding", included: true },
+        { text: "Tax & inventory reports", included: true },
+        { text: "eBay integration", included: true },
+        { text: "Dedicated account manager", included: true },
       ]
     }
   ];
@@ -547,27 +1145,35 @@ const Landing = () => {
   const faqs = [
     {
       question: "What card types does CardLedger support?",
-      answer: "We support all major TCGs including Pokémon, Magic: The Gathering, Yu-Gi-Oh!, One Piece, Dragon Ball, and all sports cards (baseball, basketball, football, hockey). New games and sets are added regularly."
+      answer: "We support all major TCGs including Pokémon, Magic: The Gathering, Yu-Gi-Oh!, One Piece, Dragon Ball, Lorcana, and all sports cards (baseball, basketball, football, hockey, soccer). New games and sets are added within 24-48 hours of release."
     },
     {
-      question: "How does price tracking work?",
-      answer: "We aggregate prices from major marketplaces including eBay sold listings, TCGPlayer, and more. Prices update in real-time so you always know the current market value of your collection."
+      question: "How accurate are the price estimates?",
+      answer: "Our prices are sourced from real-time eBay sold listings, TCGPlayer market prices, and other major marketplaces. We use a weighted algorithm that prioritizes recent sales to give you the most accurate current market value. Prices update every 15 minutes for Pro users."
     },
     {
-      question: "Can I track graded cards?",
-      answer: "Absolutely! CardLedger supports all major grading companies including PSA, BGS, CGC, and SGC. You can track raw cards, submissions in progress, and graded slabs all in one place."
+      question: "Can I track graded cards from different companies?",
+      answer: "Absolutely! CardLedger supports all major grading companies including PSA, BGS/Beckett, CGC, and SGC. You can track raw cards, pending submissions, and graded slabs all in one place. We even adjust valuations based on grade."
     },
     {
       question: "Is my collection data secure?",
-      answer: "Yes. We use bank-level encryption for all data. Your collection information is stored securely and you can export or delete it anytime. We never share or sell your data."
+      answer: "Yes. We use bank-level AES-256 encryption for all data, both in transit and at rest. Your collection information is stored securely on AWS servers with daily backups. You own your data and can export or delete it anytime. We never share or sell your information."
     },
     {
       question: "What's included in the free tier?",
-      answer: "Free users can track up to 100 cards, view basic portfolio value, and access price lookups. Upgrade to Pro for unlimited cards, analytics, price alerts, and more."
+      answer: "Free users can track up to 100 cards, view basic portfolio value, and access manual price lookups. It's perfect for casual collectors or anyone who wants to try CardLedger before upgrading. No credit card required."
     },
     {
-      question: "Do you have a mobile app?",
-      answer: "Yes! CardLedger is available on iOS and Android. The mobile app includes all features plus barcode scanning for quick card entry."
+      question: "Is there a mobile app?",
+      answer: "Yes! CardLedger is available on iOS and Android. The mobile app includes all features plus barcode scanning for quick card entry, camera-based card recognition, and push notifications for price alerts."
+    },
+    {
+      question: "Can I import my existing collection?",
+      answer: "Yes! We support CSV imports from most popular tracking apps and spreadsheets. Our import wizard walks you through mapping your columns to our fields. Most collections can be imported in under 5 minutes."
+    },
+    {
+      question: "What if I'm not satisfied?",
+      answer: "We offer a 30-day money-back guarantee on all paid plans. If CardLedger isn't right for you, just email us and we'll refund your purchase, no questions asked. We're confident you'll love it though."
     }
   ];
 
@@ -577,71 +1183,13 @@ const Landing = () => {
       {/* ============================================ */}
       {/* ANIMATED BACKGROUND */}
       {/* ============================================ */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Primary glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-[#10b981]/8 rounded-full blur-[150px]" />
-        {/* Secondary glows */}
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[120px]" />
-        <div className="absolute top-1/2 right-0 w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[100px]" />
-        
-        {/* Grid pattern */}
-        <div 
-          className="absolute inset-0 opacity-[0.015]"
-          style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,1) 1px, transparent 1px),
-                             linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)`,
-            backgroundSize: '80px 80px'
-          }}
-        />
-      </div>
+      <ParticleField />
+      <GradientOrbs />
 
       {/* ============================================ */}
       {/* NAVIGATION */}
       {/* ============================================ */}
-      <motion.nav
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="fixed top-0 left-0 right-0 z-50 px-6 py-4 backdrop-blur-xl bg-[#0a0a0a]/80 border-b border-[#1f1f1f]"
-      >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#10b981] to-[#059669] flex items-center justify-center">
-              <Layers className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight">
-              Card<span className="text-[#10b981]">Ledger</span>
-            </span>
-          </div>
-          
-          {/* Nav Links */}
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm text-gray-400 hover:text-white transition-colors">Features</a>
-            <a href="#screenshots" className="text-sm text-gray-400 hover:text-white transition-colors">Screenshots</a>
-            <a href="#pricing" className="text-sm text-gray-400 hover:text-white transition-colors">Pricing</a>
-            <a href="#faq" className="text-sm text-gray-400 hover:text-white transition-colors">FAQ</a>
-          </div>
-          
-          {/* CTA Buttons */}
-          <div className="flex items-center gap-3">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate("/auth")} 
-              className="hidden sm:flex text-gray-300 hover:text-white hover:bg-white/10"
-            >
-              Sign In
-            </Button>
-            <Button 
-              onClick={() => navigate("/auth")} 
-              className="bg-[#10b981] hover:bg-[#0ea472] text-black font-semibold rounded-xl gap-2"
-            >
-              Get Started
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      </motion.nav>
+      <Navigation scrolled={scrolled} />
 
       {/* ============================================ */}
       {/* HERO SECTION */}
@@ -649,125 +1197,239 @@ const Landing = () => {
       <motion.section 
         ref={heroRef}
         style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
-        className="relative min-h-screen flex items-center justify-center pt-24 pb-16 px-6"
+        className="relative min-h-screen flex items-center justify-center pt-24 pb-20 px-6"
       >
-        <div className="max-w-6xl mx-auto text-center">
+        <div className="max-w-6xl mx-auto text-center relative z-10">
           
           {/* Badge */}
-          <RevealOnScroll delay={0.1}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#10b981]/10 border border-[#10b981]/30 mb-8">
-              <Sparkles className="w-4 h-4 text-[#10b981]" />
-              <span className="text-sm font-medium text-[#10b981]">#1 Card Collection Tracker</span>
-            </div>
+          <RevealOnScroll delay={0}>
+            <motion.div 
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#627d98]/20 to-[#627d98]/5 border border-[#627d98]/30 mb-8 backdrop-blur-sm"
+              whileHover={{ scale: 1.02 }}
+            >
+              <Sparkles className="w-4 h-4 text-[#627d98]" />
+              <span className="text-sm font-semibold text-[#627d98]">The #1 Portfolio Tracker for Collectors</span>
+              <ChevronRight className="w-4 h-4 text-[#627d98]/60" />
+            </motion.div>
           </RevealOnScroll>
 
           {/* Main Headline */}
-          <RevealOnScroll delay={0.2}>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-[1.05]">
-              Your Cards
-              <span className="text-gray-500 mx-2 md:mx-4">|</span>
-              <span className="bg-gradient-to-r from-[#10b981] via-[#34d399] to-[#6ee7b7] bg-clip-text text-transparent">
-                One Ledger
+          <RevealOnScroll delay={0.1}>
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6 leading-[1.05]">
+              <span className="block">Your Cards</span>
+              <span className="block mt-2">
+                <span className="bg-gradient-to-r from-[#627d98] via-[#34d399] to-[#6ee7b7] bg-clip-text text-transparent">
+                  One Ledger
+                </span>
               </span>
             </h1>
           </RevealOnScroll>
 
           {/* Subheadline */}
-          <RevealOnScroll delay={0.3}>
-            <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-10 leading-relaxed">
-              The smartest way to track, value, and profit from your card collection.
+          <RevealOnScroll delay={0.2}>
+            <p className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed font-medium">
+              <span className="text-white">Track.</span>{" "}
+              <span className="text-white">Value.</span>{" "}
+              <span className="text-white">Profit.</span>{" "}
+              <span className="block mt-2">The smartest portfolio tracker for collectors.</span>
             </p>
           </RevealOnScroll>
 
           {/* CTA Buttons */}
-          <RevealOnScroll delay={0.4}>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Button
-                size="lg"
-                onClick={() => navigate("/auth")}
-                className="h-14 px-8 text-lg font-semibold rounded-2xl bg-[#10b981] hover:bg-[#0ea472] text-black gap-2 shadow-lg shadow-[#10b981]/30 hover:shadow-xl hover:shadow-[#10b981]/40 transition-all group"
-              >
-                Get Started Free
-                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
+          <RevealOnScroll delay={0.3}>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+              <MagneticButton onClick={() => navigate("/auth")}>
+                <Button
+                  size="lg"
+                  className="h-16 px-10 text-lg font-bold rounded-2xl bg-gradient-to-r from-[#627d98] to-[#059669] hover:from-[#0ea472] hover:to-[#059669] text-black gap-3 shadow-2xl shadow-[#627d98]/30 hover:shadow-[#627d98]/50 transition-all group"
+                >
+                  Start Free
+                  <motion.div
+                    animate={{ x: [0, 4, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </motion.div>
+                </Button>
+              </MagneticButton>
+              
               <Button
                 size="lg"
                 variant="outline"
-                className="h-14 px-8 text-lg font-semibold rounded-2xl bg-transparent border-[#2a2a2a] hover:bg-white/5 hover:border-[#3a3a3a] text-white gap-2"
+                className="h-16 px-10 text-lg font-semibold rounded-2xl bg-white/5 border-[#2a2a2a] hover:bg-white/10 hover:border-[#3a3a3a] text-white gap-3 backdrop-blur-sm"
               >
-                <Download className="w-5 h-5" />
-                Download App
+                <Play className="w-5 h-5 fill-current" />
+                See How It Works
               </Button>
             </div>
+          </RevealOnScroll>
+          
+          {/* Social Proof */}
+          <RevealOnScroll delay={0.4}>
+            <p className="text-sm text-gray-500 mb-12">
+              <span className="text-[#627d98] font-semibold">Join 10,000+ collectors</span> who trust CardLedger
+            </p>
           </RevealOnScroll>
 
           {/* Stats */}
           <RevealOnScroll delay={0.5}>
-            <div className="flex flex-wrap items-center justify-center gap-12 mb-16">
+            <div className="flex flex-wrap items-center justify-center gap-12 lg:gap-20 mb-20">
               {stats.map((stat, i) => (
                 <div key={stat.label} className="text-center">
-                  <p className="text-4xl md:text-5xl font-bold text-white">
+                  <p className="text-4xl md:text-5xl font-bold text-white mb-2">
                     <AnimatedCounter 
                       value={stat.value} 
                       prefix={stat.prefix || ""} 
                       suffix={stat.suffix || ""} 
+                      decimals={stat.decimals || 0}
                     />
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">{stat.label}</p>
+                  <p className="text-sm text-gray-500">{stat.label}</p>
                 </div>
               ))}
             </div>
           </RevealOnScroll>
 
           {/* Hero Mockup */}
-          <RevealOnScroll delay={0.6} className="relative max-w-5xl mx-auto">
-            {/* Glow */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#10b981]/20 via-[#10b981]/5 to-transparent rounded-3xl blur-3xl scale-95 -z-10" />
-            
-            {/* Main Preview */}
-            <div className="relative rounded-2xl md:rounded-3xl overflow-hidden border border-[#1f1f1f] shadow-2xl bg-[#111111]">
-              {/* Placeholder for app screenshot */}
-              <div className="aspect-[16/9] flex items-center justify-center bg-gradient-to-br from-[#10b981]/10 to-[#0a0a0a]">
-                <div className="text-center p-8">
-                  <div className="w-24 h-24 rounded-2xl bg-[#10b981]/20 border border-[#10b981]/30 flex items-center justify-center mx-auto mb-6">
-                    <BarChart3 className="w-12 h-12 text-[#10b981]" />
+          <RevealOnScroll delay={0.6}>
+            <div className="relative max-w-5xl mx-auto perspective-1000">
+              {/* Main preview window */}
+              <motion.div
+                initial={{ rotateX: 10 }}
+                whileInView={{ rotateX: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, ease: "easeOut" }}
+                className="relative rounded-2xl md:rounded-3xl overflow-hidden border border-[#1a1a1a] shadow-2xl shadow-black/50"
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                {/* Browser chrome */}
+                <div className="bg-[#141414] border-b border-[#1a1a1a] px-4 py-3 flex items-center gap-2">
+                  <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+                    <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
+                    <div className="w-3 h-3 rounded-full bg-[#28c840]" />
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">CardLedger Dashboard</h3>
-                  <p className="text-gray-400">Your complete collection overview</p>
+                  <div className="flex-1 flex justify-center">
+                    <div className="px-4 py-1.5 rounded-lg bg-[#0a0a0a] border border-[#2a2a2a] text-xs text-gray-500 flex items-center gap-2">
+                      <Shield className="w-3 h-3 text-[#627d98]" />
+                      cardledger.app
+                    </div>
+                  </div>
                 </div>
-              </div>
-              {/* Bottom fade */}
-              <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
+                
+                {/* App preview */}
+                <div className="aspect-[16/9] bg-gradient-to-br from-[#0f0f0f] to-[#0a0a0a] flex items-center justify-center relative overflow-hidden">
+                  {/* Dashboard mockup */}
+                  <div className="absolute inset-4 md:inset-8 grid grid-cols-12 gap-4 opacity-80">
+                    {/* Sidebar */}
+                    <div className="col-span-2 bg-[#111111] rounded-xl border border-[#1a1a1a] p-3 hidden md:block">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#627d98] to-[#059669] mb-6" />
+                      {[1,2,3,4,5].map(i => (
+                        <div key={i} className={`h-8 rounded-lg mb-2 ${i === 1 ? 'bg-[#627d98]/20 border border-[#627d98]/30' : 'bg-[#1a1a1a]'}`} />
+                      ))}
+                    </div>
+                    
+                    {/* Main content */}
+                    <div className="col-span-12 md:col-span-10 space-y-4">
+                      {/* Header */}
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-2">
+                          <div className="h-8 w-48 bg-[#1a1a1a] rounded-lg" />
+                          <div className="h-4 w-32 bg-[#141414] rounded-lg" />
+                        </div>
+                        <div className="h-10 w-32 bg-gradient-to-r from-[#627d98] to-[#059669] rounded-xl" />
+                      </div>
+                      
+                      {/* Stats row */}
+                      <div className="grid grid-cols-4 gap-4">
+                        {[
+                          { label: 'Portfolio Value', value: '$24,847', change: '+12.4%', positive: true },
+                          { label: 'Total Cards', value: '847', change: '+23', positive: true },
+                          { label: "Today's P&L", value: '+$847', change: '+3.4%', positive: true },
+                          { label: 'ROI', value: '+127%', change: 'All time', positive: true },
+                        ].map((stat, i) => (
+                          <div key={i} className="bg-[#111111] rounded-xl border border-[#1a1a1a] p-4">
+                            <div className="text-xs text-gray-500 mb-1">{stat.label}</div>
+                            <div className="text-xl font-bold text-white">{stat.value}</div>
+                            <div className={`text-xs ${stat.positive ? 'text-[#627d98]' : 'text-red-400'}`}>{stat.change}</div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Chart area */}
+                      <div className="bg-[#111111] rounded-xl border border-[#1a1a1a] p-4 h-48 flex items-end">
+                        <div className="w-full flex items-end gap-2">
+                          {[35, 45, 60, 40, 75, 55, 80, 65, 90, 70, 95, 85, 100].map((h, i) => (
+                            <motion.div
+                              key={i}
+                              initial={{ height: 0 }}
+                              whileInView={{ height: `${h}%` }}
+                              viewport={{ once: true }}
+                              transition={{ delay: 0.8 + i * 0.05, duration: 0.5 }}
+                              className="flex-1 bg-gradient-to-t from-[#627d98] to-[#34d399] rounded-t"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Floating Elements */}
+              <FloatingElement 
+                className="absolute -left-4 lg:-left-16 top-1/4 hidden md:block" 
+                delay={0}
+                duration={5}
+              >
+                <div className="px-5 py-4 rounded-2xl bg-[#111111]/90 border border-[#1a1a1a] shadow-2xl backdrop-blur-xl">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#627d98] to-[#059669] flex items-center justify-center">
+                      <TrendingUp className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Portfolio Change</p>
+                      <p className="text-2xl font-bold text-[#627d98]">+$2,847</p>
+                    </div>
+                  </div>
+                </div>
+              </FloatingElement>
+
+              <FloatingElement 
+                className="absolute -right-4 lg:-right-16 top-1/3 hidden md:block" 
+                delay={0.5}
+                duration={4}
+              >
+                <div className="px-5 py-4 rounded-2xl bg-[#111111]/90 border border-[#1a1a1a] shadow-2xl backdrop-blur-xl">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                      <PieChart className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">All-time ROI</p>
+                      <p className="text-2xl font-bold text-purple-400">+127.4%</p>
+                    </div>
+                  </div>
+                </div>
+              </FloatingElement>
+
+              <FloatingElement 
+                className="absolute -left-8 lg:-left-20 bottom-1/4 hidden lg:block" 
+                delay={1}
+                duration={6}
+              >
+                <div className="px-4 py-3 rounded-xl bg-[#111111]/90 border border-[#1a1a1a] shadow-2xl backdrop-blur-xl flex items-center gap-3">
+                  <Bell className="w-5 h-5 text-orange-400" />
+                  <div>
+                    <p className="text-xs font-medium text-white">Price Alert!</p>
+                    <p className="text-xs text-gray-500">Base Set Charizard hit $350</p>
+                  </div>
+                </div>
+              </FloatingElement>
+
+              {/* Glow effect under the preview */}
+              <div className="absolute -bottom-32 left-1/2 -translate-x-1/2 w-3/4 h-64 bg-[#627d98]/20 rounded-full blur-[100px] pointer-events-none" />
             </div>
-
-            {/* Floating Elements */}
-            <FloatingElement className="absolute -left-6 top-1/4 hidden lg:block" delay={0}>
-              <div className="px-4 py-3 rounded-xl bg-[#111111] border border-[#1f1f1f] shadow-xl backdrop-blur-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[#10b981]/20 flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-[#10b981]" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">24h Change</p>
-                    <p className="text-lg font-bold text-[#10b981]">+$847.50</p>
-                  </div>
-                </div>
-              </div>
-            </FloatingElement>
-
-            <FloatingElement className="absolute -right-6 top-1/3 hidden lg:block" delay={0.5}>
-              <div className="px-4 py-3 rounded-xl bg-[#111111] border border-[#1f1f1f] shadow-xl backdrop-blur-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                    <PieChart className="w-5 h-5 text-purple-400" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Portfolio ROI</p>
-                    <p className="text-lg font-bold text-purple-400">+127.4%</p>
-                  </div>
-                </div>
-              </div>
-            </FloatingElement>
           </RevealOnScroll>
         </div>
 
@@ -775,142 +1437,185 @@ const Landing = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.5 }}
+          transition={{ delay: 2 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
         >
           <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
             className="flex flex-col items-center gap-2 text-gray-500"
           >
+            <MousePointer className="w-5 h-5" />
             <span className="text-xs">Scroll to explore</span>
-            <ChevronDown className="w-5 h-5" />
           </motion.div>
         </motion.div>
       </motion.section>
 
       {/* ============================================ */}
-      {/* FEATURES SECTION */}
+      {/* FEATURES BENTO GRID */}
       {/* ============================================ */}
-      <section id="features" className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
-          <RevealOnScroll className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Everything you need to
-              <br />
-              <span className="bg-gradient-to-r from-[#10b981] to-[#34d399] bg-clip-text text-transparent">
+      <section id="features" className="py-32 px-6 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          <RevealOnScroll className="text-center mb-20">
+            <motion.div 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#627d98]/10 border border-[#627d98]/30 mb-6"
+            >
+              <Zap className="w-4 h-4 text-[#627d98]" />
+              <span className="text-sm font-semibold text-[#627d98]">Powerful Features</span>
+            </motion.div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+              Everything you need to{" "}
+              <span className="bg-gradient-to-r from-[#627d98] via-[#34d399] to-[#6ee7b7] bg-clip-text text-transparent">
                 master your portfolio
               </span>
             </h2>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Powerful tools for collectors, investors, and dealers.
+              Built by collectors, for collectors. Every feature designed to help you make smarter decisions.
             </p>
           </RevealOnScroll>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {features.map((feature, i) => (
-              <FeatureCard key={feature.title} {...feature} delay={i * 0.1} />
+              <FeatureCard key={feature.title} {...feature} delay={i * 0.05} />
             ))}
           </div>
         </div>
       </section>
 
       {/* ============================================ */}
-      {/* SCREENSHOTS CAROUSEL */}
+      {/* HOW IT WORKS */}
       {/* ============================================ */}
-      <section id="screenshots" className="py-24 px-6 bg-[#050505] border-y border-[#1f1f1f]">
-        <div className="max-w-5xl mx-auto">
-          <RevealOnScroll className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              See it in{" "}
-              <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                action
+      <section id="how-it-works" className="py-32 px-6 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          <RevealOnScroll className="text-center mb-20">
+            <motion.div 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 mb-6"
+            >
+              <Play className="w-4 h-4 text-blue-400 fill-current" />
+              <span className="text-sm font-semibold text-blue-400">How It Works</span>
+            </motion.div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+              Start tracking in{" "}
+              <span className="bg-gradient-to-r from-navy-400 via-navy-300 to-navy-400 bg-clip-text text-transparent">
+                3 simple steps
               </span>
             </h2>
-            <p className="text-xl text-gray-400">
-              Built for speed and simplicity
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Get up and running in under 5 minutes. No complex setup required.
             </p>
           </RevealOnScroll>
 
-          <RevealOnScroll delay={0.2}>
-            <ScreenshotCarousel />
-          </RevealOnScroll>
+          <HowItWorks />
         </div>
       </section>
 
       {/* ============================================ */}
       {/* TESTIMONIALS */}
       {/* ============================================ */}
-      <section className="py-24 px-6">
+      <section className="py-32 px-6 relative z-10 bg-gradient-to-b from-transparent via-[#080808] to-transparent">
         <div className="max-w-6xl mx-auto">
           <RevealOnScroll className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            <motion.div 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yellow-500/10 border border-yellow-500/30 mb-6"
+            >
+              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+              <span className="text-sm font-semibold text-yellow-400">Testimonials</span>
+            </motion.div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
               Loved by{" "}
-              <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-                collectors
+              <span className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
+                collectors worldwide
               </span>
             </h2>
-            <p className="text-xl text-gray-400">
-              Join thousands who trust CardLedger
-            </p>
           </RevealOnScroll>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((testimonial, i) => (
-              <TestimonialCard key={i} {...testimonial} delay={i * 0.1} />
-            ))}
-          </div>
+          <RevealOnScroll delay={0.2}>
+            <TestimonialCarousel testimonials={testimonials} />
+          </RevealOnScroll>
         </div>
       </section>
 
       {/* ============================================ */}
       {/* PRICING */}
       {/* ============================================ */}
-      <section id="pricing" className="py-24 px-6 bg-[#050505] border-y border-[#1f1f1f]">
+      <section id="pricing" className="py-32 px-6 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <RevealOnScroll className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Simple,{" "}
-              <span className="bg-gradient-to-r from-[#10b981] to-[#34d399] bg-clip-text text-transparent">
-                transparent
-              </span>{" "}
-              pricing
+          <RevealOnScroll className="text-center mb-12">
+            <motion.div 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#627d98]/10 border border-[#627d98]/30 mb-6"
+            >
+              <CreditCard className="w-4 h-4 text-[#627d98]" />
+              <span className="text-sm font-semibold text-[#627d98]">Simple Pricing</span>
+            </motion.div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+              One price,{" "}
+              <span className="bg-gradient-to-r from-[#627d98] via-[#34d399] to-[#6ee7b7] bg-clip-text text-transparent">
+                unlimited value
+              </span>
             </h2>
-            <p className="text-xl text-gray-400">
-              Start free, upgrade when you're ready
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Start free. Upgrade when you're ready. No hidden fees, ever.
             </p>
           </RevealOnScroll>
+
+          <PricingToggle isAnnual={isAnnual} setIsAnnual={setIsAnnual} />
 
           <div className="grid md:grid-cols-3 gap-6 lg:gap-8 items-start">
             {pricingPlans.map((plan, i) => (
               <PricingCard 
                 key={plan.name} 
                 {...plan} 
+                isAnnual={isAnnual}
                 delay={i * 0.1} 
                 onSelect={() => navigate("/auth")}
               />
             ))}
           </div>
+          
+          {/* Trust badges */}
+          <RevealOnScroll className="mt-16 flex flex-wrap items-center justify-center gap-8 text-gray-500">
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-[#627d98]" />
+              <span className="text-sm">30-day money-back guarantee</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-[#627d98]" />
+              <span className="text-sm">No credit card for free tier</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-[#627d98]" />
+              <span className="text-sm">Cancel anytime</span>
+            </div>
+          </RevealOnScroll>
         </div>
       </section>
 
       {/* ============================================ */}
       {/* FAQ */}
       {/* ============================================ */}
-      <section id="faq" className="py-24 px-6">
+      <section id="faq" className="py-32 px-6 relative z-10">
         <div className="max-w-3xl mx-auto">
-          <RevealOnScroll className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <RevealOnScroll className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
               Frequently asked{" "}
-              <span className="bg-gradient-to-r from-[#10b981] to-[#34d399] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#627d98] via-[#34d399] to-[#6ee7b7] bg-clip-text text-transparent">
                 questions
               </span>
             </h2>
+            <p className="text-xl text-gray-400">
+              Got questions? We've got answers.
+            </p>
           </RevealOnScroll>
 
           <div className="space-y-1">
             {faqs.map((faq, i) => (
-              <FAQItem key={i} {...faq} delay={i * 0.05} />
+              <FAQItem 
+                key={i} 
+                {...faq} 
+                delay={i * 0.05}
+                isOpen={openFAQ === i}
+                onClick={() => setOpenFAQ(openFAQ === i ? null : i)}
+              />
             ))}
           </div>
         </div>
@@ -919,103 +1624,179 @@ const Landing = () => {
       {/* ============================================ */}
       {/* FINAL CTA */}
       {/* ============================================ */}
-      <section className="py-24 px-6 bg-gradient-to-b from-[#0a0a0a] to-[#050505]">
-        <RevealOnScroll className="max-w-4xl mx-auto text-center">
-          {/* Decorative glow */}
+      <section className="py-32 px-6 relative z-10">
+        <div className="max-w-5xl mx-auto relative">
+          {/* Background glow */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-[600px] h-[300px] bg-[#10b981]/10 rounded-full blur-[120px]" />
+            <div className="w-full h-[400px] bg-gradient-to-r from-[#627d98]/20 via-[#627d98]/10 to-[#627d98]/20 rounded-full blur-[150px]" />
           </div>
           
-          <div className="relative">
-            <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              Ready to level up
-              <br />
-              <span className="bg-gradient-to-r from-[#10b981] via-[#34d399] to-[#6ee7b7] bg-clip-text text-transparent">
-                your collection?
-              </span>
-            </h2>
-            <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
-              Join thousands of collectors who use CardLedger to track, analyze, and profit from their portfolios.
-            </p>
-            <Button
-              size="lg"
-              onClick={() => navigate("/auth")}
-              className="h-16 px-12 text-lg font-bold rounded-2xl bg-[#10b981] hover:bg-[#0ea472] text-black gap-2 shadow-lg shadow-[#10b981]/30 hover:shadow-xl hover:shadow-[#10b981]/40 transition-all group"
-            >
-              Get Started Free
-              <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <p className="mt-4 text-sm text-gray-500">
-              No credit card required • Free forever plan
-            </p>
-          </div>
-        </RevealOnScroll>
+          <RevealOnScroll className="relative">
+            <div className="text-center p-8 md:p-16 rounded-3xl bg-gradient-to-b from-[#111111] to-[#0d0d0d] border border-[#1a1a1a] overflow-hidden">
+              {/* Decorative elements */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-px bg-gradient-to-r from-transparent via-[#627d98]/50 to-transparent" />
+              
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                Ready to upgrade your{" "}
+                <span className="bg-gradient-to-r from-[#627d98] via-[#34d399] to-[#6ee7b7] bg-clip-text text-transparent">
+                  collection game?
+                </span>
+              </h2>
+              <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+                Join thousands of collectors who trust CardLedger to track, analyze, and profit from their portfolios.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+                <MagneticButton onClick={() => navigate("/auth")}>
+                  <Button
+                    size="lg"
+                    className="h-16 px-12 text-lg font-bold rounded-2xl bg-gradient-to-r from-[#627d98] to-[#059669] hover:from-[#0ea472] hover:to-[#059669] text-black gap-3 shadow-2xl shadow-[#627d98]/30 hover:shadow-[#627d98]/50 transition-all"
+                  >
+                    Get Started Free
+                    <ChevronRight className="w-6 h-6" />
+                  </Button>
+                </MagneticButton>
+              </div>
+              
+              <p className="text-sm text-gray-500">
+                No credit card required • Free forever plan • Setup in 2 minutes
+              </p>
+              
+              {/* App store badges */}
+              <div className="flex items-center justify-center gap-4 mt-10">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  className="px-6 py-3 rounded-xl bg-[#0a0a0a] border border-[#1a1a1a] flex items-center gap-3 cursor-pointer"
+                >
+                  <Smartphone className="w-6 h-6 text-white" />
+                  <div className="text-left">
+                    <p className="text-[10px] text-gray-500 leading-tight">Download on the</p>
+                    <p className="text-sm font-semibold text-white">App Store</p>
+                  </div>
+                </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  className="px-6 py-3 rounded-xl bg-[#0a0a0a] border border-[#1a1a1a] flex items-center gap-3 cursor-pointer"
+                >
+                  <Globe className="w-6 h-6 text-white" />
+                  <div className="text-left">
+                    <p className="text-[10px] text-gray-500 leading-tight">Get it on</p>
+                    <p className="text-sm font-semibold text-white">Google Play</p>
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+          </RevealOnScroll>
+        </div>
       </section>
 
       {/* ============================================ */}
       {/* FOOTER */}
       {/* ============================================ */}
-      <footer className="py-12 px-6 border-t border-[#1f1f1f]">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-12">
+      <footer className="py-16 px-6 border-t border-[#1a1a1a] relative z-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-16">
             {/* Brand */}
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#10b981] to-[#059669] flex items-center justify-center">
-                  <Layers className="w-5 h-5 text-white" />
+            <div className="col-span-2 lg:col-span-2">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#627d98] via-[#059669] to-[#047857] flex items-center justify-center shadow-lg shadow-[#627d98]/20">
+                  <Layers className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xl font-bold">
-                  Card<span className="text-[#10b981]">Ledger</span>
+                <span className="text-2xl font-bold">
+                  Card<span className="text-[#627d98]">Ledger</span>
                 </span>
               </div>
-              <p className="text-gray-500 text-sm max-w-xs mb-4">
-                The smartest way to track, value, and profit from your card collection.
+              <p className="text-gray-500 text-sm max-w-xs mb-6 leading-relaxed">
+                The smartest way to track, value, and profit from your card collection. Built by collectors, for collectors.
               </p>
               {/* Social Icons */}
-              <div className="flex items-center gap-4">
-                <a href="#" className="w-8 h-8 rounded-lg bg-[#111111] border border-[#1f1f1f] flex items-center justify-center text-gray-400 hover:text-white hover:border-[#2a2a2a] transition-all">
-                  <Twitter className="w-4 h-4" />
-                </a>
-                <a href="#" className="w-8 h-8 rounded-lg bg-[#111111] border border-[#1f1f1f] flex items-center justify-center text-gray-400 hover:text-white hover:border-[#2a2a2a] transition-all">
-                  <Instagram className="w-4 h-4" />
-                </a>
-                <a href="#" className="w-8 h-8 rounded-lg bg-[#111111] border border-[#1f1f1f] flex items-center justify-center text-gray-400 hover:text-white hover:border-[#2a2a2a] transition-all">
-                  <Youtube className="w-4 h-4" />
-                </a>
-                <a href="#" className="w-8 h-8 rounded-lg bg-[#111111] border border-[#1f1f1f] flex items-center justify-center text-gray-400 hover:text-white hover:border-[#2a2a2a] transition-all">
-                  <Mail className="w-4 h-4" />
-                </a>
+              <div className="flex items-center gap-3">
+                {[
+                  { icon: Twitter, href: "#" },
+                  { icon: Instagram, href: "#" },
+                  { icon: Youtube, href: "#" },
+                  { icon: Mail, href: "#" }
+                ].map(({ icon: Icon, href }, i) => (
+                  <motion.a 
+                    key={i}
+                    href={href} 
+                    whileHover={{ scale: 1.1, y: -2 }}
+                    className="w-10 h-10 rounded-xl bg-[#111111] border border-[#1a1a1a] flex items-center justify-center text-gray-400 hover:text-white hover:border-[#2a2a2a] hover:bg-[#1a1a1a] transition-all"
+                  >
+                    <Icon className="w-5 h-5" />
+                  </motion.a>
+                ))}
               </div>
             </div>
             
             {/* Links */}
             <div>
               <h4 className="font-semibold text-white mb-4">Product</h4>
-              <ul className="space-y-2">
-                <li><a href="#features" className="text-sm text-gray-500 hover:text-white transition-colors">Features</a></li>
-                <li><a href="#pricing" className="text-sm text-gray-500 hover:text-white transition-colors">Pricing</a></li>
-                <li><a href="#faq" className="text-sm text-gray-500 hover:text-white transition-colors">FAQ</a></li>
-                <li><a href="#" className="text-sm text-gray-500 hover:text-white transition-colors flex items-center gap-1">Roadmap <ExternalLink className="w-3 h-3" /></a></li>
+              <ul className="space-y-3">
+                {['Features', 'Pricing', 'FAQ', 'Changelog'].map(item => (
+                  <li key={item}>
+                    <a href={`#${item.toLowerCase()}`} className="text-sm text-gray-500 hover:text-white transition-colors">
+                      {item}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-semibold text-white mb-4">Company</h4>
+              <ul className="space-y-3">
+                {['About', 'Blog', 'Careers', 'Contact'].map(item => (
+                  <li key={item}>
+                    <a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">
+                      {item}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
             
             <div>
               <h4 className="font-semibold text-white mb-4">Legal</h4>
-              <ul className="space-y-2">
-                <li><a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">Contact</a></li>
+              <ul className="space-y-3">
+                {['Privacy', 'Terms', 'Security', 'Cookies'].map(item => (
+                  <li key={item}>
+                    <a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">
+                      {item}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
           
+          {/* Newsletter */}
+          <div className="py-8 border-y border-[#1a1a1a] mb-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div>
+                <h4 className="font-semibold text-white mb-1">Stay in the loop</h4>
+                <p className="text-sm text-gray-500">Get the latest updates on new features and releases.</p>
+              </div>
+              <div className="flex gap-2 w-full md:w-auto">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="flex-1 md:w-64 h-12 px-4 rounded-xl bg-[#111111] border border-[#1a1a1a] text-white placeholder:text-gray-600 focus:outline-none focus:border-[#627d98] transition-colors"
+                />
+                <Button className="h-12 px-6 rounded-xl bg-[#627d98] hover:bg-[#0ea472] text-black font-semibold">
+                  Subscribe
+                </Button>
+              </div>
+            </div>
+          </div>
+          
           {/* Bottom bar */}
-          <div className="pt-8 border-t border-[#1f1f1f] flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-600">
               © 2026 CardLedger. All rights reserved.
             </p>
-            <p className="text-xs text-gray-700">
-              Made with ♥ for collectors everywhere
+            <p className="text-sm text-gray-700 flex items-center gap-2">
+              Made with <span className="text-red-400">♥</span> for collectors everywhere
             </p>
           </div>
         </div>

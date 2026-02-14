@@ -137,7 +137,7 @@ const MoverCard = ({ mover, index, type, onClick }: { mover: PriceMover; index: 
         flex-shrink-0 w-[150px] relative overflow-hidden rounded-2xl p-3
         border cursor-pointer transition-all
         ${isGainer 
-          ? 'bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border-emerald-500/20 hover:shadow-emerald-500/10' 
+          ? 'bg-gradient-to-br from-navy-500/10 via-navy-500/5 to-transparent border-navy-500/20 hover:shadow-navy-500/10' 
           : 'bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent border-red-500/20 hover:shadow-red-500/10'
         }
         hover:shadow-lg
@@ -145,7 +145,7 @@ const MoverCard = ({ mover, index, type, onClick }: { mover: PriceMover; index: 
     >
       <div className={`
         absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold
-        ${isGainer ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}
+        ${isGainer ? 'bg-navy-500/20 text-navy-400' : 'bg-red-500/20 text-red-400'}
       `}>
         #{index + 1}
       </div>
@@ -161,7 +161,7 @@ const MoverCard = ({ mover, index, type, onClick }: { mover: PriceMover; index: 
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             {isGainer ? (
-              <TrendingUp className="h-6 w-6 text-emerald-500/30" />
+              <TrendingUp className="h-6 w-6 text-navy-500/30" />
             ) : (
               <TrendingDown className="h-6 w-6 text-red-500/30" />
             )}
@@ -188,7 +188,7 @@ const MoverCard = ({ mover, index, type, onClick }: { mover: PriceMover; index: 
         </span>
         <div className={`
           flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-bold
-          ${isGainer ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}
+          ${isGainer ? 'bg-navy-500/20 text-navy-400' : 'bg-red-500/20 text-red-400'}
         `}>
           {isGainer ? (
             <ArrowUpRight className="h-3 w-3" />
@@ -199,7 +199,7 @@ const MoverCard = ({ mover, index, type, onClick }: { mover: PriceMover; index: 
         </div>
       </div>
       
-      <p className={`text-[10px] mt-1 ${isGainer ? 'text-emerald-400/70' : 'text-red-400/70'}`}>
+      <p className={`text-[10px] mt-1 ${isGainer ? 'text-navy-400/70' : 'text-red-400/70'}`}>
         {isGainer ? '+' : ''}${mover.price_change.toFixed(2)}
       </p>
     </motion.div>
@@ -237,7 +237,7 @@ const HotSetCard = ({ set, index }: { set: HotSet; index: number }) => {
       </div>
       
       <div className="text-right flex-shrink-0">
-        <div className={`flex items-center gap-1 ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+        <div className={`flex items-center gap-1 ${isPositive ? 'text-navy-400' : 'text-red-400'}`}>
           {isPositive ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
           <span className="text-sm font-bold">{Math.abs(set.avgChange).toFixed(1)}%</span>
         </div>
@@ -269,7 +269,7 @@ const MarketIndexCard = ({ index: marketIndex, onClick }: { index: MarketIndex; 
       onClick={onClick}
       className={`relative overflow-hidden rounded-2xl p-4 border cursor-pointer transition-all ${
         isPositive 
-          ? 'bg-gradient-to-br from-emerald-500/5 to-transparent border-emerald-500/20' 
+          ? 'bg-gradient-to-br from-navy-500/5 to-transparent border-navy-500/20' 
           : 'bg-gradient-to-br from-red-500/5 to-transparent border-red-500/20'
       }`}
     >
@@ -281,7 +281,7 @@ const MarketIndexCard = ({ index: marketIndex, onClick }: { index: MarketIndex; 
           <span className="text-sm font-semibold text-white">{marketIndex.name}</span>
         </div>
         <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${
-          isPositive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
+          isPositive ? 'bg-navy-500/20 text-navy-400' : 'bg-red-500/20 text-red-400'
         }`}>
           {isPositive ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
           {Math.abs(marketIndex.changePercent).toFixed(2)}%
@@ -290,7 +290,7 @@ const MarketIndexCard = ({ index: marketIndex, onClick }: { index: MarketIndex; 
       
       <div className="flex items-baseline gap-2 mb-3">
         <span className="text-2xl font-bold text-white">${marketIndex.value.toFixed(2)}</span>
-        <span className={`text-sm ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+        <span className={`text-sm ${isPositive ? 'text-navy-400' : 'text-red-400'}`}>
           {isPositive ? '+' : ''}${marketIndex.change.toFixed(2)}
         </span>
       </div>
@@ -301,14 +301,14 @@ const MarketIndexCard = ({ index: marketIndex, onClick }: { index: MarketIndex; 
           <AreaChart data={marketIndex.data.slice(-14)}>
             <defs>
               <linearGradient id={`gradient-${marketIndex.name}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={isPositive ? '#10b981' : '#ef4444'} stopOpacity={0.3} />
-                <stop offset="100%" stopColor={isPositive ? '#10b981' : '#ef4444'} stopOpacity={0} />
+                <stop offset="0%" stopColor={isPositive ? '#627d98' : '#ef4444'} stopOpacity={0.3} />
+                <stop offset="100%" stopColor={isPositive ? '#627d98' : '#ef4444'} stopOpacity={0} />
               </linearGradient>
             </defs>
             <Area 
               type="monotone" 
               dataKey="value" 
-              stroke={isPositive ? '#10b981' : '#ef4444'} 
+              stroke={isPositive ? '#627d98' : '#ef4444'} 
               strokeWidth={2}
               fill={`url(#gradient-${marketIndex.name})`}
             />
@@ -392,7 +392,7 @@ const CardDetailPanel = ({
             <span className="text-3xl font-bold text-white">${card.rawPrice.toFixed(2)}</span>
           </div>
           <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-bold ${
-            isPositive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
+            isPositive ? 'bg-navy-500/20 text-navy-400' : 'bg-red-500/20 text-red-400'
           }`}>
             {isPositive ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
             {Math.abs(priceChangePercent).toFixed(2)}%
@@ -423,11 +423,11 @@ const CardDetailPanel = ({
             <p className="text-xs text-zinc-500">30-Day Range</p>
             <div className="flex justify-between text-sm">
               <span className="text-red-400">${card.thirtyDayLow.toFixed(2)}</span>
-              <span className="text-emerald-400">${card.thirtyDayHigh.toFixed(2)}</span>
+              <span className="text-navy-400">${card.thirtyDayHigh.toFixed(2)}</span>
             </div>
             <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-emerald-500"
+                className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500"
                 style={{ 
                   width: `${((card.rawPrice - card.thirtyDayLow) / (card.thirtyDayHigh - card.thirtyDayLow)) * 100}%` 
                 }}
@@ -438,11 +438,11 @@ const CardDetailPanel = ({
             <p className="text-xs text-zinc-500">52-Week Range</p>
             <div className="flex justify-between text-sm">
               <span className="text-red-400">${card.fiftyTwoWeekLow.toFixed(2)}</span>
-              <span className="text-emerald-400">${card.fiftyTwoWeekHigh.toFixed(2)}</span>
+              <span className="text-navy-400">${card.fiftyTwoWeekHigh.toFixed(2)}</span>
             </div>
             <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-emerald-500"
+                className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500"
                 style={{ 
                   width: `${((card.rawPrice - card.fiftyTwoWeekLow) / (card.fiftyTwoWeekHigh - card.fiftyTwoWeekLow)) * 100}%` 
                 }}
@@ -459,8 +459,8 @@ const CardDetailPanel = ({
               <AreaChart data={card.priceHistory}>
                 <defs>
                   <linearGradient id="searchCardGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={isPositive ? '#10b981' : '#ef4444'} stopOpacity={0.3} />
-                    <stop offset="100%" stopColor={isPositive ? '#10b981' : '#ef4444'} stopOpacity={0} />
+                    <stop offset="0%" stopColor={isPositive ? '#627d98' : '#ef4444'} stopOpacity={0.3} />
+                    <stop offset="100%" stopColor={isPositive ? '#627d98' : '#ef4444'} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="date" hide />
@@ -479,7 +479,7 @@ const CardDetailPanel = ({
                 <Area 
                   type="monotone" 
                   dataKey="price" 
-                  stroke={isPositive ? '#10b981' : '#ef4444'}
+                  stroke={isPositive ? '#627d98' : '#ef4444'}
                   strokeWidth={2}
                   fill="url(#searchCardGradient)"
                 />
@@ -578,7 +578,7 @@ const AlertCard = ({
           <p className="text-sm font-semibold text-white truncate">{alert.card_name}</p>
           <div className="flex items-center gap-2 mt-1">
             {alert.direction === 'below' ? (
-              <TrendingDown className="h-3 w-3 text-emerald-400" />
+              <TrendingDown className="h-3 w-3 text-navy-400" />
             ) : (
               <TrendingUp className="h-3 w-3 text-amber-400" />
             )}
@@ -760,7 +760,7 @@ const MarketData = () => {
         changePercent: ((portfolioData[portfolioData.length - 1].value - portfolioData[0].value) / portfolioData[0].value) * 100,
         data: portfolioData,
         icon: Target,
-        color: 'bg-emerald-500/20 text-emerald-400',
+        color: 'bg-navy-500/20 text-navy-400',
       },
     ];
   }, [items]);
@@ -994,8 +994,8 @@ const MarketData = () => {
                     transition={{ delay: 0.2 }}
                   >
                     <div className="flex items-center gap-2.5 mb-4">
-                      <div className="p-1.5 rounded-lg bg-emerald-500/15">
-                        <TrendingUp className="h-4 w-4 text-emerald-400" />
+                      <div className="p-1.5 rounded-lg bg-navy-500/15">
+                        <TrendingUp className="h-4 w-4 text-navy-400" />
                       </div>
                       <h2 className="text-base font-semibold text-white">Top Gainers</h2>
                       <span className="text-xs text-zinc-500 bg-zinc-800/50 px-2 py-0.5 rounded-full">
@@ -1222,7 +1222,7 @@ const MarketData = () => {
                   </div>
                   <div>
                     <p className="text-xs text-zinc-500">Market Trend</p>
-                    <p className="text-lg font-bold text-emerald-400 flex items-center gap-1">
+                    <p className="text-lg font-bold text-navy-400 flex items-center gap-1">
                       <TrendingUp className="h-4 w-4" />
                       Bullish
                     </p>
@@ -1248,10 +1248,10 @@ const MarketData = () => {
                   </div>
                   <p className="text-2xl font-bold text-white">{activeCount}</p>
                 </div>
-                <div className="flex-1 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                <div className="flex-1 p-3 rounded-xl bg-navy-500/10 border border-navy-500/20">
                   <div className="flex items-center gap-2 mb-1">
-                    <Zap className="h-4 w-4 text-emerald-400" />
-                    <span className="text-xs text-emerald-400">Triggered</span>
+                    <Zap className="h-4 w-4 text-navy-400" />
+                    <span className="text-xs text-navy-400">Triggered</span>
                   </div>
                   <p className="text-2xl font-bold text-white">{triggeredCount}</p>
                 </div>
@@ -1367,7 +1367,7 @@ const MarketData = () => {
                 <SelectContent className="bg-zinc-800 border-zinc-700">
                   <SelectItem value="below">
                     <div className="flex items-center gap-2">
-                      <TrendingDown className="h-4 w-4 text-emerald-400" />
+                      <TrendingDown className="h-4 w-4 text-navy-400" />
                       Price drops below
                     </div>
                   </SelectItem>

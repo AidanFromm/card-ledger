@@ -178,7 +178,7 @@ export const QuickAddMode = ({
           >
             {/* Background Actions */}
             <div className="absolute inset-0 flex">
-              <div className="flex-1 bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-xl flex items-center justify-start pl-6">
+              <div className="flex-1 bg-gradient-to-r from-navy-600 to-navy-400 rounded-xl flex items-center justify-start pl-6">
                 <div className="flex items-center gap-2 text-white">
                   <Check className="h-6 w-6" />
                   <span className="font-semibold">Add Card</span>
@@ -261,7 +261,7 @@ export const QuickAddMode = ({
                 </Button>
                 <Button
                   variant="outline"
-                  className="flex-1 border-emerald-500/50 text-emerald-500 hover:bg-emerald-500/10"
+                  className="flex-1 border-navy-500/50 text-navy-500 hover:bg-navy-500/10"
                   onClick={() => onConfirm(selectedCard)}
                 >
                   <Plus className="h-4 w-4 mr-2" />

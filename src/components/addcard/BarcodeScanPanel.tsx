@@ -140,7 +140,7 @@ export const BarcodeScanPanel = ({
               animate={{ scale: 1 }}
               className="text-center"
             >
-              <CheckCircle2 className="h-16 w-16 text-emerald-500 mx-auto mb-4" />
+              <CheckCircle2 className="h-16 w-16 text-navy-500 mx-auto mb-4" />
               <p className="text-white font-mono text-lg">{scannedCode}</p>
             </motion.div>
           ) : (

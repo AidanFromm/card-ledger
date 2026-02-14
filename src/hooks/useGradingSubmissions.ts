@@ -39,7 +39,7 @@ export const GRADING_STATUSES: { value: GradingStatus; label: string; descriptio
   { value: 'received', label: 'Shipped', description: 'In transit to grader', color: 'text-blue-400', bgColor: 'bg-blue-500/15' },
   { value: 'grading', label: 'Grading', description: 'Being graded', color: 'text-amber-400', bgColor: 'bg-amber-500/15' },
   { value: 'shipped', label: 'Returning', description: 'Shipped back to you', color: 'text-purple-400', bgColor: 'bg-purple-500/15' },
-  { value: 'complete', label: 'Complete', description: 'Grading complete', color: 'text-emerald-400', bgColor: 'bg-emerald-500/15' },
+  { value: 'complete', label: 'Complete', description: 'Grading complete', color: 'text-navy-400', bgColor: 'bg-navy-500/15' },
 ];
 
 // Grade value multipliers (rough estimates for demonstration)
@@ -365,7 +365,7 @@ export const useGradingSubmissions = () => {
       recommendation: roi > 50 ? 'Highly Recommended' : 
                       roi > 0 ? 'Worth Considering' : 
                       'Not Recommended',
-      recommendationColor: roi > 50 ? 'text-emerald-400' : 
+      recommendationColor: roi > 50 ? 'text-green-400' : 
                           roi > 0 ? 'text-amber-400' : 
                           'text-red-400',
     };

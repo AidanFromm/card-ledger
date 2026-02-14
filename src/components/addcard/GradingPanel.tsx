@@ -24,7 +24,7 @@ const GRADING_COMPANIES: GradingCompany[] = [
   { value: "psa", label: "PSA", fullName: "Professional Sports Authenticator", color: "bg-red-500" },
   { value: "cgc", label: "CGC", fullName: "Certified Guaranty Company", color: "bg-purple-500" },
   { value: "bgs", label: "BGS", fullName: "Beckett Grading Services", color: "bg-blue-500" },
-  { value: "sgc", label: "SGC", fullName: "Sportscard Guaranty Company", color: "bg-emerald-500" },
+  { value: "sgc", label: "SGC", fullName: "Sportscard Guaranty Company", color: "bg-navy-500" },
   { value: "ace", label: "ACE", fullName: "ACE Grading", color: "bg-orange-500" },
   { value: "tag", label: "TAG", fullName: "TAG Grading", color: "bg-cyan-500" },
 ];

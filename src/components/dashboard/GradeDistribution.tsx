@@ -166,9 +166,9 @@ export const GradeDistribution = memo(({ items }: GradeDistributionProps) => {
         {/* Stats pills */}
         <div className="flex items-center gap-2">
           {totalGraded > 0 && (
-            <div className="flex items-center gap-1.5 bg-emerald-500/15 border border-emerald-500/30 rounded-full px-2.5 py-1">
-              <Star className="w-3 h-3 text-emerald-400" />
-              <span className="text-xs font-medium text-emerald-400">{totalGraded} graded</span>
+            <div className="flex items-center gap-1.5 bg-navy-500/15 border border-navy-500/30 rounded-full px-2.5 py-1">
+              <Star className="w-3 h-3 text-navy-400" />
+              <span className="text-xs font-medium text-navy-400">{totalGraded} graded</span>
             </div>
           )}
           {rawCount > 0 && (

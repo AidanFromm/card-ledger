@@ -169,8 +169,8 @@ export const AICameraPanel = ({
             className="space-y-4"
           >
             {/* Confidence */}
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
-              <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-navy-500/10 border border-navy-500/30">
+              <CheckCircle2 className="h-5 w-5 text-navy-500" />
               <div>
                 <p className="font-medium text-foreground">Card Identified!</p>
                 <p className="text-sm text-muted-foreground">

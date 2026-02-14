@@ -164,7 +164,7 @@ export const ActionCard = ({
   label,
   description,
   onClick,
-  gradient = "from-primary to-emerald-600",
+  gradient = "from-navy-800 to-navy-600",
   disabled = false,
   badge,
 }: ActionCardProps) => {

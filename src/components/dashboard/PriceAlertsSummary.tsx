@@ -159,7 +159,7 @@ export const PriceAlertsSummary = memo(({
                     </p>
                     <div className="flex items-center gap-1.5">
                       {alert.type === 'above' ? (
-                        <TrendingUp className="w-3 h-3 text-emerald-400" />
+                        <TrendingUp className="w-3 h-3 text-navy-400" />
                       ) : (
                         <TrendingDown className="w-3 h-3 text-red-400" />
                       )}

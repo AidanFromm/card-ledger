@@ -23,7 +23,7 @@ interface PremiumButtonProps extends Omit<HTMLMotionProps<"button">, "ref"> {
 
 const variantStyles = {
   primary: `
-    bg-gradient-to-r from-primary to-emerald-600
+    bg-gradient-to-r from-navy-800 to-navy-600
     text-primary-foreground
     shadow-lg shadow-primary/25
     hover:shadow-xl hover:shadow-primary/30
@@ -49,7 +49,7 @@ const variantStyles = {
     hover:shadow-xl hover:shadow-destructive/30
   `,
   success: `
-    bg-gradient-to-r from-success to-emerald-600
+    bg-gradient-to-r from-navy-700 to-navy-500
     text-white
     shadow-lg shadow-success/25
     hover:shadow-xl hover:shadow-success/30

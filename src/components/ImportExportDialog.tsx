@@ -611,8 +611,8 @@ export const ImportExportDialog = ({
                       <p className="text-2xl font-bold">{validationResults.totalRows}</p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Total Rows</p>
                     </div>
-                    <div className="bg-emerald-500/10 rounded-2xl p-4 text-center">
-                      <p className="text-2xl font-bold text-emerald-500">{validationResults.valid.length}</p>
+                    <div className="bg-navy-500/10 rounded-2xl p-4 text-center">
+                      <p className="text-2xl font-bold text-navy-500">{validationResults.valid.length}</p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Valid</p>
                     </div>
                     <div className="bg-red-500/10 rounded-2xl p-4 text-center">
@@ -657,7 +657,7 @@ export const ImportExportDialog = ({
                         {validationResults.valid.slice(0, 5).map((result) => (
                           <div key={result.row} className="p-4">
                             <div className="flex items-start gap-3">
-                              <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <CheckCircle2 className="h-4 w-4 text-navy-500 flex-shrink-0 mt-0.5" />
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between gap-2">
                                   <span className="font-medium text-sm truncate">{result.data?.name}</span>
@@ -671,7 +671,7 @@ export const ImportExportDialog = ({
                                 <p className="text-xs text-muted-foreground mt-1">
                                   Cost: <span className="text-foreground">${result.data?.purchase_price?.toFixed(2)}</span>
                                   {' • '}
-                                  Market: <span className="text-emerald-500">${result.data?.market_price?.toFixed(2) || 'N/A'}</span>
+                                  Market: <span className="text-navy-500">${result.data?.market_price?.toFixed(2) || 'N/A'}</span>
                                 </p>
                                 {result.warnings && result.warnings.length > 0 && (
                                   <p className="text-[10px] text-amber-500 mt-1">

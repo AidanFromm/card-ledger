@@ -1121,7 +1121,7 @@ const ScanCard = () => {
                               {product.price_source && (
                                 <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${
                                   product.price_source === 'pokemon_tcg'
-                                    ? 'bg-emerald-500/20 text-emerald-500'
+                                    ? 'bg-navy-500/20 text-navy-500'
                                     : product.price_source === 'tavily'
                                     ? 'bg-amber-500/20 text-amber-500'
                                     : 'bg-blue-500/20 text-blue-500'

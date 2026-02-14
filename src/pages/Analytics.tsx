@@ -207,7 +207,7 @@ const StatCard = memo(({
       </div>
       <div className={cn(
         "text-2xl font-bold tracking-tight",
-        isPositive !== undefined ? (isPositive ? "text-emerald-400" : "text-red-400") : "text-white"
+        isPositive !== undefined ? (isPositive ? "text-navy-400" : "text-red-400") : "text-white"
       )}>
         <AnimatedNumber value={displayValue} prefix={displayPrefix} suffix={suffix} decimals={2} />
       </div>
@@ -239,7 +239,7 @@ const TimeRangeSelector = memo(({ selected, onChange }: TimeRangeSelectorProps) 
         className={cn(
           "px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200",
           selected === value
-            ? "bg-gradient-to-r from-teal-500 to-cyan-500 text-white shadow-lg shadow-teal-500/25"
+            ? "bg-gradient-to-r from-navy-600 to-navy-400 text-white shadow-lg shadow-navy-500/25"
             : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
         )}
       >
@@ -628,7 +628,7 @@ const PerformersTable = memo(({ title, icon: Icon, iconColor, data, isGainers }:
   return (
     <GlassCard className="p-4" delay={isGainers ? 0.3 : 0.35}>
       <div className="flex items-center gap-2.5 mb-4">
-        <div className={cn("p-2 rounded-xl", isGainers ? "bg-emerald-500/15" : "bg-red-500/15")}>
+        <div className={cn("p-2 rounded-xl", isGainers ? "bg-navy-500/15" : "bg-red-500/15")}>
           <Icon className={cn("h-4 w-4", iconColor)} />
         </div>
         <h3 className="text-base font-semibold text-white">{title}</h3>
@@ -686,7 +686,7 @@ const PerformersTable = memo(({ title, icon: Icon, iconColor, data, isGainers }:
             </div>
             <div className={cn(
               "col-span-3 text-right text-sm font-semibold flex items-center justify-end gap-1",
-              item.roi >= 0 ? "text-emerald-400" : "text-red-400"
+              item.roi >= 0 ? "text-navy-400" : "text-red-400"
             )}>
               {item.roi >= 0 ? (
                 <ArrowUpRight className="h-3.5 w-3.5" />
@@ -724,8 +724,8 @@ interface StatsGridProps {
 const StatsGrid = memo(({ avgValue, avgROI, winRate, bestGain, worstLoss }: StatsGridProps) => (
   <GlassCard className="p-5" delay={0.4}>
     <div className="flex items-center gap-2.5 mb-5">
-      <div className="p-2 rounded-xl bg-teal-500/15">
-        <BarChart3 className="h-4 w-4 text-teal-400" />
+      <div className="p-2 rounded-xl bg-navy-500/15">
+        <BarChart3 className="h-4 w-4 text-navy-400" />
       </div>
       <h3 className="text-base font-semibold text-white">Quick Statistics</h3>
     </div>
@@ -743,7 +743,7 @@ const StatsGrid = memo(({ avgValue, avgROI, winRate, bestGain, worstLoss }: Stat
       <div className="text-center p-4 rounded-xl bg-zinc-800/30">
         <div className={cn(
           "text-2xl font-bold mb-1",
-          avgROI >= 0 ? "text-emerald-400" : "text-red-400"
+          avgROI >= 0 ? "text-navy-400" : "text-red-400"
         )}>
           <AnimatedNumber value={avgROI} prefix={avgROI >= 0 ? "+" : ""} suffix="%" decimals={1} />
         </div>
@@ -752,18 +752,18 @@ const StatsGrid = memo(({ avgValue, avgROI, winRate, bestGain, worstLoss }: Stat
 
       {/* Win Rate */}
       <div className="text-center p-4 rounded-xl bg-zinc-800/30">
-        <div className="text-2xl font-bold text-teal-400 mb-1">
+        <div className="text-2xl font-bold text-navy-400 mb-1">
           <AnimatedNumber value={winRate} suffix="%" decimals={0} />
         </div>
         <div className="text-xs text-zinc-400">Win Rate</div>
       </div>
 
       {/* Best Gain */}
-      <div className="text-center p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-        <div className="text-2xl font-bold text-emerald-400 mb-1">
+      <div className="text-center p-4 rounded-xl bg-navy-500/10 border border-navy-500/20">
+        <div className="text-2xl font-bold text-navy-400 mb-1">
           +<AnimatedNumber value={bestGain.value} prefix="$" decimals={0} />
         </div>
-        <div className="text-xs text-emerald-400/70 truncate" title={bestGain.name}>
+        <div className="text-xs text-navy-400/70 truncate" title={bestGain.name}>
           {bestGain.name || "Best Gain"}
         </div>
       </div>
@@ -1019,8 +1019,8 @@ const Analytics = () => {
               label="Total Value"
               value={portfolioStats.totalValue}
               icon={DollarSign}
-              iconColor="text-teal-400"
-              iconBg="bg-teal-500/15"
+              iconColor="text-navy-400"
+              iconBg="bg-navy-500/15"
               delay={0}
             />
             <StatCard
@@ -1035,8 +1035,8 @@ const Analytics = () => {
               label="Unrealized P&L"
               value={portfolioStats.unrealizedPL}
               icon={TrendingUp}
-              iconColor={portfolioStats.unrealizedPL >= 0 ? "text-emerald-400" : "text-red-400"}
-              iconBg={portfolioStats.unrealizedPL >= 0 ? "bg-emerald-500/15" : "bg-red-500/15"}
+              iconColor={portfolioStats.unrealizedPL >= 0 ? "text-navy-400" : "text-red-400"}
+              iconBg={portfolioStats.unrealizedPL >= 0 ? "bg-navy-500/15" : "bg-red-500/15"}
               isPositive={portfolioStats.unrealizedPL >= 0}
               showSign
               delay={0.1}
@@ -1045,8 +1045,8 @@ const Analytics = () => {
               label="Realized P&L"
               value={portfolioStats.realizedPL}
               icon={Award}
-              iconColor={portfolioStats.realizedPL >= 0 ? "text-emerald-400" : "text-red-400"}
-              iconBg={portfolioStats.realizedPL >= 0 ? "bg-emerald-500/15" : "bg-red-500/15"}
+              iconColor={portfolioStats.realizedPL >= 0 ? "text-navy-400" : "text-red-400"}
+              iconBg={portfolioStats.realizedPL >= 0 ? "bg-navy-500/15" : "bg-red-500/15"}
               isPositive={portfolioStats.realizedPL >= 0}
               showSign
               delay={0.15}
@@ -1056,8 +1056,8 @@ const Analytics = () => {
               label="Total P&L"
               value={portfolioStats.totalPL}
               icon={Activity}
-              iconColor={portfolioStats.totalPL >= 0 ? "text-emerald-400" : "text-red-400"}
-              iconBg={portfolioStats.totalPL >= 0 ? "bg-emerald-500/15" : "bg-red-500/15"}
+              iconColor={portfolioStats.totalPL >= 0 ? "text-navy-400" : "text-red-400"}
+              iconBg={portfolioStats.totalPL >= 0 ? "bg-navy-500/15" : "bg-red-500/15"}
               isPositive={portfolioStats.totalPL >= 0}
               showSign
               delay={0.2}
@@ -1068,8 +1068,8 @@ const Analytics = () => {
               prefix=""
               suffix="%"
               icon={Percent}
-              iconColor={portfolioStats.roiPercent >= 0 ? "text-emerald-400" : "text-red-400"}
-              iconBg={portfolioStats.roiPercent >= 0 ? "bg-emerald-500/15" : "bg-red-500/15"}
+              iconColor={portfolioStats.roiPercent >= 0 ? "text-navy-400" : "text-red-400"}
+              iconBg={portfolioStats.roiPercent >= 0 ? "bg-navy-500/15" : "bg-red-500/15"}
               isPositive={portfolioStats.roiPercent >= 0}
               showSign
               delay={0.25}
@@ -1082,8 +1082,8 @@ const Analytics = () => {
           <div className="mb-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-teal-500/15">
-                  <Activity className="h-4 w-4 text-teal-400" />
+                <div className="p-2 rounded-xl bg-navy-500/15">
+                  <Activity className="h-4 w-4 text-navy-400" />
                 </div>
                 <h2 className="text-lg font-semibold text-white">Portfolio Performance</h2>
               </div>
@@ -1165,7 +1165,7 @@ const Analytics = () => {
             <PerformersTable
               title="Top Performers"
               icon={Trophy}
-              iconColor="text-emerald-400"
+              iconColor="text-navy-400"
               data={topPerformers}
               isGainers
             />
@@ -1214,7 +1214,7 @@ const Analytics = () => {
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => window.location.href = '/scan'}
-                className="px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-semibold rounded-xl shadow-lg shadow-teal-500/25"
+                className="px-6 py-3 bg-gradient-to-r from-navy-600 to-navy-400 text-white font-semibold rounded-xl shadow-lg shadow-navy-500/25"
               >
                 Scan Your First Card
               </motion.button>

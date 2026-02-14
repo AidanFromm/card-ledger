@@ -461,7 +461,7 @@ const ImportPage = () => {
                   <Card className="bg-secondary/10 border-border/30">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
-                        <FileSpreadsheet className="h-8 w-8 text-emerald-500 flex-shrink-0" />
+                        <FileSpreadsheet className="h-8 w-8 text-navy-500 flex-shrink-0" />
                         <div>
                           <h4 className="font-medium mb-1">CSV Files</h4>
                           <p className="text-xs text-muted-foreground">
@@ -590,7 +590,7 @@ const ImportPage = () => {
                           {col.confidence >= 0.8 && col.detectedType !== "unknown" && (
                             <Badge
                               variant="outline"
-                              className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 flex-shrink-0"
+                              className="bg-navy-500/10 text-navy-500 border-navy-500/20 flex-shrink-0"
                             >
                               <Check className="h-3 w-3 mr-1" />
                               Auto
@@ -610,8 +610,8 @@ const ImportPage = () => {
                       Total Rows
                     </p>
                   </div>
-                  <div className="bg-emerald-500/10 rounded-2xl p-4 text-center">
-                    <p className="text-2xl font-bold text-emerald-500">{validCount}</p>
+                  <div className="bg-navy-500/10 rounded-2xl p-4 text-center">
+                    <p className="text-2xl font-bold text-navy-500">{validCount}</p>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">
                       Valid
                     </p>
@@ -658,8 +658,8 @@ const ImportPage = () => {
                       Total Rows
                     </p>
                   </div>
-                  <div className="bg-emerald-500/10 rounded-2xl p-4 text-center">
-                    <p className="text-2xl font-bold text-emerald-500">
+                  <div className="bg-navy-500/10 rounded-2xl p-4 text-center">
+                    <p className="text-2xl font-bold text-navy-500">
                       {parsedRows.filter((r) => r.errors.length === 0).length}
                     </p>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">
@@ -723,7 +723,7 @@ const ImportPage = () => {
                                 ) : (
                                   <Badge
                                     variant="outline"
-                                    className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                                    className="bg-navy-500/10 text-navy-500 border-navy-500/20"
                                   >
                                     <Check className="h-3 w-3 mr-1" />
                                     OK
@@ -744,7 +744,7 @@ const ImportPage = () => {
                               <TableCell className="text-right">
                                 ${row.transformed?.purchase_price?.toFixed(2) || "0.00"}
                               </TableCell>
-                              <TableCell className="text-right text-emerald-500">
+                              <TableCell className="text-right text-navy-500">
                                 {row.transformed?.market_price
                                   ? `$${row.transformed.market_price.toFixed(2)}`
                                   : "—"}
@@ -854,8 +854,8 @@ const ImportPage = () => {
                 className="py-12"
               >
                 <div className="text-center mb-8">
-                  <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle2 className="h-12 w-12 text-emerald-500" />
+                  <div className="w-20 h-20 rounded-full bg-navy-500/10 flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle2 className="h-12 w-12 text-navy-500" />
                   </div>
                   <h2 className="text-2xl font-bold mb-2">Import Complete!</h2>
                   <p className="text-muted-foreground">
@@ -865,8 +865,8 @@ const ImportPage = () => {
 
                 {/* Results summary */}
                 <div className="grid grid-cols-2 gap-4 max-w-md mx-auto mb-8">
-                  <div className="bg-emerald-500/10 rounded-2xl p-6 text-center">
-                    <p className="text-3xl font-bold text-emerald-500">{importResults.imported}</p>
+                  <div className="bg-navy-500/10 rounded-2xl p-6 text-center">
+                    <p className="text-3xl font-bold text-navy-500">{importResults.imported}</p>
                     <p className="text-sm text-muted-foreground mt-1">Cards Imported</p>
                   </div>
                   <div className="bg-amber-500/10 rounded-2xl p-6 text-center">

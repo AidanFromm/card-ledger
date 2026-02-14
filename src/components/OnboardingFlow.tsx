@@ -64,7 +64,7 @@ const FEATURE_TOUR = [
     icon: Scan,
     title: "AI Card Scanner",
     description: "Snap a photo and we'll identify your card instantly",
-    color: "from-emerald-500 to-teal-500",
+    color: "from-navy-600 to-navy-500",
   },
   {
     icon: TrendingUp,
@@ -254,7 +254,7 @@ export function OnboardingFlow({
       subtitle: "Let's personalize your experience",
       description: "Add your name and an optional avatar to get started.",
       icon: <User className="w-8 h-8" />,
-      gradient: "from-blue-500 via-cyan-500 to-teal-500",
+      gradient: "from-navy-700 via-navy-500 to-navy-400",
       interactive: true,
       illustration: (
         <div className="w-full px-4 space-y-6">
@@ -310,7 +310,7 @@ export function OnboardingFlow({
       description:
         "Use our AI scanner, search by name, or scan a barcode. It only takes a moment!",
       icon: <Scan className="w-8 h-8" />,
-      gradient: "from-emerald-500 via-emerald-400 to-teal-500",
+      gradient: "from-navy-600 via-navy-500 to-navy-400",
       features: [
         { icon: <Sparkles className="w-4 h-4" />, text: "AI card recognition" },
         { icon: <Scan className="w-4 h-4" />, text: "Barcode & PSA cert scanner" },
@@ -319,7 +319,7 @@ export function OnboardingFlow({
       illustration: (
         <div className="relative w-48 h-48 mx-auto">
           <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-emerald-500/30 to-teal-500/30 rounded-3xl blur-2xl"
+            className="absolute inset-0 bg-gradient-to-br from-navy-500/30 to-navy-500/30 rounded-3xl blur-2xl"
             animate={{
               scale: [1, 1.15, 1],
             }}
@@ -351,14 +351,14 @@ export function OnboardingFlow({
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Plus className="w-10 h-10 text-emerald-400" />
+                  <Plus className="w-10 h-10 text-navy-400" />
                 </motion.div>
               )}
             </motion.div>
           ))}
           {/* Scan line */}
           <motion.div
-            className="absolute left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent"
+            className="absolute left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-navy-400 to-transparent"
             style={{ top: "50%" }}
             animate={{
               y: [-40, 40, -40],
@@ -433,7 +433,7 @@ export function OnboardingFlow({
       subtitle: "Let's start collecting",
       description: "Your CardLedger is ready. Start building your collection today!",
       icon: <Trophy className="w-8 h-8" />,
-      gradient: "from-green-500 via-emerald-500 to-teal-500",
+      gradient: "from-navy-700 via-navy-600 to-navy-500",
       illustration: (
         <div className="relative w-48 h-48 mx-auto">
           {/* Confetti Effect */}
@@ -473,7 +473,7 @@ export function OnboardingFlow({
 
           {/* Trophy/Success Illustration */}
           <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-green-500/30 to-teal-500/30 rounded-3xl blur-2xl"
+            className="absolute inset-0 bg-gradient-to-br from-green-500/30 to-navy-500/30 rounded-3xl blur-2xl"
             animate={{
               scale: [1, 1.2, 1],
               opacity: [0.5, 0.8, 0.5],
@@ -481,7 +481,7 @@ export function OnboardingFlow({
             transition={{ duration: 2, repeat: Infinity }}
           />
           <motion.div
-            className="absolute inset-4 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center"
+            className="absolute inset-4 bg-gradient-to-br from-navy-600 to-navy-500 rounded-2xl flex items-center justify-center"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, type: "spring" }}

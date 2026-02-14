@@ -37,6 +37,7 @@ import Navbar from "@/components/Navbar";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { useFolders } from "@/hooks/useFolders";
 import { toast } from "sonner";
+import CardImage from "@/components/CardImage";
 import { 
   AddMethodSelector, 
   CardSearchPanel,
@@ -400,7 +401,7 @@ const AddItem = () => {
                         ${isCurrent 
                           ? 'bg-primary text-primary-foreground ring-4 ring-primary/20' 
                           : isComplete 
-                            ? 'bg-emerald-500 text-white' 
+                            ? 'bg-navy-500 text-white' 
                             : 'bg-secondary text-muted-foreground'
                         }
                       `}>
@@ -411,7 +412,7 @@ const AddItem = () => {
                       </span>
                     </div>
                     {index < WIZARD_STEPS.filter(s => addMethod === 'manual' ? s.key !== 'search' : true).length - 1 && (
-                      <div className={`w-8 h-0.5 mx-2 ${isComplete ? 'bg-emerald-500' : 'bg-border'}`} />
+                      <div className={`w-8 h-0.5 mx-2 ${isComplete ? 'bg-navy-500' : 'bg-border'}`} />
                     )}
                   </div>
                 );
@@ -539,16 +540,20 @@ const AddItem = () => {
                     <div className="w-32 flex-shrink-0">
                       {imagePreview ? (
                         <div className="relative">
-                          <img
+                          <CardImage
                             src={imagePreview}
                             alt="Card preview"
-                            className="w-full rounded-xl border border-border/50 shadow-lg"
+                            size="xl"
+                            rounded="xl"
+                            border
+                            borderColor="border-border/50"
+                            containerClassName="w-full shadow-lg"
                           />
                           <Button
                             type="button"
                             variant="destructive"
                             size="icon"
-                            className="absolute -top-2 -right-2 w-6 h-6"
+                            className="absolute -top-2 -right-2 w-6 h-6 z-10"
                             onClick={() => {
                               setImageFile(null);
                               setImagePreview("");

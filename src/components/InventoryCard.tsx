@@ -16,6 +16,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { getPlaceholderForItem } from "@/lib/cardNameUtils";
 import { getSlabTemplatePath, getGradeLabel } from "@/lib/gradingScales";
 import { triggerSwipeHaptic, triggerSuccessHaptic, triggerDestructiveHaptic } from "@/lib/haptics";
+import CardImage from "@/components/CardImage";
 
 type InventoryItem = Database["public"]["Tables"]["inventory_items"]["Row"];
 
@@ -47,7 +48,7 @@ const getGradeStyles = (grade: string | null, gradingCompany: string | null): st
 
   // Handle half grades (9.5, 10, etc.)
   if (numGrade >= 9.5) return 'bg-amber-500/15 text-amber-500';    // Gem mint - gold
-  if (numGrade >= 9) return 'bg-emerald-500/15 text-emerald-500';  // Mint - green
+  if (numGrade >= 9) return 'bg-navy-500/15 text-navy-500';  // Mint - green
   if (numGrade >= 8) return 'bg-sky-500/15 text-sky-500';          // NM-MT - blue
   if (numGrade >= 7) return 'bg-violet-500/15 text-violet-500';    // NM - purple
   return 'bg-slate-500/15 text-slate-400';                         // Lower - neutral
@@ -219,7 +220,7 @@ export const InventoryCard = ({
         {/* Sell action background (swipe right) */}
         <motion.div
           style={{ opacity: sellOpacity, scale: sellScale }}
-          className="absolute inset-0 rounded-3xl bg-gradient-to-l from-emerald-600 to-emerald-500 flex items-center justify-start pl-6 shadow-lg"
+          className="absolute inset-0 rounded-3xl bg-gradient-to-l from-navy-700 to-navy-500 flex items-center justify-start pl-6 shadow-lg"
         >
           <div className="flex flex-col items-center gap-1 text-white">
             <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
@@ -283,7 +284,7 @@ export const InventoryCard = ({
               <div className="absolute top-3 right-3 z-10">
                 <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold backdrop-blur-sm
                   ${pnl.isUp 
-                    ? 'bg-emerald-500/20 text-emerald-500' 
+                    ? 'bg-navy-500/20 text-navy-500' 
                     : 'bg-red-500/20 text-red-500'
                   }
                 `}>
@@ -312,33 +313,19 @@ export const InventoryCard = ({
                 />
               )}
 
-              {item.card_image_url && !imageError ? (
-                <>
-                  {!imageLoaded && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-8 h-8 border-2 border-muted-foreground/20 border-t-primary rounded-full animate-spin" />
-                    </div>
-                  )}
-                  <img
-                    src={item.card_image_url}
-                    alt={item.name}
-                    className={`w-full h-full object-contain transition-opacity duration-300 ${
-                      imageLoaded ? 'opacity-100' : 'opacity-0'
-                    } ${slabTemplatePath ? 'p-[15%] pt-[25%] pb-[12%]' : 'p-3'}`}
-                    loading="lazy"
-                    onLoad={() => setImageLoaded(true)}
-                    onError={() => setImageError(true)}
-                  />
-                </>
-              ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-primary/5 via-primary/8 to-primary/5">
-                  <img
-                    src={getPlaceholderForItem({ category: item.category, grading_company: item.grading_company })}
-                    alt="Placeholder"
-                    className={`w-full h-full object-contain opacity-60 ${slabTemplatePath ? 'p-[15%] pt-[25%] pb-[12%]' : 'p-4'}`}
-                  />
-                </div>
-              )}
+              <CardImage
+                src={item.card_image_url}
+                alt={item.name}
+                size="full"
+                rounded="none"
+                containerClassName={`w-full h-full ${slabTemplatePath ? 'p-[15%] pt-[25%] pb-[12%]' : 'p-3'}`}
+                className="w-full h-full object-contain"
+                loading="lazy"
+                graded={isGraded}
+                gradingCompany={item.grading_company || undefined}
+                grade={item.grade}
+                placeholder="card"
+              />
             </div>
 
             {/* Content - Below Image - Robinhood-style hierarchy */}
@@ -362,7 +349,7 @@ export const InventoryCard = ({
                   ${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 {pnl.hasData && !pnl.isNeutral && (
-                  <p className={`text-xs font-semibold ${pnl.isUp ? 'text-emerald-500' : 'text-red-500'}`}
+                  <p className={`text-xs font-semibold ${pnl.isUp ? 'text-navy-500' : 'text-red-500'}`}
                      style={{ fontVariantNumeric: 'tabular-nums' }}>
                     {pnl.isUp ? '+' : ''}${pnl.gain.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>

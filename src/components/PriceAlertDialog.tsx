@@ -135,8 +135,8 @@ const PriceAlertDialog = ({ open, onOpenChange, card, onAlertCreated }: PriceAle
                 onClick={() => setDirection('below')}
                 className={`relative p-3 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
                   direction === 'below'
-                    ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
-                    : 'border-border/50 bg-muted/30 text-muted-foreground hover:border-emerald-500/50'
+                    ? 'border-navy-500 bg-navy-500/10 text-navy-500'
+                    : 'border-border/50 bg-muted/30 text-muted-foreground hover:border-navy-500/50'
                 }`}
                 whileTap={{ scale: 0.98 }}
               >
@@ -145,7 +145,7 @@ const PriceAlertDialog = ({ open, onOpenChange, card, onAlertCreated }: PriceAle
                 {direction === 'below' && (
                   <motion.div
                     layoutId="directionIndicator"
-                    className="absolute inset-0 border-2 border-emerald-500 rounded-xl"
+                    className="absolute inset-0 border-2 border-navy-500 rounded-xl"
                     initial={false}
                     transition={{ type: "spring", stiffness: 500, damping: 35 }}
                   />
@@ -208,10 +208,10 @@ const PriceAlertDialog = ({ open, onOpenChange, card, onAlertCreated }: PriceAle
                     className={`h-8 px-3 text-xs font-semibold rounded-lg border transition-all ${
                       isSelected
                         ? direction === 'below'
-                          ? 'bg-emerald-500 text-white border-emerald-500'
+                          ? 'bg-navy-500 text-white border-navy-500'
                           : 'bg-amber-500 text-white border-amber-500'
                         : direction === 'below'
-                          ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30 hover:border-emerald-500/60'
+                          ? 'bg-navy-500/10 text-navy-500 border-navy-500/30 hover:border-navy-500/60'
                           : 'bg-amber-500/10 text-amber-500 border-amber-500/30 hover:border-amber-500/60'
                     }`}
                   >
@@ -244,13 +244,13 @@ const PriceAlertDialog = ({ open, onOpenChange, card, onAlertCreated }: PriceAle
               animate={{ opacity: 1, y: 0 }}
               className={`p-3 rounded-lg border ${
                 direction === 'below'
-                  ? 'bg-emerald-500/10 border-emerald-500/30'
+                  ? 'bg-navy-500/10 border-navy-500/30'
                   : 'bg-amber-500/10 border-amber-500/30'
               }`}
             >
               <p className="text-sm">
                 <Bell className={`h-4 w-4 inline mr-1.5 ${
-                  direction === 'below' ? 'text-emerald-500' : 'text-amber-500'
+                  direction === 'below' ? 'text-navy-500' : 'text-amber-500'
                 }`} />
                 You'll be notified when the price goes{' '}
                 <span className="font-bold">{direction}</span>{' '}
@@ -275,7 +275,7 @@ const PriceAlertDialog = ({ open, onOpenChange, card, onAlertCreated }: PriceAle
               disabled={loading || !targetPrice || alreadyHasAlert}
               className={`h-11 flex-1 font-semibold ${
                 direction === 'below'
-                  ? 'bg-emerald-500 hover:bg-emerald-600'
+                  ? 'bg-navy-500 hover:bg-navy-600'
                   : 'bg-amber-500 hover:bg-amber-600'
               }`}
             >

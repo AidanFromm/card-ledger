@@ -763,7 +763,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
                 className="relative p-5 rounded-2xl bg-card/80 backdrop-blur-sm border shadow-lg overflow-hidden"
               >
                 {/* Subtle gradient overlay */}
-                <div className={`absolute inset-0 opacity-5 ${isUp ? 'bg-gradient-to-br from-emerald-500' : 'bg-gradient-to-br from-red-500'} to-transparent`} />
+                <div className={`absolute inset-0 opacity-5 ${isUp ? 'bg-gradient-to-br from-green-500' : 'bg-gradient-to-br from-red-500'} to-transparent`} />
                 
                 <div className="relative">
                   <p className="text-4xl font-bold tracking-tight" style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -775,7 +775,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
                         isNeutral 
                           ? 'text-muted-foreground bg-muted/50' 
                           : isUp 
-                          ? 'text-emerald-500 bg-emerald-500/10' 
+                          ? 'text-navy-500 bg-navy-500/10' 
                           : 'text-red-500 bg-red-500/10'
                       }`}
                       initial={{ scale: 0.9 }}
@@ -810,7 +810,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
                     </motion.div>
                     <div className="flex-1 text-right">
                       <p className="text-xs text-muted-foreground uppercase tracking-wide">Now worth</p>
-                      <p className={`text-xl font-bold mt-1 ${isUp ? 'text-emerald-500' : isNeutral ? '' : 'text-red-500'}`}
+                      <p className={`text-xl font-bold mt-1 ${isUp ? 'text-navy-500' : isNeutral ? '' : 'text-red-500'}`}
                          style={{ fontVariantNumeric: 'tabular-nums' }}>
                         ${formatNumber(currentValue)}
                       </p>
@@ -821,7 +821,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
                   <div className="mt-3 p-3 rounded-xl bg-muted/20 border border-dashed">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground uppercase tracking-wide">Return on Investment (ROI)</span>
-                      <span className={`text-lg font-bold ${isUp ? 'text-emerald-500' : isNeutral ? 'text-muted-foreground' : 'text-red-500'}`}>
+                      <span className={`text-lg font-bold ${isUp ? 'text-navy-500' : isNeutral ? 'text-muted-foreground' : 'text-red-500'}`}>
                         {isUp ? '+' : ''}{gainPercent.toFixed(1)}%
                       </span>
                     </div>
@@ -1136,7 +1136,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
                     href={`https://www.cardmarket.com/en/Pokemon/Products/Search?searchString=${encodeURIComponent(item.name)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-green-500/20 to-green-600/10 text-green-500 hover:from-green-500/30 hover:to-green-600/20 transition-all text-sm font-medium border border-green-500/20"
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-green-500/20 to-navy-600/10 text-green-500 hover:from-green-500/30 hover:to-navy-600/20 transition-all text-sm font-medium border border-green-500/20"
                   >
                     Cardmarket <ExternalLink className="h-3 w-3" />
                   </a>
@@ -1154,7 +1154,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange, onSell, onDelete }:
                 <div className="grid grid-cols-2 gap-3">
                   <Button 
                     onClick={() => { triggerSuccessHaptic(); if (onSell) onSell(); }} 
-                    className="h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg shadow-emerald-500/25"
+                    className="h-14 bg-gradient-to-r from-navy-600 to-navy-500 hover:from-navy-700 hover:to-navy-800 text-white shadow-lg shadow-navy-500/25"
                   >
                     <DollarSign className="h-5 w-5 mr-2" />
                     <span className="font-semibold">Sell</span>

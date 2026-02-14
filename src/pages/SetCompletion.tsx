@@ -119,7 +119,7 @@ const ProgressRing = ({
         <circle
           className={cn(
             "transition-all duration-500 ease-out",
-            isComplete ? "text-emerald-500" : goalReached ? "text-amber-500" : "text-violet-500"
+            isComplete ? "text-navy-500" : goalReached ? "text-amber-500" : "text-violet-500"
           )}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
@@ -137,7 +137,7 @@ const ProgressRing = ({
       {/* Center content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         {isComplete ? (
-          <Award className="h-6 w-6 text-emerald-500" />
+          <Award className="h-6 w-6 text-navy-500" />
         ) : (
           <span className={cn(
             "text-lg font-bold",
@@ -485,7 +485,7 @@ const SetCompletion = () => {
                     <p className="text-sm text-muted-foreground">
                       {trackedSets.length} sets • {totalOwned}/{totalCards} cards
                       {completedSets > 0 && (
-                        <span className="text-emerald-500 ml-1">
+                        <span className="text-navy-500 ml-1">
                           • {completedSets} complete
                         </span>
                       )}
@@ -808,7 +808,7 @@ const SetProgressCard = ({ set, index, onClick, onDelete, onSetGoal }: SetProgre
       className={cn(
         "relative p-4 rounded-2xl border-2 cursor-pointer transition-all",
         isComplete
-          ? 'bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 border-emerald-500/40'
+          ? 'bg-gradient-to-r from-navy-500/10 to-navy-500/5 border-navy-500/40'
           : goalReached
           ? 'bg-gradient-to-r from-amber-500/10 to-amber-500/5 border-amber-500/40'
           : 'bg-card/50 border-border/40 hover:border-primary/30'
@@ -819,7 +819,7 @@ const SetProgressCard = ({ set, index, onClick, onDelete, onSetGoal }: SetProgre
         <motion.div 
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="absolute -top-2 -right-2 px-2.5 py-1 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs font-bold shadow-lg flex items-center gap-1"
+          className="absolute -top-2 -right-2 px-2.5 py-1 rounded-full bg-gradient-to-r from-navy-600 to-navy-500 text-white text-xs font-bold shadow-lg flex items-center gap-1"
         >
           <Sparkles className="h-3 w-3" />
           COMPLETE!
@@ -879,7 +879,7 @@ const SetProgressCard = ({ set, index, onClick, onDelete, onSetGoal }: SetProgre
               value={set.completion_percentage} 
               className={cn(
                 "h-1.5",
-                isComplete ? '[&>div]:bg-emerald-500' : goalReached ? '[&>div]:bg-amber-500' : ''
+                isComplete ? '[&>div]:bg-navy-500' : goalReached ? '[&>div]:bg-amber-500' : ''
               )}
             />
           </div>
@@ -1038,7 +1038,7 @@ const ChecklistView = ({
       <div className={cn(
         "p-4 rounded-2xl border-2 transition-all",
         isComplete 
-          ? "bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 border-emerald-500/40" 
+          ? "bg-gradient-to-r from-navy-500/10 to-navy-500/5 border-navy-500/40" 
           : "bg-card/50 border-border/30"
       )}>
         <div className="flex items-start gap-4">
@@ -1064,8 +1064,8 @@ const ChecklistView = ({
             
             <div className="grid grid-cols-2 gap-2 mt-3">
               <div className="flex items-center gap-2 text-sm">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                  <Check className="h-4 w-4 text-emerald-500" />
+                <div className="w-8 h-8 rounded-lg bg-navy-500/10 flex items-center justify-center">
+                  <Check className="h-4 w-4 text-navy-500" />
                 </div>
                 <div>
                   <p className="font-semibold">{ownedCount}</p>
@@ -1100,7 +1100,7 @@ const ChecklistView = ({
         {stats && stats.cardsWithPrices > 0 && (
           <div className="mt-4 pt-4 border-t border-border/30 grid grid-cols-3 gap-4">
             <div className="text-center">
-              <p className="text-lg font-bold text-emerald-500">
+              <p className="text-lg font-bold text-navy-500">
                 {formatCurrency(stats.ownedValue)}
               </p>
               <p className="text-xs text-muted-foreground">Owned Value</p>
@@ -1165,7 +1165,7 @@ const ChecklistView = ({
             <SelectItem value="all">All ({allCards.length})</SelectItem>
             <SelectItem value="owned">
               <span className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                <div className="w-2 h-2 rounded-full bg-navy-500" />
                 Owned ({ownedCount})
               </span>
             </SelectItem>
@@ -1254,7 +1254,7 @@ const ChecklistCardGrid = ({
     reverse_holo: 'from-blue-500/20 to-purple-500/20',
     holo: 'from-amber-500/20 to-yellow-500/20',
     secret_rare: 'from-pink-500/20 to-rose-500/20',
-    promo: 'from-cyan-500/20 to-teal-500/20',
+    promo: 'from-navy-500/20 to-navy-400/20',
     special: 'from-violet-500/20 to-indigo-500/20',
   };
   
@@ -1267,7 +1267,7 @@ const ChecklistCardGrid = ({
       className={cn(
         "relative aspect-[3/4] rounded-lg overflow-hidden cursor-pointer transition-all",
         card.owned
-          ? 'ring-2 ring-emerald-500 shadow-lg shadow-emerald-500/20'
+          ? 'ring-2 ring-navy-500 shadow-lg shadow-navy-500/20'
           : 'opacity-50 grayscale hover:opacity-75 hover:grayscale-0',
         variantGradient && `bg-gradient-to-br ${variantGradient}`
       )}
@@ -1284,7 +1284,7 @@ const ChecklistCardGrid = ({
         <motion.div 
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg"
+          className="absolute top-1 right-1 w-5 h-5 rounded-full bg-navy-500 flex items-center justify-center shadow-lg"
         >
           <Check className="h-3 w-3 text-white" />
         </motion.div>
@@ -1312,7 +1312,7 @@ const ChecklistCardGrid = ({
       
       {/* Price Badge */}
       {card.price && card.price > 0 && (
-        <div className="absolute bottom-6 left-1 px-1 py-0.5 rounded bg-black/70 text-[8px] text-emerald-400 font-medium">
+        <div className="absolute bottom-6 left-1 px-1 py-0.5 rounded bg-black/70 text-[8px] text-navy-400 font-medium">
           ${card.price.toFixed(2)}
         </div>
       )}
@@ -1345,7 +1345,7 @@ const ChecklistCardList = ({
       className={cn(
         "flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all",
         card.owned
-          ? 'bg-emerald-500/10 border border-emerald-500/30'
+          ? 'bg-navy-500/10 border border-navy-500/30'
           : 'bg-muted/20 hover:bg-muted/30'
       )}
     >
@@ -1373,7 +1373,7 @@ const ChecklistCardList = ({
             </Badge>
           )}
           {card.price && card.price > 0 && (
-            <span className="text-xs text-emerald-500 font-medium">
+            <span className="text-xs text-navy-500 font-medium">
               {formatCurrency(card.price)}
             </span>
           )}
@@ -1399,7 +1399,7 @@ const ChecklistCardList = ({
         
         <div className={cn(
           "w-6 h-6 rounded-full flex items-center justify-center transition-colors",
-          card.owned ? 'bg-emerald-500' : 'border-2 border-muted-foreground/30'
+          card.owned ? 'bg-navy-500' : 'border-2 border-muted-foreground/30'
         )}>
           {card.owned && <Check className="h-4 w-4 text-white" />}
         </div>

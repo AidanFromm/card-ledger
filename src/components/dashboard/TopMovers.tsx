@@ -11,6 +11,7 @@ import {
   Zap
 } from "lucide-react";
 import { MiniSparkline } from "./Sparkline";
+import CardImage from "@/components/CardImage";
 
 interface InventoryItem {
   id: string;
@@ -44,7 +45,7 @@ interface MoverCardProps {
 
 const MoverCard = memo(({ item, change, changePercent, index, type, rank, onClick }: MoverCardProps) => {
   const isGainer = type === 'gainers';
-  const accentColor = isGainer ? "#10b981" : "#ef4444";
+  const accentColor = isGainer ? "#627d98" : "#ef4444";
   
   // Fake sparkline data based on change direction
   const sparklineData = useMemo(() => {
@@ -79,7 +80,7 @@ const MoverCard = memo(({ item, change, changePercent, index, type, rank, onClic
         border backdrop-blur-md group
         transition-all duration-300
         ${isGainer 
-          ? 'from-emerald-500/10 via-emerald-500/5 to-zinc-900/80 border-emerald-500/20 hover:border-emerald-500/40 hover:shadow-emerald-500/20 hover:shadow-xl' 
+          ? 'from-navy-500/10 via-navy-500/5 to-zinc-900/80 border-navy-500/20 hover:border-navy-500/40 hover:shadow-navy-500/20 hover:shadow-xl' 
           : 'from-red-500/10 via-red-500/5 to-zinc-900/80 border-red-500/20 hover:border-red-500/40 hover:shadow-red-500/20 hover:shadow-xl'
         }
       `}
@@ -93,7 +94,7 @@ const MoverCard = memo(({ item, change, changePercent, index, type, rank, onClic
           absolute -top-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center
           text-[10px] font-bold shadow-lg
           ${isGainer 
-            ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white' 
+            ? 'bg-gradient-to-br from-navy-400 to-navy-600 text-white' 
             : 'bg-gradient-to-br from-red-400 to-red-600 text-white'
           }
         `}
@@ -111,50 +112,23 @@ const MoverCard = memo(({ item, change, changePercent, index, type, rank, onClic
 
       {/* Card Image with overlay gradient */}
       <div className="w-full h-[90px] mb-2 rounded-xl overflow-hidden bg-zinc-800/50 relative">
-        {item.card_image_url ? (
-          <>
-            <motion.img 
-              src={item.card_image_url} 
-              alt={item.name}
-              className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
-              loading="lazy"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            />
-            {/* Shine overlay on hover */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
-            />
-          </>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            {isGainer ? (
-              <motion.div
-                animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <Flame className="h-10 w-10 text-emerald-500/30" />
-              </motion.div>
-            ) : (
-              <motion.div
-                animate={{ rotate: [0, 180, 360] }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              >
-                <Snowflake className="h-10 w-10 text-red-500/30" />
-              </motion.div>
-            )}
-          </div>
-        )}
-        
-        {/* Grade badge */}
-        {item.grade && item.grading_company && item.grading_company.toLowerCase() !== 'raw' && (
-          <div className="absolute bottom-1 left-1 bg-zinc-900/95 backdrop-blur-sm px-1.5 py-0.5 rounded-md border border-zinc-700/50">
-            <span className="text-[9px] font-bold text-zinc-300">
-              {item.grading_company} {item.grade}
-            </span>
-          </div>
-        )}
+        <CardImage
+          src={item.card_image_url}
+          alt={item.name}
+          size="md"
+          rounded="xl"
+          className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
+          containerClassName="w-full h-full"
+          graded={!!(item.grade && item.grading_company && item.grading_company.toLowerCase() !== 'raw')}
+          gradingCompany={item.grading_company || undefined}
+          grade={item.grade}
+          loading="lazy"
+          placeholder={isGainer ? "card" : "card"}
+        />
+        {/* Shine overlay on hover */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10"
+        />
       </div>
 
       {/* Card Name */}
@@ -181,20 +155,20 @@ const MoverCard = memo(({ item, change, changePercent, index, type, rank, onClic
       <div className="flex items-center justify-between">
         <div className={`
           flex items-center gap-1 px-2 py-1 rounded-lg
-          ${isGainer ? 'bg-emerald-500/20' : 'bg-red-500/20'}
+          ${isGainer ? 'bg-navy-500/20' : 'bg-red-500/20'}
         `}>
           {isGainer ? (
-            <ArrowUpRight className="h-3 w-3 text-emerald-400" />
+            <ArrowUpRight className="h-3 w-3 text-navy-400" />
           ) : (
             <ArrowDownRight className="h-3 w-3 text-red-400" />
           )}
-          <span className={`text-xs font-bold ${isGainer ? 'text-emerald-400' : 'text-red-400'}`}>
+          <span className={`text-xs font-bold ${isGainer ? 'text-navy-400' : 'text-red-400'}`}>
             {changePercent >= 0 ? '+' : ''}{changePercent.toFixed(1)}%
           </span>
         </div>
         
         {/* Dollar Change */}
-        <span className={`text-[10px] font-semibold ${isGainer ? 'text-emerald-400/80' : 'text-red-400/80'}`}>
+        <span className={`text-[10px] font-semibold ${isGainer ? 'text-navy-400/80' : 'text-red-400/80'}`}>
           {change >= 0 ? '+' : '-'}${Math.abs(change).toFixed(2)}
         </span>
       </div>
@@ -251,10 +225,10 @@ export const TopMovers = memo(({ items, type, limit = 6, onCardClick }: TopMover
             whileHover={{ scale: 1.1, rotate: isGainer ? 15 : -15 }}
             className={`
               p-2 rounded-xl
-              ${isGainer ? 'bg-emerald-500/15' : 'bg-red-500/15'}
+              ${isGainer ? 'bg-navy-500/15' : 'bg-red-500/15'}
             `}
           >
-            <Icon className={`h-5 w-5 ${isGainer ? 'text-emerald-400' : 'text-red-400'}`} />
+            <Icon className={`h-5 w-5 ${isGainer ? 'text-navy-400' : 'text-red-400'}`} />
           </motion.div>
           <div>
             <h3 className="text-base font-bold text-white flex items-center gap-2">

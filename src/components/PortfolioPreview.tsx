@@ -58,7 +58,7 @@ export function PortfolioPreview() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 }}
                   className={`flex items-center gap-0.5 text-sm font-medium ${
-                    isPositive ? "text-emerald-500" : "text-red-500"
+                    isPositive ? "text-navy-500" : "text-red-500"
                   }`}
                 >
                   {isPositive ? (
@@ -90,7 +90,7 @@ export function PortfolioPreview() {
       {/* Mini Sparkline Placeholder */}
       {hasHistoricalData && (
         <div className="mt-3 h-8 w-full relative overflow-hidden rounded-lg">
-          <div className={`absolute inset-0 opacity-20 ${isPositive ? 'bg-gradient-to-t from-emerald-500/40' : 'bg-gradient-to-t from-red-500/40'}`} />
+          <div className={`absolute inset-0 opacity-20 ${isPositive ? 'bg-gradient-to-t from-navy-500/40' : 'bg-gradient-to-t from-red-500/40'}`} />
           {/* TODO: Add actual sparkline chart here */}
         </div>
       )}

@@ -33,7 +33,7 @@ const primaryActions: QuickAction[] = [
     label: 'Scan Card',
     icon: Camera,
     path: '/scan',
-    gradient: 'from-emerald-500 to-teal-500',
+    gradient: 'from-navy-600 to-navy-500',
     glowColor: 'rgba(16, 185, 129, 0.5)',
     description: 'AI-powered recognition',
     isPrimary: true,
@@ -185,7 +185,7 @@ const PrimaryActionCard = memo(({ action, index }: PrimaryActionCardProps) => {
             <motion.div
               animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="absolute inset-0 rounded-xl bg-emerald-400/20"
+              className="absolute inset-0 rounded-xl bg-navy-400/20"
             />
           )}
         </div>

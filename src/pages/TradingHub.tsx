@@ -338,7 +338,7 @@ const TradingHub = () => {
     switch (status) {
       case 'proposed': return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
       case 'countered': return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
-      case 'accepted': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+      case 'accepted': return 'bg-navy-500/20 text-navy-400 border-navy-500/30';
       case 'declined': return 'bg-red-500/20 text-red-400 border-red-500/30';
       case 'completed': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
       default: return 'bg-muted text-muted-foreground';
@@ -394,17 +394,17 @@ const TradingHub = () => {
               <div className="text-xs text-muted-foreground">Pending</div>
             </div>
             <div className="p-4 rounded-xl bg-card border border-border/40">
-              <CheckCircle className="h-5 w-5 text-emerald-500 mb-2" />
+              <CheckCircle className="h-5 w-5 text-navy-500 mb-2" />
               <div className="text-2xl font-bold">{totalTradesCompleted}</div>
               <div className="text-xs text-muted-foreground">Completed</div>
             </div>
             <div className="p-4 rounded-xl bg-card border border-border/40">
               {totalNetGain >= 0 ? (
-                <TrendingUp className="h-5 w-5 text-emerald-500 mb-2" />
+                <TrendingUp className="h-5 w-5 text-navy-500 mb-2" />
               ) : (
                 <TrendingDown className="h-5 w-5 text-red-500 mb-2" />
               )}
-              <div className={`text-2xl font-bold ${totalNetGain >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+              <div className={`text-2xl font-bold ${totalNetGain >= 0 ? 'text-navy-500' : 'text-red-500'}`}>
                 {totalNetGain >= 0 ? '+' : ''}{formatCurrency(totalNetGain)}
               </div>
               <div className="text-xs text-muted-foreground">Net Value</div>
@@ -532,7 +532,7 @@ const TradingHub = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-sm flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                      <div className="w-3 h-3 rounded-full bg-navy-500" />
                       You Get
                     </h3>
                     <Button
@@ -549,7 +549,7 @@ const TradingHub = () => {
                     </Button>
                   </div>
                   
-                  <div className="min-h-[200px] rounded-xl border-2 border-dashed border-emerald-500/30 bg-emerald-500/5 p-2 space-y-2">
+                  <div className="min-h-[200px] rounded-xl border-2 border-dashed border-navy-500/30 bg-navy-500/5 p-2 space-y-2">
                     <AnimatePresence mode="popLayout">
                       {theirCards.map(card => (
                         <TradeCardItem
@@ -581,9 +581,9 @@ const TradingHub = () => {
                   </div>
 
                   {/* Their Total */}
-                  <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                  <div className="p-3 rounded-lg bg-navy-500/10 border border-navy-500/20">
                     <div className="text-xs text-muted-foreground">Their Total Value</div>
-                    <div className="text-xl font-bold text-emerald-400">{formatCurrency(theirTotal)}</div>
+                    <div className="text-xl font-bold text-navy-400">{formatCurrency(theirTotal)}</div>
                   </div>
                 </div>
               </div>
@@ -602,7 +602,7 @@ const TradingHub = () => {
                     </div>
                     <Badge 
                       variant="outline" 
-                      className={isFair ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border-amber-500/30'}
+                      className={isFair ? 'bg-navy-500/20 text-navy-400 border-navy-500/30' : 'bg-amber-500/20 text-amber-400 border-amber-500/30'}
                     >
                       {isFair ? 'Fair Trade' : 'Uneven Trade'}
                     </Badge>
@@ -610,7 +610,7 @@ const TradingHub = () => {
 
                   <div className="flex items-center justify-between text-sm mb-2">
                     <span className="text-muted-foreground">Value Difference</span>
-                    <span className={`font-bold ${valueDifference >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <span className={`font-bold ${valueDifference >= 0 ? 'text-navy-400' : 'text-red-400'}`}>
                       {valueDifference >= 0 ? '+' : ''}{formatCurrency(valueDifference)}
                     </span>
                   </div>
@@ -618,9 +618,9 @@ const TradingHub = () => {
                   <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30">
                     {youGetBetterDeal ? (
                       <>
-                        <TrendingUp className="h-5 w-5 text-emerald-500" />
+                        <TrendingUp className="h-5 w-5 text-navy-500" />
                         <span className="text-sm">
-                          <span className="font-semibold text-emerald-400">You're getting the better deal</span>
+                          <span className="font-semibold text-navy-400">You're getting the better deal</span>
                           <span className="text-muted-foreground"> by {formatCurrency(Math.abs(valueDifference))}</span>
                         </span>
                       </>
@@ -634,8 +634,8 @@ const TradingHub = () => {
                       </>
                     ) : (
                       <>
-                        <CheckCircle className="h-5 w-5 text-emerald-500" />
-                        <span className="text-sm font-semibold text-emerald-400">Perfectly even trade!</span>
+                        <CheckCircle className="h-5 w-5 text-navy-500" />
+                        <span className="text-sm font-semibold text-navy-400">Perfectly even trade!</span>
                       </>
                     )}
                   </div>
@@ -894,7 +894,7 @@ const TradingHub = () => {
                         )}
                         <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-1.5">
                           <div className="text-[10px] text-white truncate">{item.name}</div>
-                          <div className="text-[10px] text-emerald-400 font-bold">
+                          <div className="text-[10px] text-navy-400 font-bold">
                             {formatCurrency(item.market_price || item.purchase_price || 0)}
                           </div>
                         </div>
@@ -1129,18 +1129,18 @@ const TradingHub = () => {
                       )}
                     </div>
 
-                    <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                    <div className="p-3 rounded-lg bg-navy-500/10 border border-navy-500/20">
                       <div className="text-xs text-muted-foreground mb-2">You Get</div>
                       {selectedProposal.theirCards.map(card => (
                         <div key={card.id} className="flex justify-between text-sm">
                           <span>{card.name}</span>
-                          <span className="text-emerald-400">{formatCurrency(card.value)}</span>
+                          <span className="text-navy-400">{formatCurrency(card.value)}</span>
                         </div>
                       ))}
                       {selectedProposal.theirCash > 0 && (
-                        <div className="flex justify-between text-sm pt-1 border-t border-emerald-500/20 mt-1">
+                        <div className="flex justify-between text-sm pt-1 border-t border-navy-500/20 mt-1">
                           <span>Cash</span>
-                          <span className="text-emerald-400">{formatCurrency(selectedProposal.theirCash)}</span>
+                          <span className="text-navy-400">{formatCurrency(selectedProposal.theirCash)}</span>
                         </div>
                       )}
                     </div>
@@ -1173,9 +1173,9 @@ const TradingHub = () => {
               
               {selectedHistory && (
                 <div className="mt-6 space-y-6">
-                  <div className={`p-4 rounded-xl ${selectedHistory.netGain >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
+                  <div className={`p-4 rounded-xl ${selectedHistory.netGain >= 0 ? 'bg-navy-500/10' : 'bg-red-500/10'}`}>
                     <div className="text-xs text-muted-foreground">Net Result</div>
-                    <div className={`text-2xl font-bold ${selectedHistory.netGain >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <div className={`text-2xl font-bold ${selectedHistory.netGain >= 0 ? 'text-navy-400' : 'text-red-400'}`}>
                       {selectedHistory.netGain >= 0 ? '+' : ''}{formatCurrency(selectedHistory.netGain)}
                     </div>
                   </div>
@@ -1197,18 +1197,18 @@ const TradingHub = () => {
                       )}
                     </div>
 
-                    <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                    <div className="p-3 rounded-lg bg-navy-500/10 border border-navy-500/20">
                       <div className="text-xs text-muted-foreground mb-2">You Got ({formatCurrency(selectedHistory.totalTheirValue)})</div>
                       {selectedHistory.youGot.map(card => (
                         <div key={card.id} className="flex justify-between text-sm">
                           <span>{card.name}</span>
-                          <span className="text-emerald-400">{formatCurrency(card.value)}</span>
+                          <span className="text-navy-400">{formatCurrency(card.value)}</span>
                         </div>
                       ))}
                       {selectedHistory.cashYouGot > 0 && (
-                        <div className="flex justify-between text-sm pt-1 border-t border-emerald-500/20 mt-1">
+                        <div className="flex justify-between text-sm pt-1 border-t border-navy-500/20 mt-1">
                           <span>Cash</span>
-                          <span className="text-emerald-400">{formatCurrency(selectedHistory.cashYouGot)}</span>
+                          <span className="text-navy-400">{formatCurrency(selectedHistory.cashYouGot)}</span>
                         </div>
                       )}
                     </div>
@@ -1284,7 +1284,7 @@ const TradingHub = () => {
                                 {entry.youGave.length} → {entry.youGot.length} cards
                               </div>
                             </div>
-                            <div className={`font-bold ${entry.netGain >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                            <div className={`font-bold ${entry.netGain >= 0 ? 'text-navy-400' : 'text-red-400'}`}>
                               {entry.netGain >= 0 ? '+' : ''}{formatCurrency(entry.netGain)}
                             </div>
                           </div>
@@ -1364,7 +1364,7 @@ const TradeCardItem = ({ card, onRemove, onUpdateValue }: TradeCardItemProps) =>
         ) : (
           <button
             onClick={() => setIsEditing(true)}
-            className="text-xs text-emerald-400 font-bold hover:underline flex items-center gap-0.5"
+            className="text-xs text-navy-400 font-bold hover:underline flex items-center gap-0.5"
           >
             ${card.value.toFixed(2)}
             <Edit2 className="h-2.5 w-2.5 opacity-50" />
@@ -1435,8 +1435,8 @@ const ProposalCard = ({
       <div className="flex items-center gap-2 mb-3 text-sm">
         <span className="text-red-400">{formatCurrency(yourTotal)}</span>
         <ArrowRight className="h-4 w-4 text-muted-foreground" />
-        <span className="text-emerald-400">{formatCurrency(theirTotal)}</span>
-        <span className={`ml-auto font-bold ${diff >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+        <span className="text-navy-400">{formatCurrency(theirTotal)}</span>
+        <span className={`ml-auto font-bold ${diff >= 0 ? 'text-navy-400' : 'text-red-400'}`}>
           {diff >= 0 ? '+' : ''}{formatCurrency(diff)}
         </span>
       </div>
@@ -1451,7 +1451,7 @@ const ProposalCard = ({
             <Button size="sm" variant="outline" onClick={() => onUpdateStatus('countered')}>
               Counter
             </Button>
-            <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600" onClick={() => onUpdateStatus('accepted')}>
+            <Button size="sm" className="bg-navy-500 hover:bg-navy-600" onClick={() => onUpdateStatus('accepted')}>
               <Check className="h-4 w-4" />
             </Button>
             <Button size="sm" variant="destructive" onClick={() => onUpdateStatus('declined')}>
@@ -1547,7 +1547,7 @@ const HistoryCard = ({ entry, formatCurrency, formatDate, onView, onDelete }: Hi
           <div className="font-medium">{entry.partnerName}</div>
           <div className="text-xs text-muted-foreground">{formatDate(entry.date)}</div>
         </div>
-        <div className={`text-lg font-bold ${entry.netGain >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+        <div className={`text-lg font-bold ${entry.netGain >= 0 ? 'text-navy-400' : 'text-red-400'}`}>
           {entry.netGain >= 0 ? '+' : ''}{formatCurrency(entry.netGain)}
         </div>
       </div>

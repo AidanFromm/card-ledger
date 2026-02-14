@@ -31,7 +31,7 @@ export const SwipeableCard = ({
   leftIcon = <Trash2 className="h-6 w-6" />,
   rightIcon = <DollarSign className="h-6 w-6" />,
   leftColor = "bg-gradient-to-r from-red-600 to-red-500",
-  rightColor = "bg-gradient-to-l from-emerald-600 to-emerald-500",
+  rightColor = "bg-gradient-to-l from-navy-700 to-navy-500",
   swipeThreshold = DEFAULT_SWIPE_THRESHOLD,
   velocityThreshold = DEFAULT_VELOCITY_THRESHOLD,
 }: SwipeableCardProps) => {

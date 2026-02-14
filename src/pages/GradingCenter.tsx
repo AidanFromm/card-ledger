@@ -152,7 +152,7 @@ const StatCard = memo(({
         <p className={cn("text-2xl font-bold", color)}>{value}</p>
         {subValue && (
           <div className="flex items-center gap-1 mt-1">
-            {trend === 'up' && <TrendingUp className="h-3 w-3 text-emerald-400" />}
+            {trend === 'up' && <TrendingUp className="h-3 w-3 text-navy-400" />}
             {trend === 'down' && <TrendingDown className="h-3 w-3 text-red-400" />}
             <span className="text-xs text-muted-foreground">{subValue}</span>
           </div>
@@ -564,7 +564,7 @@ const GradePredictor = memo(({ calculateGradingROI }: {
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground" />
               <div className="text-center">
-                <span className="text-lg font-bold text-emerald-400">{prediction.prediction.max}</span>
+                <span className="text-lg font-bold text-navy-400">{prediction.prediction.max}</span>
                 <p className="text-[10px] text-muted-foreground">High</p>
               </div>
             </div>
@@ -586,7 +586,7 @@ const GradePredictor = memo(({ calculateGradingROI }: {
             </div>
             <div className="bg-zinc-900/50 rounded-lg p-3 text-center border border-zinc-800/50">
               <p className="text-[10px] text-muted-foreground">Max Value</p>
-              <p className="text-sm font-bold text-emerald-400">
+              <p className="text-sm font-bold text-navy-400">
                 ${prediction.estimatedValues.max.toFixed(0)}
               </p>
             </div>
@@ -595,7 +595,7 @@ const GradePredictor = memo(({ calculateGradingROI }: {
           {/* ROI Result */}
           <div className={cn(
             "rounded-xl p-4 text-center border",
-            prediction.roi > 50 ? "bg-emerald-500/10 border-emerald-500/30" :
+            prediction.roi > 50 ? "bg-navy-500/10 border-navy-500/30" :
             prediction.roi > 0 ? "bg-amber-500/10 border-amber-500/30" :
             "bg-red-500/10 border-red-500/30"
           )}>
@@ -1142,9 +1142,9 @@ const SubmissionDetailDialog = memo(({
 
             {/* ROI Section (for completed) */}
             {submission.status === 'complete' && submission.raw_value && submission.graded_value && (
-              <div className="bg-gradient-to-r from-emerald-500/10 to-primary/10 rounded-xl p-4 border border-emerald-500/20">
+              <div className="bg-gradient-to-r from-navy-500/10 to-primary/10 rounded-xl p-4 border border-navy-500/20">
                 <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-emerald-400" />
+                  <TrendingUp className="h-4 w-4 text-navy-400" />
                   Value Analysis
                 </h4>
                 <div className="grid grid-cols-3 gap-3 text-center">
@@ -1154,13 +1154,13 @@ const SubmissionDetailDialog = memo(({
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Graded Value</p>
-                    <p className="font-bold text-emerald-400">${submission.graded_value}</p>
+                    <p className="font-bold text-navy-400">${submission.graded_value}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">ROI</p>
                     <p className={cn(
                       "font-bold",
-                      (submission.roi_percent || 0) > 0 ? "text-emerald-400" : "text-red-400"
+                      (submission.roi_percent || 0) > 0 ? "text-navy-400" : "text-red-400"
                     )}>
                       {(submission.roi_percent || 0) > 0 ? '+' : ''}{(submission.roi_percent || 0).toFixed(0)}%
                     </p>
@@ -1422,7 +1422,7 @@ const GradingCenter = () => {
                 label="Completed"
                 value={statistics.completedCount}
                 icon={CheckCircle2}
-                color="text-emerald-400"
+                color="text-navy-400"
               />
               <StatCard
                 label="Avg Grade"
@@ -1532,7 +1532,7 @@ const GradingCenter = () => {
                   label="Perfect 10s"
                   value={statistics.perfect10s}
                   icon={Gem}
-                  color="text-emerald-400"
+                  color="text-navy-400"
                 />
                 <StatCard
                   label="Gem Mint (9+)"
@@ -1544,14 +1544,14 @@ const GradingCenter = () => {
                   label="Value Gained"
                   value={`$${statistics.totalValueGained.toFixed(0)}`}
                   icon={TrendingUp}
-                  color="text-emerald-400"
+                  color="text-navy-400"
                   trend={statistics.totalValueGained > 0 ? 'up' : 'down'}
                 />
                 <StatCard
                   label="Overall ROI"
                   value={`${statistics.overallROI > 0 ? '+' : ''}${statistics.overallROI.toFixed(0)}%`}
                   icon={Activity}
-                  color={statistics.overallROI > 0 ? "text-emerald-400" : "text-red-400"}
+                  color={statistics.overallROI > 0 ? "text-navy-400" : "text-red-400"}
                 />
               </div>
 
@@ -1601,7 +1601,7 @@ const GradingCenter = () => {
                       key={grade}
                       className={cn(
                         "text-center p-2 rounded-lg border",
-                        parseFloat(grade) >= 9 ? "bg-emerald-500/10 border-emerald-500/30" :
+                        parseFloat(grade) >= 9 ? "bg-navy-500/10 border-navy-500/30" :
                         parseFloat(grade) >= 7 ? "bg-amber-500/10 border-amber-500/30" :
                         "bg-zinc-800/50 border-zinc-700/30"
                       )}

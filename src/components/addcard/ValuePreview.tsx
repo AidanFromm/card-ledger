@@ -126,14 +126,14 @@ export const ValuePreview = ({
           transition={{ delay: 0.1 }}
           className={`p-4 rounded-xl border ${
             isProfitable 
-              ? 'border-emerald-500/50 bg-emerald-500/10' 
+              ? 'border-navy-500/50 bg-navy-500/10' 
               : 'border-red-500/50 bg-red-500/10'
           }`}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {isProfitable ? (
-                <TrendingUp className="h-5 w-5 text-emerald-500" />
+                <TrendingUp className="h-5 w-5 text-navy-500" />
               ) : (
                 <TrendingDown className="h-5 w-5 text-red-500" />
               )}
@@ -143,10 +143,10 @@ export const ValuePreview = ({
             </div>
             
             <div className="text-right">
-              <p className={`text-lg font-bold ${isProfitable ? 'text-emerald-500' : 'text-red-500'}`}>
+              <p className={`text-lg font-bold ${isProfitable ? 'text-navy-500' : 'text-red-500'}`}>
                 {isProfitable ? '+' : ''}{profitLoss?.toFixed(2)}
               </p>
-              <p className={`text-xs ${isProfitable ? 'text-emerald-500/80' : 'text-red-500/80'}`}>
+              <p className={`text-xs ${isProfitable ? 'text-navy-500/80' : 'text-red-500/80'}`}>
                 {isProfitable ? '+' : ''}{profitPercent?.toFixed(1)}%
               </p>
             </div>

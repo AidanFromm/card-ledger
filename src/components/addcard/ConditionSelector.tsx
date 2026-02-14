@@ -33,8 +33,8 @@ export const CONDITIONS: Condition[] = [
     label: "Mint",
     abbrev: "M",
     description: "Perfect condition. No visible wear, scratches, or defects. Corners are sharp, surface is pristine.",
-    color: "bg-emerald-500",
-    textColor: "text-emerald-500",
+    color: "bg-navy-500",
+    textColor: "text-navy-500",
     examples: [
       "Fresh from pack",
       "Immediately sleeved",

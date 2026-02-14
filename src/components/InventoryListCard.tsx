@@ -15,6 +15,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { getPlaceholderForItem } from "@/lib/cardNameUtils";
 import { getGradeLabel } from "@/lib/gradingScales";
 import { triggerSwipeHaptic, triggerSuccessHaptic, triggerDestructiveHaptic } from "@/lib/haptics";
+import CardImage from "@/components/CardImage";
 
 type InventoryItem = Database["public"]["Tables"]["inventory_items"]["Row"];
 
@@ -41,7 +42,7 @@ const getGradeStyles = (grade: string | null, gradingCompany: string | null): st
   }
   const numGrade = parseFloat(grade);
   if (numGrade >= 9.5) return 'bg-amber-500/15 text-amber-500';
-  if (numGrade >= 9) return 'bg-emerald-500/15 text-emerald-500';
+  if (numGrade >= 9) return 'bg-navy-500/15 text-navy-500';
   if (numGrade >= 8) return 'bg-sky-500/15 text-sky-500';
   if (numGrade >= 7) return 'bg-violet-500/15 text-violet-500';
   return 'bg-slate-500/15 text-slate-400';
@@ -184,7 +185,7 @@ export const InventoryListCard = ({
         </motion.div>
         <motion.div
           style={{ opacity: sellOpacity }}
-          className="absolute inset-0 bg-gradient-to-l from-emerald-600 to-emerald-500 flex items-center justify-start pl-4"
+          className="absolute inset-0 bg-gradient-to-l from-navy-700 to-navy-500 flex items-center justify-start pl-4"
         >
           <div className="flex items-center gap-2 text-white">
             <DollarSign className="h-5 w-5" />
@@ -237,24 +238,21 @@ export const InventoryListCard = ({
 
           {/* Thumbnail */}
           <div className="relative w-16 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-muted/30">
-            {item.card_image_url && !imageError ? (
-              <img
-                src={item.card_image_url}
-                alt={item.name}
-                className="w-full h-full object-contain p-1"
-                loading="lazy"
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              <img
-                src={getPlaceholderForItem({ category: item.category, grading_company: item.grading_company })}
-                alt="Placeholder"
-                className="w-full h-full object-contain opacity-50 p-1"
-              />
-            )}
+            <CardImage
+              src={item.card_image_url}
+              alt={item.name}
+              size="sm"
+              rounded="lg"
+              containerClassName="w-full h-full p-1"
+              className="w-full h-full object-contain"
+              loading="lazy"
+              graded={isGraded}
+              gradingCompany={item.grading_company || undefined}
+              grade={item.grade}
+            />
             {/* Quantity badge */}
             {item.quantity > 1 && (
-              <span className="absolute bottom-0.5 right-0.5 px-1.5 py-0.5 text-[10px] font-bold bg-secondary rounded-full">
+              <span className="absolute bottom-0.5 right-0.5 px-1.5 py-0.5 text-[10px] font-bold bg-secondary rounded-full z-10">
                 x{item.quantity}
               </span>
             )}
@@ -297,7 +295,7 @@ export const InventoryListCard = ({
             </p>
             {pnl.hasData && !pnl.isNeutral && (
               <div className={`flex items-center justify-end gap-0.5 text-xs font-medium ${
-                pnl.isUp ? 'text-emerald-500' : 'text-red-500'
+                pnl.isUp ? 'text-navy-500' : 'text-red-500'
               }`}>
                 {pnl.isUp ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                 <span>{pnl.isUp ? '+' : ''}{pnl.percent.toFixed(0)}%</span>

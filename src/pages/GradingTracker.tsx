@@ -458,7 +458,7 @@ const GradingTracker = () => {
                 </div>
                 <div className="bg-card border rounded-xl p-3">
                   <p className="text-xs text-muted-foreground mb-1">Complete</p>
-                  <p className="text-xl font-bold text-emerald-500">{completedSubmissions.length}</p>
+                  <p className="text-xl font-bold text-navy-500">{completedSubmissions.length}</p>
                 </div>
                 <div className="bg-card border rounded-xl p-3">
                   <p className="text-xs text-muted-foreground mb-1">Total Cost</p>

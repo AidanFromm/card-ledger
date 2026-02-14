@@ -27,6 +27,20 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        // Navy blue palette (matches CL logo)
+        navy: {
+          50: "#f0f4f8",
+          100: "#d9e2ec",
+          200: "#bcccdc",
+          300: "#9fb3c8",
+          400: "#829ab1",
+          500: "#627d98",
+          600: "#486581",
+          700: "#334e68",
+          800: "#243b53",
+          900: "#1e3a5f",
+          950: "#102a43",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -201,8 +215,8 @@ export default {
           "100%": { backgroundPosition: "200% 0" },
         },
         "glow-pulse": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(160 84% 39% / 0.2)" },
-          "50%": { boxShadow: "0 0 40px hsl(160 84% 39% / 0.4)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(213 55% 45% / 0.2)" },
+          "50%": { boxShadow: "0 0 40px hsl(213 55% 45% / 0.4)" },
         },
         "float": {
           "0%, 100%": { transform: "translateY(0)" },

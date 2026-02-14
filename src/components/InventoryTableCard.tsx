@@ -15,6 +15,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { getPlaceholderForItem } from "@/lib/cardNameUtils";
 import { getGradeLabel } from "@/lib/gradingScales";
 import { triggerSwipeHaptic, triggerSuccessHaptic, triggerDestructiveHaptic } from "@/lib/haptics";
+import CardImage from "@/components/CardImage";
 
 type InventoryItem = Database["public"]["Tables"]["inventory_items"]["Row"];
 
@@ -66,7 +67,7 @@ const ConditionBadge = ({ condition, grade, gradingCompany }: {
       badgeColor = "bg-amber-500/15 text-amber-500";
     } else if (numGrade >= 9) {
       displayCondition = "Mint";
-      badgeColor = "bg-emerald-500/15 text-emerald-500";
+      badgeColor = "bg-navy-500/15 text-navy-500";
     } else if (numGrade >= 8) {
       displayCondition = "NM-MT";
       badgeColor = "bg-sky-500/15 text-sky-500";
@@ -85,7 +86,7 @@ const ConditionBadge = ({ condition, grade, gradingCompany }: {
     if (c.includes('mint') && !c.includes('near')) {
       badgeColor = "bg-amber-500/15 text-amber-500";
     } else if (c.includes('near') || c === 'nm') {
-      badgeColor = "bg-emerald-500/15 text-emerald-500";
+      badgeColor = "bg-navy-500/15 text-navy-500";
     } else if (c.includes('excellent') || c === 'lp' || c.includes('lightly')) {
       badgeColor = "bg-sky-500/15 text-sky-500";
     } else if (c.includes('good') || c === 'mp') {
@@ -172,7 +173,7 @@ export const InventoryTableCard = ({
         </motion.div>
         <motion.div
           style={{ opacity: sellOpacity }}
-          className="absolute inset-0 bg-gradient-to-l from-emerald-600 to-emerald-500 flex items-center justify-start pl-4"
+          className="absolute inset-0 bg-gradient-to-l from-navy-700 to-navy-500 flex items-center justify-start pl-4"
         >
           <DollarSign className="h-5 w-5 text-white" />
         </motion.div>
@@ -211,21 +212,18 @@ export const InventoryTableCard = ({
           {/* Image + Name Column */}
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-10 h-12 flex-shrink-0 rounded overflow-hidden bg-muted/30">
-              {item.card_image_url && !imageError ? (
-                <img
-                  src={item.card_image_url}
-                  alt={item.name}
-                  className="w-full h-full object-contain"
-                  loading="lazy"
-                  onError={() => setImageError(true)}
-                />
-              ) : (
-                <img
-                  src={getPlaceholderForItem({ category: item.category, grading_company: item.grading_company })}
-                  alt="Placeholder"
-                  className="w-full h-full object-contain opacity-40"
-                />
-              )}
+              <CardImage
+                src={item.card_image_url}
+                alt={item.name}
+                size="xs"
+                rounded="md"
+                containerClassName="w-full h-full"
+                className="w-full h-full object-contain"
+                loading="lazy"
+                graded={isGraded}
+                gradingCompany={item.grading_company || undefined}
+                grade={item.grade}
+              />
             </div>
             <div className="min-w-0 flex-1">
               <p className="font-medium text-sm truncate">{item.name}</p>
@@ -268,7 +266,7 @@ export const InventoryTableCard = ({
           {/* Profit/ROI */}
           <div className={`text-right w-24 tabular-nums font-medium ${
             pnl.hasData && !pnl.isNeutral 
-              ? pnl.isUp ? 'text-emerald-500' : 'text-red-500'
+              ? pnl.isUp ? 'text-navy-500' : 'text-red-500'
               : 'text-muted-foreground'
           }`}>
             {pnl.hasData && !pnl.isNeutral ? (

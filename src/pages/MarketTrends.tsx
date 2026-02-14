@@ -105,7 +105,7 @@ const MoverCard = ({ mover, index, type }: { mover: PriceMover; index: number; t
         flex-shrink-0 w-[150px] relative overflow-hidden rounded-2xl p-3
         border cursor-pointer transition-all
         ${isGainer 
-          ? 'bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border-emerald-500/20 hover:shadow-emerald-500/10' 
+          ? 'bg-gradient-to-br from-navy-500/10 via-navy-500/5 to-transparent border-navy-500/20 hover:shadow-navy-500/10' 
           : 'bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent border-red-500/20 hover:shadow-red-500/10'
         }
         hover:shadow-lg
@@ -114,7 +114,7 @@ const MoverCard = ({ mover, index, type }: { mover: PriceMover; index: number; t
       {/* Rank */}
       <div className={`
         absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold
-        ${isGainer ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}
+        ${isGainer ? 'bg-navy-500/20 text-navy-400' : 'bg-red-500/20 text-red-400'}
       `}>
         #{index + 1}
       </div>
@@ -131,7 +131,7 @@ const MoverCard = ({ mover, index, type }: { mover: PriceMover; index: number; t
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             {isGainer ? (
-              <TrendingUp className="h-6 w-6 text-emerald-500/30" />
+              <TrendingUp className="h-6 w-6 text-navy-500/30" />
             ) : (
               <TrendingDown className="h-6 w-6 text-red-500/30" />
             )}
@@ -161,7 +161,7 @@ const MoverCard = ({ mover, index, type }: { mover: PriceMover; index: number; t
         </span>
         <div className={`
           flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] font-bold
-          ${isGainer ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}
+          ${isGainer ? 'bg-navy-500/20 text-navy-400' : 'bg-red-500/20 text-red-400'}
         `}>
           {isGainer ? (
             <ArrowUpRight className="h-3 w-3" />
@@ -173,7 +173,7 @@ const MoverCard = ({ mover, index, type }: { mover: PriceMover; index: number; t
       </div>
       
       {/* Dollar change */}
-      <p className={`text-[10px] mt-1 ${isGainer ? 'text-emerald-400/70' : 'text-red-400/70'}`}>
+      <p className={`text-[10px] mt-1 ${isGainer ? 'text-navy-400/70' : 'text-red-400/70'}`}>
         {isGainer ? '+' : ''}${mover.price_change.toFixed(2)}
       </p>
     </motion.div>
@@ -227,7 +227,7 @@ const SaleCard = ({ sale, index }: { sale: RecentSale; index: number }) => {
         <p className="text-sm font-bold text-white">
           ${sale.sale_price.toFixed(2)}
         </p>
-        <p className={`text-[11px] font-medium ${isProfit ? 'text-emerald-400' : 'text-red-400'}`}>
+        <p className={`text-[11px] font-medium ${isProfit ? 'text-navy-400' : 'text-red-400'}`}>
           {isProfit ? '+' : ''}${sale.profit.toFixed(2)}
         </p>
       </div>
@@ -423,8 +423,8 @@ const MarketTrends = () => {
                 transition={{ delay: 0.2 }}
               >
                 <div className="flex items-center gap-2.5 mb-4">
-                  <div className="p-1.5 rounded-lg bg-emerald-500/15">
-                    <TrendingUp className="h-4 w-4 text-emerald-400" />
+                  <div className="p-1.5 rounded-lg bg-navy-500/15">
+                    <TrendingUp className="h-4 w-4 text-navy-400" />
                   </div>
                   <h2 className="text-base font-semibold text-white">Biggest Gainers</h2>
                   <span className="text-xs text-zinc-500 bg-zinc-800/50 px-2 py-0.5 rounded-full">

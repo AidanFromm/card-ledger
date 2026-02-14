@@ -69,7 +69,7 @@ const AlertsWidget = ({ maxItems = 3, className = '' }: AlertsWidgetProps) => {
         <div className="flex items-center gap-2">
           {/* Active Count Badge */}
           {activeCount > 0 && (
-            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-500">
+            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-navy-500/10 text-navy-500">
               {activeCount} active
             </span>
           )}
@@ -151,7 +151,7 @@ const AlertItem = ({ alert, index }: { alert: PriceAlert; index: number }) => {
           <h4 className="font-semibold text-xs truncate">{alert.card_name}</h4>
           <div className="flex items-center gap-1.5 mt-0.5">
             {alert.direction === 'below' ? (
-              <TrendingDown className="h-3 w-3 text-emerald-500" />
+              <TrendingDown className="h-3 w-3 text-navy-500" />
             ) : (
               <TrendingUp className="h-3 w-3 text-amber-500" />
             )}

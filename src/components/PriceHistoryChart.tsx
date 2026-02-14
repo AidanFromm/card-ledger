@@ -52,7 +52,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         ${data.price.toFixed(2)}
       </p>
       {data.isHigh && (
-        <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 font-medium">
+        <span className="inline-flex items-center gap-1 text-[10px] text-navy-400 font-medium">
           <ArrowUp className="h-2.5 w-2.5" /> Period High
         </span>
       )}
@@ -168,11 +168,11 @@ export const PriceHistoryChart = memo(({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             {isPositive ? (
-              <TrendingUp className="h-4 w-4 text-emerald-400" />
+              <TrendingUp className="h-4 w-4 text-navy-400" />
             ) : (
               <TrendingDown className="h-4 w-4 text-red-400" />
             )}
-            <span className={`text-sm font-semibold ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+            <span className={`text-sm font-semibold ${isPositive ? 'text-navy-400' : 'text-red-400'}`}>
               {isPositive ? '+' : ''}{stats?.changePercent.toFixed(1)}%
             </span>
             <span className="text-xs text-zinc-500">
@@ -209,9 +209,9 @@ export const PriceHistoryChart = memo(({
           >
             <defs>
               <linearGradient id="priceGradientUp" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
-                <stop offset="50%" stopColor="#10b981" stopOpacity={0.1} />
-                <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                <stop offset="0%" stopColor="#627d98" stopOpacity={0.3} />
+                <stop offset="50%" stopColor="#627d98" stopOpacity={0.1} />
+                <stop offset="100%" stopColor="#627d98" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="priceGradientDown" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#ef4444" stopOpacity={0.3} />
@@ -238,7 +238,7 @@ export const PriceHistoryChart = memo(({
               <>
                 <ReferenceLine 
                   y={stats.high} 
-                  stroke="#10b981" 
+                  stroke="#627d98" 
                   strokeDasharray="3 3" 
                   strokeOpacity={0.4}
                 />
@@ -254,7 +254,7 @@ export const PriceHistoryChart = memo(({
             <Area
               type="monotone"
               dataKey="price"
-              stroke={isPositive ? '#10b981' : '#ef4444'}
+              stroke={isPositive ? '#627d98' : '#ef4444'}
               strokeWidth={2}
               fill={isPositive ? 'url(#priceGradientUp)' : 'url(#priceGradientDown)'}
               animationDuration={500}
@@ -266,8 +266,8 @@ export const PriceHistoryChart = memo(({
                 x={stats.highDate}
                 y={stats.high}
                 r={4}
-                fill="#10b981"
-                stroke="#10b981"
+                fill="#627d98"
+                stroke="#627d98"
                 strokeWidth={2}
               />
             )}
@@ -294,7 +294,7 @@ export const PriceHistoryChart = memo(({
           </div>
           <div className="flex items-center gap-1">
             <span className="text-zinc-500">High:</span>
-            <span className="text-emerald-400 font-medium">${stats.high.toFixed(2)}</span>
+            <span className="text-navy-400 font-medium">${stats.high.toFixed(2)}</span>
           </div>
         </div>
       )}

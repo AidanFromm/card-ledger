@@ -372,8 +372,8 @@ export const ExportDialog = ({
             <p className="text-xl font-bold">{filteredItems.length}</p>
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Items</p>
           </div>
-          <div className="bg-emerald-500/10 rounded-2xl p-3 text-center">
-            <p className="text-xl font-bold text-emerald-500">
+          <div className="bg-navy-500/10 rounded-2xl p-3 text-center">
+            <p className="text-xl font-bold text-navy-500">
               ${totals.totalValue.toLocaleString("en-US", { maximumFractionDigits: 0 })}
             </p>
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total Value</p>
@@ -417,7 +417,7 @@ export const ExportDialog = ({
               }`}
             >
               <RadioGroupItem value="csv-all" id="csv-all" />
-              <FileSpreadsheet className="h-5 w-5 text-emerald-500" />
+              <FileSpreadsheet className="h-5 w-5 text-navy-500" />
               <div className="flex-1">
                 <p className="font-medium text-sm">CSV (All Fields)</p>
                 <p className="text-xs text-muted-foreground">
