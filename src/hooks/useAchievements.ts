@@ -13,6 +13,13 @@ import { triggerCelebration } from '@/components/Celebration';
 
 const STORAGE_KEY = 'cardledger_achievements';
 const NOTIFIED_KEY = 'cardledger_achievements_notified';
+const STREAK_KEY = 'cardledger_streak';
+
+interface StreakData {
+  currentStreak: number;
+  lastVisit: string; // ISO date string (YYYY-MM-DD)
+  longestStreak: number;
+}
 
 interface AchievementProgress {
   achievement: Achievement;
@@ -32,6 +39,7 @@ interface UseAchievementsReturn {
   checkAchievements: () => void;
   getAchievementProgress: (id: string) => AchievementProgress | undefined;
   completionPercentage: number;
+  streak: StreakData;
 }
 
 export function useAchievements(): UseAchievementsReturn {
@@ -41,8 +49,9 @@ export function useAchievements(): UseAchievementsReturn {
   
   const [userAchievements, setUserAchievements] = useState<Record<string, UserAchievement>>({});
   const [notifiedIds, setNotifiedIds] = useState<Set<string>>(new Set());
+  const [streak, setStreak] = useState<StreakData>({ currentStreak: 0, lastVisit: '', longestStreak: 0 });
 
-  // Load saved achievements from localStorage
+  // Load saved achievements and update streak from localStorage
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -53,6 +62,52 @@ export function useAchievements(): UseAchievementsReturn {
       const notified = localStorage.getItem(NOTIFIED_KEY);
       if (notified) {
         setNotifiedIds(new Set(JSON.parse(notified)));
+      }
+      
+      // Load and update streak
+      const streakData = localStorage.getItem(STREAK_KEY);
+      const today = new Date().toISOString().split('T')[0];
+      
+      if (streakData) {
+        const parsed: StreakData = JSON.parse(streakData);
+        const lastDate = new Date(parsed.lastVisit);
+        const todayDate = new Date(today);
+        const diffDays = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        let newStreak = parsed.currentStreak;
+        
+        if (diffDays === 0) {
+          // Same day, no change
+          setStreak(parsed);
+        } else if (diffDays === 1) {
+          // Consecutive day, increment streak
+          newStreak = parsed.currentStreak + 1;
+          const newData: StreakData = {
+            currentStreak: newStreak,
+            lastVisit: today,
+            longestStreak: Math.max(newStreak, parsed.longestStreak),
+          };
+          localStorage.setItem(STREAK_KEY, JSON.stringify(newData));
+          setStreak(newData);
+        } else {
+          // Streak broken, reset to 1
+          const newData: StreakData = {
+            currentStreak: 1,
+            lastVisit: today,
+            longestStreak: parsed.longestStreak,
+          };
+          localStorage.setItem(STREAK_KEY, JSON.stringify(newData));
+          setStreak(newData);
+        }
+      } else {
+        // First visit
+        const newData: StreakData = {
+          currentStreak: 1,
+          lastVisit: today,
+          longestStreak: 1,
+        };
+        localStorage.setItem(STREAK_KEY, JSON.stringify(newData));
+        setStreak(newData);
       }
     } catch (e) {
       console.error('Error loading achievements:', e);
@@ -186,6 +241,14 @@ export function useAchievements(): UseAchievementsReturn {
           progress = stats.isNightOwl && stats.totalCards > 0 ? 1 : 0;
           break;
 
+        // Streak achievements
+        case 'streak_3':
+        case 'streak_7':
+        case 'streak_30':
+        case 'streak_100':
+          progress = streak.currentStreak;
+          break;
+
         case 'early_adopter':
           const year = new Date().getFullYear();
           progress = year === 2026 ? 1 : 0;
@@ -312,5 +375,6 @@ export function useAchievements(): UseAchievementsReturn {
     checkAchievements,
     getAchievementProgress,
     completionPercentage,
+    streak,
   };
 }

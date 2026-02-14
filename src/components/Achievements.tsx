@@ -367,6 +367,7 @@ export function AchievementsWidget() {
     level,
     completionPercentage,
     inProgressAchievements,
+    streak,
   } = useAchievements();
 
   // Show the closest to completion
@@ -379,17 +380,19 @@ export function AchievementsWidget() {
       animate={{ opacity: 1, y: 0 }}
       className="p-4 rounded-2xl bg-gradient-to-br from-zinc-900/80 to-zinc-950/90 border border-zinc-800/50"
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Trophy className="w-5 h-5 text-amber-400" />
           <h3 className="font-semibold">Achievements</h3>
         </div>
         <div className="flex items-center gap-2">
+          {streak.currentStreak > 0 && (
+            <span className="text-xs bg-orange-600/20 text-orange-400 px-2 py-1 rounded-lg font-medium flex items-center gap-1">
+              🔥 {streak.currentStreak}
+            </span>
+          )}
           <span className="text-xs bg-navy-600 text-white px-2 py-1 rounded-lg font-medium">
             Lv. {level.level}
-          </span>
-          <span className="text-xs text-zinc-400">
-            {completionPercentage.toFixed(0)}%
           </span>
         </div>
       </div>

@@ -399,6 +399,49 @@ export const ACHIEVEMENTS: Achievement[] = [
     requirement: 50,
     xp: 50,
   },
+  
+  // ============ STREAK ACHIEVEMENTS ============
+  {
+    id: 'streak_3',
+    name: 'Getting Consistent',
+    description: 'Use CardLedger 3 days in a row',
+    category: 'special',
+    rarity: 'common',
+    icon: 'Flame',
+    requirement: 3,
+    xp: 15,
+  },
+  {
+    id: 'streak_7',
+    name: 'Week Warrior',
+    description: 'Use CardLedger 7 days in a row',
+    category: 'special',
+    rarity: 'uncommon',
+    icon: 'Flame',
+    requirement: 7,
+    xp: 35,
+  },
+  {
+    id: 'streak_30',
+    name: 'Monthly Master',
+    description: 'Use CardLedger 30 days in a row',
+    category: 'special',
+    rarity: 'rare',
+    icon: 'Flame',
+    requirement: 30,
+    xp: 100,
+  },
+  {
+    id: 'streak_100',
+    name: 'Legendary Dedication',
+    description: 'Use CardLedger 100 days in a row',
+    category: 'special',
+    rarity: 'legendary',
+    icon: 'Flame',
+    requirement: 100,
+    xp: 500,
+    secret: true,
+  },
 ];
 
 // Helper functions
