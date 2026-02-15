@@ -118,15 +118,15 @@ const ParticleField = () => {
     resize();
     window.addEventListener('resize', resize);
     
-    // Create particles
-    for (let i = 0; i < 60; i++) {
+    // Create particles - reduced count for subtlety
+    for (let i = 0; i < 30; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        size: Math.random() * 2 + 1,
-        opacity: Math.random() * 0.5 + 0.1,
+        vx: (Math.random() - 0.5) * 0.2, // Slower movement
+        vy: (Math.random() - 0.5) * 0.2,
+        size: Math.random() * 1.5 + 0.5, // Smaller particles
+        opacity: Math.random() * 0.25 + 0.05, // Much more subtle
         hue: Math.random() * 30 + 155 // Teal range
       });
     }
@@ -148,18 +148,18 @@ const ParticleField = () => {
         ctx.fillStyle = `hsla(${p.hue}, 70%, 50%, ${p.opacity})`;
         ctx.fill();
         
-        // Connect nearby particles
+        // Connect nearby particles - very subtle lines
         particles.slice(i + 1).forEach(p2 => {
           const dx = p.x - p2.x;
           const dy = p.y - p2.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           
-          if (dist < 150) {
+          if (dist < 120) { // Shorter connection distance
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(16, 185, 129, ${0.1 * (1 - dist / 150)})`;
-            ctx.lineWidth = 0.5;
+            ctx.strokeStyle = `rgba(16, 185, 129, ${0.04 * (1 - dist / 120)})`; // Much fainter
+            ctx.lineWidth = 0.3;
             ctx.stroke();
           }
         });
@@ -179,30 +179,29 @@ const ParticleField = () => {
   return (
     <canvas 
       ref={canvasRef} 
-      className="fixed inset-0 pointer-events-none opacity-60"
+      className="fixed inset-0 pointer-events-none opacity-30"
       style={{ zIndex: 0 }}
     />
   );
 };
 
 // ============================================
-// AURORA ARC - Premium Animated Gradient Sweep
+// AURORA ARC - Subtle Animated Gradient Sweep
 // ============================================
 const AuroraArc = () => {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 1 }}>
-      {/* Main Aurora Arc */}
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-50" style={{ zIndex: 1 }}>
+      {/* Single slow-rotating arc - very subtle */}
       <motion.div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
         style={{ width: '200%', height: '200%' }}
       >
-        {/* Primary sweeping arc */}
         <motion.div
           animate={{
             rotate: [0, 360],
           }}
           transition={{
-            duration: 20,
+            duration: 60, // Much slower - 60 seconds per rotation
             repeat: Infinity,
             ease: "linear",
           }}
@@ -211,93 +210,27 @@ const AuroraArc = () => {
             background: `conic-gradient(
               from 180deg at 50% 50%,
               transparent 0deg,
-              transparent 60deg,
-              rgba(98, 125, 152, 0.03) 90deg,
-              rgba(52, 211, 153, 0.08) 120deg,
-              rgba(98, 125, 152, 0.15) 150deg,
-              rgba(6, 182, 212, 0.08) 180deg,
-              rgba(98, 125, 152, 0.03) 210deg,
-              transparent 240deg,
-              transparent 360deg
-            )`,
-          }}
-        />
-        
-        {/* Secondary slower arc for depth */}
-        <motion.div
-          animate={{
-            rotate: [360, 0],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          className="absolute inset-0"
-          style={{
-            background: `conic-gradient(
-              from 0deg at 50% 50%,
-              transparent 0deg,
-              transparent 120deg,
-              rgba(52, 211, 153, 0.05) 150deg,
-              rgba(98, 125, 152, 0.1) 180deg,
-              rgba(52, 211, 153, 0.05) 210deg,
-              transparent 240deg,
+              transparent 90deg,
+              rgba(98, 125, 152, 0.04) 120deg,
+              rgba(52, 211, 153, 0.06) 150deg,
+              rgba(98, 125, 152, 0.04) 180deg,
+              transparent 210deg,
               transparent 360deg
             )`,
           }}
         />
       </motion.div>
       
-      {/* Focused glow beam effect */}
-      <motion.div
-        className="absolute top-0 left-0 w-full h-full"
-        animate={{
-          opacity: [0.5, 0.8, 0.5],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      >
-        <div
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px]"
-          style={{
-            background: `radial-gradient(
-              ellipse 100% 50% at 50% 100%,
-              rgba(98, 125, 152, 0.15) 0%,
-              rgba(52, 211, 153, 0.08) 30%,
-              transparent 70%
-            )`,
-            filter: 'blur(60px)',
-          }}
-        />
-      </motion.div>
-      
-      {/* Horizon glow line */}
-      <motion.div
-        className="absolute top-[35%] left-0 right-0 h-[2px]"
-        animate={{
-          opacity: [0.3, 0.6, 0.3],
-          scaleX: [0.8, 1, 0.8],
-        }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+      {/* Subtle top glow */}
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px]"
         style={{
-          background: `linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(98, 125, 152, 0.3) 20%,
-            rgba(52, 211, 153, 0.5) 50%,
-            rgba(98, 125, 152, 0.3) 80%,
-            transparent 100%
+          background: `radial-gradient(
+            ellipse 100% 100% at 50% 0%,
+            rgba(98, 125, 152, 0.08) 0%,
+            transparent 60%
           )`,
-          filter: 'blur(1px)',
-          boxShadow: '0 0 40px 20px rgba(52, 211, 153, 0.1)',
+          filter: 'blur(40px)',
         }}
       />
     </div>
@@ -305,15 +238,15 @@ const AuroraArc = () => {
 };
 
 // ============================================
-// CURSOR FOLLOWING GRADIENT - Interactive Glow
+// CURSOR FOLLOWING GRADIENT - Subtle Interactive Glow
 // ============================================
 const CursorGradient = () => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   
-  // Smooth spring physics for natural movement
-  const smoothX = useSpring(mouseX, { stiffness: 50, damping: 20 });
-  const smoothY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+  // Very smooth, slow spring for subtle movement
+  const smoothX = useSpring(mouseX, { stiffness: 20, damping: 30 });
+  const smoothY = useSpring(mouseY, { stiffness: 20, damping: 30 });
   
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -327,9 +260,9 @@ const CursorGradient = () => {
   
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-      {/* Primary cursor glow */}
+      {/* Single subtle cursor glow - very faint */}
       <motion.div
-        className="absolute w-[600px] h-[600px] rounded-full"
+        className="absolute w-[500px] h-[500px] rounded-full opacity-40"
         style={{
           x: smoothX,
           y: smoothY,
@@ -337,94 +270,41 @@ const CursorGradient = () => {
           translateY: '-50%',
           background: `radial-gradient(
             circle at center,
-            rgba(98, 125, 152, 0.15) 0%,
-            rgba(52, 211, 153, 0.08) 30%,
-            rgba(6, 182, 212, 0.04) 50%,
-            transparent 70%
-          )`,
-          filter: 'blur(40px)',
-        }}
-      />
-      
-      {/* Secondary trailing glow */}
-      <motion.div
-        className="absolute w-[400px] h-[400px] rounded-full"
-        style={{
-          x: useSpring(mouseX, { stiffness: 30, damping: 25 }),
-          y: useSpring(mouseY, { stiffness: 30, damping: 25 }),
-          translateX: '-50%',
-          translateY: '-50%',
-          background: `radial-gradient(
-            circle at center,
-            rgba(52, 211, 153, 0.12) 0%,
-            rgba(98, 125, 152, 0.06) 40%,
+            rgba(98, 125, 152, 0.08) 0%,
+            rgba(52, 211, 153, 0.04) 40%,
             transparent 70%
           )`,
           filter: 'blur(60px)',
-        }}
-      />
-      
-      {/* Tertiary slow-following ambient glow */}
-      <motion.div
-        className="absolute w-[800px] h-[800px] rounded-full"
-        style={{
-          x: useSpring(mouseX, { stiffness: 15, damping: 30 }),
-          y: useSpring(mouseY, { stiffness: 15, damping: 30 }),
-          translateX: '-50%',
-          translateY: '-50%',
-          background: `radial-gradient(
-            circle at center,
-            rgba(6, 182, 212, 0.06) 0%,
-            rgba(98, 125, 152, 0.03) 50%,
-            transparent 70%
-          )`,
-          filter: 'blur(80px)',
         }}
       />
     </div>
   );
 };
 
-// Animated gradient orbs
+// Animated gradient orbs - very subtle ambient movement
 const GradientOrbs = () => (
-  <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+  <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-60" style={{ zIndex: 0 }}>
     <motion.div
       animate={{
-        x: [0, 100, 0],
-        y: [0, -50, 0],
-        scale: [1, 1.2, 1],
+        x: [0, 50, 0], // Reduced movement
+        y: [0, -25, 0],
+        scale: [1, 1.1, 1],
       }}
-      transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-      className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-[#627d98]/10 rounded-full blur-[180px]"
-    />
-    <motion.div
-      animate={{
-        x: [0, -80, 0],
-        y: [0, 80, 0],
-        scale: [1, 0.9, 1],
-      }}
-      transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-      className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/8 rounded-full blur-[160px]"
+      transition={{ duration: 40, repeat: Infinity, ease: "easeInOut" }} // Much slower
+      className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-[#627d98]/5 rounded-full blur-[200px]"
     />
     <motion.div
       animate={{
-        x: [0, 60, 0],
-        y: [0, -40, 0],
+        x: [0, -40, 0],
+        y: [0, 40, 0],
+        scale: [1, 0.95, 1],
       }}
-      transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-      className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-purple-500/8 rounded-full blur-[120px]"
+      transition={{ duration: 50, repeat: Infinity, ease: "easeInOut" }}
+      className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/4 rounded-full blur-[180px]"
     />
-    {/* Grid overlay */}
-    <div 
-      className="absolute inset-0 opacity-[0.02]"
-      style={{
-        backgroundImage: `linear-gradient(rgba(255,255,255,1) 1px, transparent 1px),
-                         linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)`,
-        backgroundSize: '60px 60px'
-      }}
-    />
-    {/* Radial gradient at top */}
-    <div className="absolute top-0 inset-x-0 h-[600px] bg-gradient-to-b from-[#627d98]/5 via-transparent to-transparent" />
+    {/* Removed the third orb and grid for cleaner look */}
+    {/* Subtle radial gradient at top */}
+    <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-[#627d98]/3 via-transparent to-transparent" />
   </div>
 );
 
@@ -608,7 +488,7 @@ const TiltCard3D = ({
     const mouseY = e.clientY - centerY;
     
     // Calculate rotation (max 15 degrees)
-    const maxRotation = 15;
+    const maxRotation = 6; // Subtle tilt
     const rotX = (mouseY / (rect.height / 2)) * -maxRotation;
     const rotY = (mouseX / (rect.width / 2)) * maxRotation;
     
