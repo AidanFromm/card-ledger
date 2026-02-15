@@ -185,6 +185,125 @@ const ParticleField = () => {
   );
 };
 
+// ============================================
+// AURORA ARC - Premium Animated Gradient Sweep
+// ============================================
+const AuroraArc = () => {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 1 }}>
+      {/* Main Aurora Arc */}
+      <motion.div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+        style={{ width: '200%', height: '200%' }}
+      >
+        {/* Primary sweeping arc */}
+        <motion.div
+          animate={{
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          className="absolute inset-0"
+          style={{
+            background: `conic-gradient(
+              from 180deg at 50% 50%,
+              transparent 0deg,
+              transparent 60deg,
+              rgba(98, 125, 152, 0.03) 90deg,
+              rgba(52, 211, 153, 0.08) 120deg,
+              rgba(98, 125, 152, 0.15) 150deg,
+              rgba(6, 182, 212, 0.08) 180deg,
+              rgba(98, 125, 152, 0.03) 210deg,
+              transparent 240deg,
+              transparent 360deg
+            )`,
+          }}
+        />
+        
+        {/* Secondary slower arc for depth */}
+        <motion.div
+          animate={{
+            rotate: [360, 0],
+          }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          className="absolute inset-0"
+          style={{
+            background: `conic-gradient(
+              from 0deg at 50% 50%,
+              transparent 0deg,
+              transparent 120deg,
+              rgba(52, 211, 153, 0.05) 150deg,
+              rgba(98, 125, 152, 0.1) 180deg,
+              rgba(52, 211, 153, 0.05) 210deg,
+              transparent 240deg,
+              transparent 360deg
+            )`,
+          }}
+        />
+      </motion.div>
+      
+      {/* Focused glow beam effect */}
+      <motion.div
+        className="absolute top-0 left-0 w-full h-full"
+        animate={{
+          opacity: [0.5, 0.8, 0.5],
+        }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <div
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px]"
+          style={{
+            background: `radial-gradient(
+              ellipse 100% 50% at 50% 100%,
+              rgba(98, 125, 152, 0.15) 0%,
+              rgba(52, 211, 153, 0.08) 30%,
+              transparent 70%
+            )`,
+            filter: 'blur(60px)',
+          }}
+        />
+      </motion.div>
+      
+      {/* Horizon glow line */}
+      <motion.div
+        className="absolute top-[35%] left-0 right-0 h-[2px]"
+        animate={{
+          opacity: [0.3, 0.6, 0.3],
+          scaleX: [0.8, 1, 0.8],
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        style={{
+          background: `linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(98, 125, 152, 0.3) 20%,
+            rgba(52, 211, 153, 0.5) 50%,
+            rgba(98, 125, 152, 0.3) 80%,
+            transparent 100%
+          )`,
+          filter: 'blur(1px)',
+          boxShadow: '0 0 40px 20px rgba(52, 211, 153, 0.1)',
+        }}
+      />
+    </div>
+  );
+};
+
 // Animated gradient orbs
 const GradientOrbs = () => (
   <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
@@ -1289,6 +1408,9 @@ const Landing = () => {
         style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
         className="relative min-h-screen flex items-center justify-center pt-24 pb-20 px-6"
       >
+        {/* Aurora Arc - Premium Animated Gradient */}
+        <AuroraArc />
+        
         {/* Aceternity Spotlight Effect */}
         <Spotlight
           className="-top-40 left-0 md:left-60 md:-top-20"
