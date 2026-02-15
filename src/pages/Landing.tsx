@@ -304,6 +304,87 @@ const AuroraArc = () => {
   );
 };
 
+// ============================================
+// CURSOR FOLLOWING GRADIENT - Interactive Glow
+// ============================================
+const CursorGradient = () => {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  
+  // Smooth spring physics for natural movement
+  const smoothX = useSpring(mouseX, { stiffness: 50, damping: 20 });
+  const smoothY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+  
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [mouseX, mouseY]);
+  
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+      {/* Primary cursor glow */}
+      <motion.div
+        className="absolute w-[600px] h-[600px] rounded-full"
+        style={{
+          x: smoothX,
+          y: smoothY,
+          translateX: '-50%',
+          translateY: '-50%',
+          background: `radial-gradient(
+            circle at center,
+            rgba(98, 125, 152, 0.15) 0%,
+            rgba(52, 211, 153, 0.08) 30%,
+            rgba(6, 182, 212, 0.04) 50%,
+            transparent 70%
+          )`,
+          filter: 'blur(40px)',
+        }}
+      />
+      
+      {/* Secondary trailing glow */}
+      <motion.div
+        className="absolute w-[400px] h-[400px] rounded-full"
+        style={{
+          x: useSpring(mouseX, { stiffness: 30, damping: 25 }),
+          y: useSpring(mouseY, { stiffness: 30, damping: 25 }),
+          translateX: '-50%',
+          translateY: '-50%',
+          background: `radial-gradient(
+            circle at center,
+            rgba(52, 211, 153, 0.12) 0%,
+            rgba(98, 125, 152, 0.06) 40%,
+            transparent 70%
+          )`,
+          filter: 'blur(60px)',
+        }}
+      />
+      
+      {/* Tertiary slow-following ambient glow */}
+      <motion.div
+        className="absolute w-[800px] h-[800px] rounded-full"
+        style={{
+          x: useSpring(mouseX, { stiffness: 15, damping: 30 }),
+          y: useSpring(mouseY, { stiffness: 15, damping: 30 }),
+          translateX: '-50%',
+          translateY: '-50%',
+          background: `radial-gradient(
+            circle at center,
+            rgba(6, 182, 212, 0.06) 0%,
+            rgba(98, 125, 152, 0.03) 50%,
+            transparent 70%
+          )`,
+          filter: 'blur(80px)',
+        }}
+      />
+    </div>
+  );
+};
+
 // Animated gradient orbs
 const GradientOrbs = () => (
   <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
@@ -495,6 +576,185 @@ const TextReveal = ({ children, delay = 0 }: { children: string; delay?: number 
     </motion.span>
   </motion.span>
 );
+
+// ============================================
+// 3D TILT CARD - Premium Hover Effect
+// ============================================
+const TiltCard3D = ({ 
+  children, 
+  className = "",
+  glowColor = "rgba(98, 125, 152, 0.3)"
+}: { 
+  children: React.ReactNode; 
+  className?: string;
+  glowColor?: string;
+}) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  const brightness = useMotionValue(1);
+  
+  const smoothRotateX = useSpring(rotateX, { stiffness: 150, damping: 20 });
+  const smoothRotateY = useSpring(rotateY, { stiffness: 150, damping: 20 });
+  const smoothBrightness = useSpring(brightness, { stiffness: 150, damping: 20 });
+  
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!cardRef.current) return;
+    
+    const rect = cardRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const mouseX = e.clientX - centerX;
+    const mouseY = e.clientY - centerY;
+    
+    // Calculate rotation (max 15 degrees)
+    const maxRotation = 15;
+    const rotX = (mouseY / (rect.height / 2)) * -maxRotation;
+    const rotY = (mouseX / (rect.width / 2)) * maxRotation;
+    
+    rotateX.set(rotX);
+    rotateY.set(rotY);
+    brightness.set(1.05);
+  };
+  
+  const handleMouseLeave = () => {
+    rotateX.set(0);
+    rotateY.set(0);
+    brightness.set(1);
+  };
+  
+  return (
+    <motion.div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX: smoothRotateX,
+        rotateY: smoothRotateY,
+        filter: useTransform(smoothBrightness, (v) => `brightness(${v})`),
+        transformStyle: 'preserve-3d',
+        perspective: '1000px',
+      }}
+      className={`relative ${className}`}
+    >
+      {/* Glow effect */}
+      <motion.div
+        className="absolute -inset-1 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        style={{
+          background: `radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), ${glowColor}, transparent 50%)`,
+          filter: 'blur(20px)',
+        }}
+      />
+      {children}
+    </motion.div>
+  );
+};
+
+// ============================================
+// FLOATING SHOWCASE CARDS - 3D Perspective Display
+// ============================================
+const FloatingShowcase = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
+  
+  const y1 = useTransform(scrollYProgress, [0, 1], [100, -100]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [50, -50]);
+  const y3 = useTransform(scrollYProgress, [0, 1], [150, -150]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [5, -5]);
+  
+  const showcaseCards = [
+    {
+      title: "Portfolio Dashboard",
+      description: "Real-time value tracking",
+      gradient: "from-[#627d98] to-[#34d399]",
+      icon: <PieChart className="w-8 h-8" />,
+      y: y1,
+    },
+    {
+      title: "Price Alerts",
+      description: "Never miss an opportunity",
+      gradient: "from-[#34d399] to-[#06b6d4]",
+      icon: <Bell className="w-8 h-8" />,
+      y: y2,
+    },
+    {
+      title: "Market Insights",
+      description: "AI-powered analytics",
+      gradient: "from-[#06b6d4] to-[#627d98]",
+      icon: <TrendingUp className="w-8 h-8" />,
+      y: y3,
+    },
+  ];
+  
+  return (
+    <div ref={containerRef} className="relative h-[500px] flex items-center justify-center perspective-1000">
+      <div className="relative w-full max-w-4xl flex justify-center items-center gap-8">
+        {showcaseCards.map((card, i) => (
+          <motion.div
+            key={card.title}
+            style={{ 
+              y: card.y,
+              rotateY: rotate,
+              transformStyle: 'preserve-3d',
+            }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.15, duration: 0.6 }}
+            className="group"
+          >
+            <TiltCard3D className="w-64">
+              <div className={`
+                relative p-6 rounded-2xl 
+                bg-gradient-to-br ${card.gradient} bg-opacity-10
+                border border-white/10
+                backdrop-blur-xl
+                shadow-2xl shadow-black/20
+                overflow-hidden
+              `}>
+                {/* Inner glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+                
+                {/* Content */}
+                <div className="relative z-10">
+                  <div className={`
+                    w-14 h-14 rounded-xl mb-4
+                    bg-gradient-to-br ${card.gradient}
+                    flex items-center justify-center text-black
+                    shadow-lg
+                  `}>
+                    {card.icon}
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{card.title}</h3>
+                  <p className="text-sm text-gray-400">{card.description}</p>
+                </div>
+                
+                {/* Shine effect on hover */}
+                <motion.div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  style={{
+                    background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.1) 45%, transparent 50%)',
+                  }}
+                  animate={{
+                    x: ['-100%', '200%'],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    repeatDelay: 3,
+                  }}
+                />
+              </div>
+            </TiltCard3D>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 // ============================================
 // BENTO GRID FEATURE CARDS
@@ -1389,6 +1649,7 @@ const Landing = () => {
       {/* ============================================ */}
       <ParticleField />
       <GradientOrbs />
+      <CursorGradient />
 
       {/* ============================================ */}
       {/* NAVIGATION */}
@@ -1519,6 +1780,13 @@ const Landing = () => {
                   <p className="text-sm text-gray-500">{stat.label}</p>
                 </div>
               ))}
+            </div>
+          </RevealOnScroll>
+
+          {/* 3D Floating Feature Showcase */}
+          <RevealOnScroll delay={0.55}>
+            <div className="mb-16">
+              <FloatingShowcase />
             </div>
           </RevealOnScroll>
 
