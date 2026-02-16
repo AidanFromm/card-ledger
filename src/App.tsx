@@ -51,8 +51,9 @@ const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
 // What's New modal for announcing features
 import { WhatsNewModal } from "./components/WhatsNew";
 
-// Command palette for quick navigation
-import { CommandPalette } from "./components/CommandPalette";
+// Global Search (replaces CommandPalette for Cmd+K)
+import { GlobalSearch } from "./components/GlobalSearch";
+import { useGlobalSearch } from "./hooks/useGlobalSearch";
 
 // Keyboard shortcuts hint
 import { KeyboardShortcutsHint } from "./components/KeyboardShortcuts";
@@ -102,6 +103,12 @@ const BackgroundTasks = () => {
   return null;
 };
 
+// Global Search Provider Component
+const GlobalSearchProvider = () => {
+  const { isOpen, close } = useGlobalSearch();
+  return <GlobalSearch isOpen={isOpen} onClose={close} />;
+};
+
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
@@ -113,7 +120,7 @@ const App = () => {
             <BackgroundTasks />
             <OfflineIndicator />
             <WhatsNewModal />
-            <CommandPalette />
+            <GlobalSearchProvider />
             <KeyboardShortcutsHint />
             <Suspense fallback={<PageLoader />}>
               <Routes>
@@ -255,6 +262,11 @@ const App = () => {
                 <Route path="/settings" element={
                   <Suspense fallback={<PageLoader />}>
                     <ProtectedRoute><Settings /></ProtectedRoute>
+                  </Suspense>
+                } />
+                <Route path="/tax-reports" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ProtectedRoute><TaxReports /></ProtectedRoute>
                   </Suspense>
                 } />
                 

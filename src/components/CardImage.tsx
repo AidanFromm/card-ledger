@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { getPlaceholderForItem } from '@/lib/cardNameUtils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Size dimensions (width classes)
 const SIZE_CLASSES = {
@@ -244,32 +245,60 @@ export function CardImage({
       )}
       onClick={onClick}
     >
-      {/* Skeleton Placeholder */}
-      {(!isInView || !isLoaded) && !hasError && (
-        <div className="absolute inset-0 bg-muted/50 overflow-hidden">
-          {/* Shimmer Effect */}
-          <div
-            className="absolute inset-0 animate-pulse"
-            style={{
-              background:
-                'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%)',
-              backgroundSize: '200% 100%',
-            }}
-          />
-        </div>
-      )}
+      {/* Blur-up Placeholder with Shimmer */}
+      <AnimatePresence>
+        {(!isInView || !isLoaded) && !hasError && (
+          <motion.div 
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute inset-0 bg-muted/50 overflow-hidden"
+          >
+            {/* Base gradient */}
+            <div 
+              className="absolute inset-0"
+              style={{
+                background: 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground)/0.1) 100%)',
+              }}
+            />
+            {/* Shimmer Effect */}
+            <motion.div
+              className="absolute inset-0"
+              initial={{ x: '-100%' }}
+              animate={{ x: '100%' }}
+              transition={{ 
+                duration: 1.5, 
+                repeat: Infinity, 
+                ease: 'easeInOut',
+                repeatDelay: 0.5 
+              }}
+              style={{
+                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)',
+              }}
+            />
+            {/* Card silhouette hint */}
+            <div className="absolute inset-4 rounded-md border border-white/5" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Actual Image */}
+      {/* Actual Image with smooth fade-in */}
       {isInView && (
-        <img
+        <motion.img
           ref={imgRef}
           src={hasError || !src ? getPlaceholder() : src}
           alt={alt}
           onLoad={handleLoad}
           onError={handleError}
+          initial={{ opacity: 0, scale: 1.02, filter: 'blur(10px)' }}
+          animate={{ 
+            opacity: isLoaded ? 1 : 0, 
+            scale: isLoaded ? 1 : 1.02,
+            filter: isLoaded ? 'blur(0px)' : 'blur(10px)'
+          }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
           className={cn(
-            'w-full h-full object-contain transition-opacity duration-300',
-            isLoaded ? 'opacity-100' : 'opacity-0',
+            'w-full h-full object-contain',
             className
           )}
           draggable={false}
