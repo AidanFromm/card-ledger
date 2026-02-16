@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, Trophy, Flame, Gift, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const WHATS_NEW_VERSION = '2.0.0';
+const WHATS_NEW_VERSION = '2.1.0';
 const STORAGE_KEY = 'cardledger_whats_new_seen';
 
 interface Feature {
@@ -16,26 +16,26 @@ interface Feature {
 const NEW_FEATURES: Feature[] = [
   {
     icon: Trophy,
-    title: 'Achievement System',
-    description: '35+ achievements to unlock as you grow your collection. Earn XP, level up, and show off your badges!',
+    title: 'Leaderboards & Goals',
+    description: 'Compete with collectors worldwide! Set collection goals and track your progress to the top.',
     color: 'text-amber-400',
   },
   {
     icon: Flame,
-    title: 'Daily Streaks',
-    description: 'Build your streak by using CardLedger every day. Unlock special achievements at 7, 30, and 100 days!',
+    title: '4 New Card Games',
+    description: 'One Piece, Lorcana, Flesh and Blood, and Dragon Ball Super now supported with full pricing!',
     color: 'text-orange-500',
   },
   {
     icon: Sparkles,
-    title: 'Performance Boost',
-    description: "We've optimized the app for faster load times and smoother animations. It's snappier than ever!",
+    title: 'Tax Reports',
+    description: 'Capital gains calculator with FIFO/LIFO support. Export CSV for your accountant!',
     color: 'text-cyan-400',
   },
   {
     icon: Gift,
-    title: 'PWA Support',
-    description: 'Add CardLedger to your home screen for an app-like experience. Works offline too!',
+    title: 'Public Profiles',
+    description: 'Share your collection with a custom link. Generate QR codes and share to social media!',
     color: 'text-pink-400',
   },
 ];
