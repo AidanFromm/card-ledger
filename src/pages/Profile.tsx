@@ -31,6 +31,7 @@ import {
   Settings,
   List,
   Trophy,
+  Target,
   Package,
   TrendingUp,
   DollarSign,
@@ -335,6 +336,12 @@ const Profile = () => {
       label: "Leaderboards",
       description: "Compete with other collectors",
       action: () => navigate("/leaderboards"),
+    },
+    {
+      icon: Target,
+      label: "Goals",
+      description: "Set and track collection goals",
+      action: () => navigate("/goals"),
     },
     {
       icon: DollarSign,

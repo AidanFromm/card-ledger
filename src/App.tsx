@@ -34,6 +34,7 @@ const TradingHub = lazy(() => import("./pages/TradingHub"));
 const Profile = lazy(() => import("./pages/Profile"));
 const AchievementsPage = lazy(() => import("./pages/AchievementsPage"));
 const Leaderboards = lazy(() => import("./pages/Leaderboards"));
+const GoalsPage = lazy(() => import("./pages/GoalsPage"));
 const ClientListView = lazy(() => import("./pages/ClientListView"));
 const ClientLists = lazy(() => import("./pages/ClientLists"));
 const ClientListDetail = lazy(() => import("./pages/ClientListDetail"));
@@ -227,6 +228,11 @@ const App = () => {
                 <Route path="/leaderboards" element={
                   <Suspense fallback={<PageLoader />}>
                     <ProtectedRoute><Leaderboards /></ProtectedRoute>
+                  </Suspense>
+                } />
+                <Route path="/goals" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ProtectedRoute><GoalsPage /></ProtectedRoute>
                   </Suspense>
                 } />
                 <Route path="/analytics" element={
