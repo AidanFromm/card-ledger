@@ -29,7 +29,7 @@ export interface ParsedQuery {
   // Detected year
   year?: number;
   // Game category detected
-  category?: 'pokemon' | 'mtg' | 'yugioh' | 'lorcana' | 'onepiece' | 'digimon' | 'sports';
+  category?: 'pokemon' | 'mtg' | 'yugioh' | 'lorcana' | 'onepiece' | 'digimon' | 'fab' | 'dbs' | 'sports';
   // Tokens for fuzzy search
   tokens: string[];
 }
@@ -154,9 +154,11 @@ const CARD_CATEGORIES = {
   pokemon: ['pokemon', 'pikachu', 'charizard', 'tcg', 'psa', 'cgc', 'bgs'],
   mtg: ['mtg', 'magic', 'gathering', 'wizards', 'planeswalker', 'mana'],
   yugioh: ['yugioh', 'yu-gi-oh', 'konami', 'duel', 'monster'],
-  lorcana: ['lorcana', 'disney', 'inklands'],
-  onepiece: ['one piece', 'onepiece', 'luffy', 'zoro', 'bandai'],
-  digimon: ['digimon', 'digital monster'],
+  lorcana: ['lorcana', 'disney', 'inklands', 'enchanted'],
+  onepiece: ['one piece', 'onepiece', 'luffy', 'zoro', 'bandai', 'op01', 'op02', 'op03', 'op04', 'op05', 'op06', 'op07', 'op08', 'op09', 'nami', 'sanji'],
+  digimon: ['digimon', 'digital monster', 'agumon', 'gabumon', 'bt01', 'bt02', 'bt03'],
+  fab: ['flesh and blood', 'fab', 'flesh-and-blood', 'welcome to rathe', 'arcane rising', 'crucible', 'tales of aria', 'brute', 'ninja', 'warrior', 'ranger', 'wizard', 'runeblade'],
+  dbs: ['dragon ball', 'dragonball', 'dbs', 'fusion world', 'goku', 'vegeta', 'saiyan', 'fb01', 'fb02', 'fb03', 'super saiyan', 'frieza', 'gohan'],
   sports: ['topps', 'panini', 'prizm', 'bowman', 'rookie', 'rc', 'auto', 'rpa', 'nba', 'nfl', 'mlb', 'nhl'],
 };
 

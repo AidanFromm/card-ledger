@@ -93,6 +93,8 @@ const CATEGORY_CONFIG: Record<CardCategory, { label: string; color: string; icon
   lorcana: { label: 'Lorcana', color: 'bg-blue-500/20 text-blue-500', icon: '✨' },
   onepiece: { label: 'One Piece', color: 'bg-red-500/20 text-red-500', icon: '🏴‍☠️' },
   digimon: { label: 'Digimon', color: 'bg-cyan-500/20 text-cyan-500', icon: '🦖' },
+  fab: { label: 'Flesh & Blood', color: 'bg-rose-500/20 text-rose-500', icon: '⚔️' },
+  dbs: { label: 'Dragon Ball', color: 'bg-amber-500/20 text-amber-500', icon: '🐉' },
   sports: { label: 'Sports', color: 'bg-green-500/20 text-green-500', icon: '🏀' },
 };
 

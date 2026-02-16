@@ -14,7 +14,7 @@
  * - Union Arena (unionarena)
  * 
  * Features:
- * - Condition-specific pricing (NM, LP, MP, HP)
+ * - Condition-specific pricing (NM, LP, MP, HP, DMG)
  * - Printing variants (Normal, Foil)
  * - Price history (7d, 30d, 90d, 180d)
  * - Market statistics
@@ -25,6 +25,9 @@
 // ============================================
 
 export type JustTcgGame = 'pokemon' | 'mtg' | 'yugioh' | 'lorcana' | 'onepiece' | 'digimon' | 'unionarena';
+
+export type JustTcgCondition = 'NM' | 'LP' | 'MP' | 'HP' | 'DMG' | 'S';
+export type JustTcgConditionFull = 'Near Mint' | 'Lightly Played' | 'Moderately Played' | 'Heavily Played' | 'Damaged' | 'Sealed';
 
 export interface JustTcgGameInfo {
   id: string;
@@ -63,25 +66,26 @@ export interface JustTcgVariant {
   printing: string;
   condition: string;
   language?: string;
-  price: number; // In CENTS
-  price_usd?: number; // Converted to USD
+  price: number; // In USD (API returns USD directly for v1 cards endpoint)
   lastUpdated?: number;
-  priceChange24hr?: number;
-  priceChange7d?: number;
-  priceChange30d?: number;
-  priceChange90d?: number;
-  avgPrice?: number;
-  avgPrice30d?: number;
-  avgPrice90d?: number;
-  minPrice7d?: number;
-  maxPrice7d?: number;
-  minPrice30d?: number;
-  maxPrice30d?: number;
-  trendSlope7d?: number;
-  trendSlope30d?: number;
-  priceHistory?: Array<{ p: number; t: number }>; // price in cents, timestamp
-  priceHistory30d?: Array<{ p: number; t: number }>;
-  statistics?: JustTcgStatistics;
+  priceChange24hr?: number | null;
+  priceChange7d?: number | null;
+  priceChange30d?: number | null;
+  priceChange90d?: number | null;
+  avgPrice?: number | null;
+  avgPrice7d?: number | null;
+  avgPrice30d?: number | null;
+  avgPrice90d?: number | null;
+  minPrice7d?: number | null;
+  maxPrice7d?: number | null;
+  minPrice30d?: number | null;
+  maxPrice30d?: number | null;
+  minPrice90d?: number | null;
+  maxPrice90d?: number | null;
+  trendSlope7d?: number | null;
+  trendSlope30d?: number | null;
+  trendSlope90d?: number | null;
+  priceHistory?: Array<{ p: number; t: number }>; // price in USD, timestamp in seconds
 }
 
 export interface JustTcgPriceHistory {
@@ -105,6 +109,23 @@ export interface JustTcgStatPeriod {
   avg_usd: number;
 }
 
+// Raw card response from API
+export interface JustTcgCardRaw {
+  id: string;
+  name: string;
+  game: string;
+  set: string;
+  set_name: string;
+  number?: string;
+  tcgplayerId?: string;
+  mtgjsonId?: string;
+  scryfallId?: string;
+  rarity?: string;
+  details?: string | null;
+  variants: JustTcgVariant[];
+}
+
+// Transformed card
 export interface JustTcgCard {
   card_id: string;
   tcgplayer_id: string;
@@ -126,6 +147,20 @@ export interface JustTcgApiResponse<T> {
   total_count?: number;
 }
 
+// Condition pricing breakdown
+export interface ConditionPrices {
+  NM?: number;
+  LP?: number;
+  MP?: number;
+  HP?: number;
+  DMG?: number;
+  foil_NM?: number;
+  foil_LP?: number;
+  foil_MP?: number;
+  foil_HP?: number;
+  foil_DMG?: number;
+}
+
 // Our unified card format (compatible with existing code)
 export interface UnifiedCardResult {
   id: string;
@@ -140,8 +175,9 @@ export interface UnifiedCardResult {
   category: JustTcgGame;
   estimated_value?: number;
   prices?: UnifiedCardPrices;
+  conditionPrices?: ConditionPrices;
   variants?: JustTcgVariant[];
-  statistics?: JustTcgStatistics;
+  statistics?: PriceStatistics;
 }
 
 export interface UnifiedCardPrices {
@@ -159,6 +195,20 @@ export interface UnifiedCardPrices {
   priceHistory?: JustTcgPriceHistory[];
 }
 
+export interface PriceStatistics {
+  change24h?: number;
+  change7d?: number;
+  change30d?: number;
+  change90d?: number;
+  avg7d?: number;
+  avg30d?: number;
+  avg90d?: number;
+  min7d?: number;
+  max7d?: number;
+  min30d?: number;
+  max30d?: number;
+}
+
 // ============================================
 // Configuration
 // ============================================
@@ -173,8 +223,9 @@ let lastRequestTime = 0;
 // API Key - loaded from environment or hardcoded for now
 function getApiKey(): string {
   // Try environment variable first
-  const envKey = import.meta.env.VITE_JUSTTCG_API_KEY;
-  if (envKey) return envKey;
+  if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_JUSTTCG_API_KEY) {
+    return import.meta.env.VITE_JUSTTCG_API_KEY;
+  }
   
   // Fallback to hardcoded key (for development)
   return 'tcg_3aa7cd75bd2b46728b102d988f8576be';
@@ -330,6 +381,25 @@ async function apiRequest<T>(
 }
 
 // ============================================
+// Helper: Transform API card to our format
+// ============================================
+
+function transformCard(rawCard: JustTcgCardRaw): JustTcgCard {
+  return {
+    card_id: rawCard.id,
+    tcgplayer_id: rawCard.tcgplayerId || rawCard.id,
+    name: rawCard.name,
+    set_id: rawCard.set,
+    set_name: rawCard.set_name,
+    game_id: rawCard.game.toLowerCase().replace(/[^a-z]/g, ''),
+    game: rawCard.game,
+    collector_number: rawCard.number,
+    rarity: rawCard.rarity,
+    variants: rawCard.variants || [],
+  };
+}
+
+// ============================================
 // API Functions
 // ============================================
 
@@ -388,7 +458,7 @@ export async function searchCards(
     game,
     setId,
     printing,
-    condition = 'NM',
+    condition = 'NM,LP,MP,HP,DMG', // Get all conditions
     priceHistoryDuration = '7d',
     includeStatistics = true,
     page = 1,
@@ -411,12 +481,15 @@ export async function searchCards(
     params.include_statistics = '7d,30d,90d';
   }
   
-  const response = await apiRequest<{ data: JustTcgCard[]; total_count?: number }>(
+  const response = await apiRequest<{ data: JustTcgCardRaw[]; total_count?: number }>(
     '/cards',
     params
   );
   
-  const cards = (response.data || []).map(mapCardToUnified);
+  const cards = (response.data || []).map(raw => {
+    const card = transformCard(raw);
+    return mapCardToUnified(card);
+  });
   
   return {
     cards,
@@ -425,7 +498,7 @@ export async function searchCards(
 }
 
 /**
- * Get card by TCGplayer ID
+ * Get card by TCGplayer ID with full pricing data
  */
 export async function getCardByTcgplayerId(
   tcgplayerId: string,
@@ -435,26 +508,31 @@ export async function getCardByTcgplayerId(
     priceHistoryDuration?: '7d' | '30d' | '90d' | '180d';
   }
 ): Promise<UnifiedCardResult | null> {
-  const { condition, printing, priceHistoryDuration = '30d' } = options || {};
+  const { 
+    condition = 'NM,LP,MP,HP,DMG', // Get all conditions by default
+    printing, 
+    priceHistoryDuration = '180d' // Default to 180d for full history
+  } = options || {};
   
   const params: Record<string, string> = {
     tcgplayerId,
     priceHistoryDuration,
     include_price_history: 'true',
     include_statistics: '7d,30d,90d',
+    condition,
   };
   
-  if (condition) params.condition = condition;
   if (printing) params.printing = printing;
   
   try {
-    const response = await apiRequest<{ data: JustTcgCard[] }>('/cards', params);
+    const response = await apiRequest<{ data: JustTcgCardRaw[] }>('/cards', params);
     
     if (!response.data || response.data.length === 0) {
       return null;
     }
     
-    return mapCardToUnified(response.data[0]);
+    const card = transformCard(response.data[0]);
+    return mapCardToUnified(card);
   } catch (error) {
     console.error('Error fetching card:', error);
     return null;
@@ -472,7 +550,11 @@ export async function batchGetCards(
     priceHistoryDuration?: '7d' | '30d' | '90d' | '180d';
   }
 ): Promise<UnifiedCardResult[]> {
-  const { condition, printing, priceHistoryDuration = '7d' } = options || {};
+  const { 
+    condition = 'NM,LP,MP,HP,DMG', 
+    printing, 
+    priceHistoryDuration = '7d' 
+  } = options || {};
   
   // Build request body
   const requestBody = cardIds.map(id => {
@@ -485,13 +567,16 @@ export async function batchGetCards(
   });
   
   try {
-    const response = await apiRequest<{ data: JustTcgCard[] }>(
+    const response = await apiRequest<{ data: JustTcgCardRaw[] }>(
       '/cards',
       { priceHistoryDuration, include_price_history: 'true' },
       { method: 'POST', body: requestBody, useCache: false }
     );
     
-    return (response.data || []).map(mapCardToUnified);
+    return (response.data || []).map(raw => {
+      const card = transformCard(raw);
+      return mapCardToUnified(card);
+    });
   } catch (error) {
     console.error('Error batch fetching cards:', error);
     return [];
@@ -508,7 +593,7 @@ export async function getCardPrice(
     printing?: string;
   }
 ): Promise<UnifiedCardPrices | null> {
-  const { condition = 'NM', printing } = options || {};
+  const { condition = 'NM,LP,MP,HP,DMG', printing } = options || {};
   
   const params: Record<string, string> = {
     tcgplayerId,
@@ -520,7 +605,7 @@ export async function getCardPrice(
   if (printing) params.printing = printing;
   
   try {
-    const response = await apiRequest<{ data: JustTcgCard[] }>(
+    const response = await apiRequest<{ data: JustTcgCardRaw[] }>(
       '/cards',
       params,
       { useCache: false }
@@ -530,7 +615,7 @@ export async function getCardPrice(
       return null;
     }
     
-    const card = response.data[0];
+    const card = transformCard(response.data[0]);
     return extractPrices(card);
   } catch (error) {
     console.error('Error fetching card price:', error);
@@ -539,24 +624,59 @@ export async function getCardPrice(
 }
 
 /**
- * Get price history for a card
+ * Get condition-specific prices for a card
+ */
+export async function getConditionPrices(
+  tcgplayerId: string,
+  printing?: 'Normal' | 'Foil'
+): Promise<ConditionPrices | null> {
+  const params: Record<string, string> = {
+    tcgplayerId,
+    condition: 'NM,LP,MP,HP,DMG',
+    include_price_history: 'false',
+  };
+  
+  if (printing) params.printing = printing;
+  
+  try {
+    const response = await apiRequest<{ data: JustTcgCardRaw[] }>(
+      '/cards',
+      params,
+      { useCache: true }
+    );
+    
+    if (!response.data || response.data.length === 0) {
+      return null;
+    }
+    
+    const card = transformCard(response.data[0]);
+    return extractConditionPrices(card);
+  } catch (error) {
+    console.error('Error fetching condition prices:', error);
+    return null;
+  }
+}
+
+/**
+ * Get price history for a card (up to 180 days)
  */
 export async function getPriceHistory(
   tcgplayerId: string,
-  duration: '7d' | '30d' | '90d' | '180d' = '30d'
+  duration: '7d' | '30d' | '90d' | '180d' = '180d',
+  condition: JustTcgCondition = 'NM'
 ): Promise<JustTcgPriceHistory[]> {
   const params: Record<string, string> = {
     tcgplayerId,
     priceHistoryDuration: duration,
     include_price_history: 'true',
-    condition: 'NM',
+    condition,
   };
   
   try {
-    const response = await apiRequest<{ data: JustTcgCard[] }>(
+    const response = await apiRequest<{ data: JustTcgCardRaw[] }>(
       '/cards',
       params,
-      { useCache: false }
+      { useCache: true }
     );
     
     if (!response.data || response.data.length === 0) {
@@ -564,9 +684,19 @@ export async function getPriceHistory(
     }
     
     const card = response.data[0];
-    const nmVariant = card.variants?.find(v => v.condition === 'NM' || v.condition === 'Near Mint');
+    // Find NM variant or first available
+    const variant = card.variants?.find(v => 
+      v.condition === condition || v.condition === 'Near Mint'
+    ) || card.variants?.[0];
     
-    return nmVariant?.price_history || [];
+    if (!variant?.priceHistory) {
+      return [];
+    }
+    
+    return variant.priceHistory.map(h => ({
+      date: new Date(h.t * 1000).toISOString().split('T')[0],
+      price_usd: h.p, // API returns USD directly
+    }));
   } catch (error) {
     console.error('Error fetching price history:', error);
     return [];
@@ -577,8 +707,29 @@ export async function getPriceHistory(
 // Helper Functions
 // ============================================
 
+function normalizeCondition(condition: string): JustTcgCondition {
+  const mapping: Record<string, JustTcgCondition> = {
+    'near mint': 'NM',
+    'nm': 'NM',
+    'lightly played': 'LP',
+    'lp': 'LP',
+    'moderately played': 'MP',
+    'mp': 'MP',
+    'heavily played': 'HP',
+    'hp': 'HP',
+    'damaged': 'DMG',
+    'dmg': 'DMG',
+    'sealed': 'S',
+    's': 'S',
+  };
+  
+  return mapping[condition.toLowerCase()] || 'NM';
+}
+
 function mapCardToUnified(card: JustTcgCard): UnifiedCardResult {
   const prices = extractPrices(card);
+  const conditionPrices = extractConditionPrices(card);
+  const statistics = extractStatistics(card);
   
   return {
     id: card.card_id,
@@ -593,8 +744,9 @@ function mapCardToUnified(card: JustTcgCard): UnifiedCardResult {
     category: card.game_id as JustTcgGame,
     estimated_value: prices?.market,
     prices,
+    conditionPrices,
     variants: card.variants,
-    statistics: card.variants?.[0]?.statistics,
+    statistics,
   };
 }
 
@@ -603,68 +755,121 @@ function extractPrices(card: JustTcgCard): UnifiedCardPrices | undefined {
     return undefined;
   }
   
-  // Find best variant (prefer NM, then LP, etc.)
-  const conditionPriority = ['NM', 'Near Mint', 'LP', 'Lightly Played', 'MP', 'HP'];
+  // Find best variant (prefer NM Normal, then NM Foil)
+  const conditionPriority = ['NM', 'Near Mint', 'LP', 'Lightly Played', 'MP', 'HP', 'DMG'];
   let bestVariant: JustTcgVariant | undefined;
   
+  // First try Normal printing
   for (const condition of conditionPriority) {
     bestVariant = card.variants.find(v => 
-      v.condition === condition || v.condition.includes(condition)
+      (v.condition === condition || v.condition.includes(condition)) &&
+      v.printing?.toLowerCase() === 'normal'
     );
-    if (bestVariant && (bestVariant.price > 0 || bestVariant.price_usd)) break;
+    if (bestVariant && bestVariant.price > 0) break;
+  }
+  
+  // Fallback to any printing
+  if (!bestVariant || !bestVariant.price) {
+    for (const condition of conditionPriority) {
+      bestVariant = card.variants.find(v => 
+        v.condition === condition || v.condition.includes(condition)
+      );
+      if (bestVariant && bestVariant.price > 0) break;
+    }
   }
   
   // Fallback to first variant with a price
-  if (!bestVariant || (!bestVariant.price && !bestVariant.price_usd)) {
-    bestVariant = card.variants.find(v => v.price > 0 || (v.price_usd && v.price_usd > 0));
+  if (!bestVariant || !bestVariant.price) {
+    bestVariant = card.variants.find(v => v.price > 0);
   }
   
   if (!bestVariant) {
     return undefined;
   }
   
-  // Convert cents to dollars
-  const centsToUsd = (cents: number | undefined) => cents ? cents / 100 : undefined;
-  
   // Build all variants map
   const allVariants: Record<string, { price_usd: number; condition: string; printing: string }> = {};
   
   for (const variant of card.variants) {
-    const key = `${variant.printing}_${variant.condition}`;
-    const priceUsd = variant.price_usd || centsToUsd(variant.price) || 0;
-    if (priceUsd > 0) {
+    const key = `${variant.printing || 'Normal'}_${normalizeCondition(variant.condition)}`;
+    if (variant.price > 0) {
       allVariants[key] = {
-        price_usd: priceUsd,
+        price_usd: variant.price,
         condition: variant.condition,
-        printing: variant.printing,
+        printing: variant.printing || 'Normal',
       };
     }
   }
   
-  // Calculate low/mid/high from all variants (convert cents to USD)
+  // Calculate low/mid/high from all variants
   const prices = card.variants
-    .map(v => v.price_usd || centsToUsd(v.price) || 0)
+    .map(v => v.price)
     .filter(p => p > 0);
   const sortedPrices = prices.sort((a, b) => a - b);
   
   // Convert price history
-  const priceHistory: JustTcgPriceHistory[] = (bestVariant.priceHistory || bestVariant.priceHistory30d || [])
+  const priceHistory: JustTcgPriceHistory[] = (bestVariant.priceHistory || [])
     .map(h => ({
       date: new Date(h.t * 1000).toISOString().split('T')[0],
-      price_usd: h.p / 100, // Convert cents to USD
+      price_usd: h.p,
     }));
   
-  const marketPrice = bestVariant.price_usd || centsToUsd(bestVariant.price);
-  
   return {
-    market: marketPrice,
+    market: bestVariant.price,
     low: sortedPrices[0],
     mid: sortedPrices[Math.floor(sortedPrices.length / 2)],
     high: sortedPrices[sortedPrices.length - 1],
-    variant: bestVariant.printing,
+    variant: bestVariant.printing || 'Normal',
     condition: bestVariant.condition,
     allVariants,
     priceHistory,
+  };
+}
+
+function extractConditionPrices(card: JustTcgCard): ConditionPrices {
+  const prices: ConditionPrices = {};
+  
+  if (!card.variants) return prices;
+  
+  for (const variant of card.variants) {
+    if (variant.price <= 0) continue;
+    
+    const condition = normalizeCondition(variant.condition);
+    const isFoil = variant.printing?.toLowerCase() === 'foil';
+    
+    if (isFoil) {
+      const key = `foil_${condition}` as keyof ConditionPrices;
+      prices[key] = variant.price;
+    } else {
+      prices[condition] = variant.price;
+    }
+  }
+  
+  return prices;
+}
+
+function extractStatistics(card: JustTcgCard): PriceStatistics | undefined {
+  if (!card.variants || card.variants.length === 0) return undefined;
+  
+  // Get NM variant for stats
+  const nmVariant = card.variants.find(v => 
+    v.condition === 'NM' || v.condition === 'Near Mint'
+  ) || card.variants[0];
+  
+  if (!nmVariant) return undefined;
+  
+  return {
+    change24h: nmVariant.priceChange24hr ?? undefined,
+    change7d: nmVariant.priceChange7d ?? undefined,
+    change30d: nmVariant.priceChange30d ?? undefined,
+    change90d: nmVariant.priceChange90d ?? undefined,
+    avg7d: nmVariant.avgPrice7d ?? nmVariant.avgPrice ?? undefined,
+    avg30d: nmVariant.avgPrice30d ?? undefined,
+    avg90d: nmVariant.avgPrice90d ?? undefined,
+    min7d: nmVariant.minPrice7d ?? undefined,
+    max7d: nmVariant.maxPrice7d ?? undefined,
+    min30d: nmVariant.minPrice30d ?? undefined,
+    max30d: nmVariant.maxPrice30d ?? undefined,
   };
 }
 
@@ -715,6 +920,7 @@ export const justTcgApi = {
   getCardByTcgplayerId,
   batchGetCards,
   getCardPrice,
+  getConditionPrices,
   getPriceHistory,
   clearCache,
   

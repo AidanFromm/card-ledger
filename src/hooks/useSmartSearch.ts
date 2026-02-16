@@ -32,7 +32,7 @@ import { useToast } from '@/hooks/use-toast';
 // Types
 // ============================================
 
-export type CardCategory = 'pokemon' | 'mtg' | 'yugioh' | 'lorcana' | 'onepiece' | 'digimon' | 'sports' | 'all';
+export type CardCategory = 'pokemon' | 'mtg' | 'yugioh' | 'lorcana' | 'onepiece' | 'digimon' | 'fab' | 'dbs' | 'sports' | 'all';
 
 export interface SmartSearchResult {
   id: string;
@@ -304,11 +304,13 @@ export function useSmartSearch(options: UseSmartSearchOptions = {}): UseSmartSea
       // Map category to JustTCG game
       const justTcgGame: JustTcgGame | undefined = 
         category === 'pokemon' ? 'pokemon' :
-        category === 'mtg' ? 'mtg' :
+        category === 'mtg' ? 'magic-the-gathering' :
         category === 'yugioh' ? 'yugioh' :
-        category === 'lorcana' ? 'lorcana' :
-        category === 'onepiece' ? 'onepiece' :
-        category === 'digimon' ? 'digimon' :
+        category === 'lorcana' ? 'disney-lorcana' :
+        category === 'onepiece' ? 'one-piece-card-game' :
+        category === 'digimon' ? 'digimon-card-game' :
+        category === 'fab' ? 'flesh-and-blood-tcg' :
+        category === 'dbs' ? 'dragon-ball-super-fusion-world' :
         undefined;
       
       // Search Pokemon TCG API (for Pokemon category or all)
