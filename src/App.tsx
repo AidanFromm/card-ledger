@@ -33,14 +33,17 @@ const MarketData = lazy(() => import("./pages/MarketData"));
 const TradingHub = lazy(() => import("./pages/TradingHub"));
 const Profile = lazy(() => import("./pages/Profile"));
 const AchievementsPage = lazy(() => import("./pages/AchievementsPage"));
+const Leaderboards = lazy(() => import("./pages/Leaderboards"));
 const ClientListView = lazy(() => import("./pages/ClientListView"));
 const ClientLists = lazy(() => import("./pages/ClientLists"));
 const ClientListDetail = lazy(() => import("./pages/ClientListDetail"));
 const ShareView = lazy(() => import("./pages/ShareView"));
+const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const EbayConnect = lazy(() => import("./pages/EbayConnect"));
 const EbayListings = lazy(() => import("./pages/EbayListings"));
 const Settings = lazy(() => import("./pages/Settings"));
+const TaxReports = lazy(() => import("./pages/TaxReports"));
 
 // Lazy load protected route wrapper
 const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
@@ -121,6 +124,7 @@ const App = () => {
                 {/* Public share routes - lazy loaded */}
                 <Route path="/list/:shareToken" element={<ClientListView />} />
                 <Route path="/share/:shareToken" element={<ShareView />} />
+                <Route path="/u/:username" element={<PublicProfile />} />
                 
                 {/* Protected routes - lazy loaded */}
                 <Route path="/home" element={
@@ -211,6 +215,11 @@ const App = () => {
                 <Route path="/achievements" element={
                   <Suspense fallback={<PageLoader />}>
                     <ProtectedRoute><AchievementsPage /></ProtectedRoute>
+                  </Suspense>
+                } />
+                <Route path="/leaderboards" element={
+                  <Suspense fallback={<PageLoader />}>
+                    <ProtectedRoute><Leaderboards /></ProtectedRoute>
                   </Suspense>
                 } />
                 <Route path="/analytics" element={

@@ -48,6 +48,7 @@ import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { useAchievements } from "@/hooks/useAchievements";
 import BottomNav from "@/components/BottomNav";
 import { ShareStatsButton } from "@/components/ShareStats";
+import { ShareCollectionButton } from "@/components/ShareCollection";
 import { PageTransition } from "@/components/PageTransition";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
 
@@ -395,7 +396,10 @@ const Profile = () => {
             className="mb-8 flex items-center justify-between"
           >
             <h1 className="ios-title-large">Profile</h1>
-            <ShareStatsButton />
+            <div className="flex items-center gap-2">
+              <ShareCollectionButton />
+              <ShareStatsButton />
+            </div>
           </motion.div>
 
           {/* User Card */}
