@@ -381,7 +381,7 @@ const Dashboard = () => {
           >
             <PortfolioInsights 
               items={unsoldItems} 
-              totalValue={totalPortfolioValue} 
+              totalValue={totalValue} 
             />
           </motion.div>
 

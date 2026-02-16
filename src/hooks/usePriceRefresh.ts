@@ -24,7 +24,7 @@ export interface InventoryItem {
   set_name: string;
   card_number?: string;
   category?: string;
-  current_value?: number;
+  market_price?: number | null;
   tcgplayer_id?: string;
 }
 
@@ -80,7 +80,7 @@ export function usePriceRefresh(): UsePriceRefreshReturn {
   const refreshSinglePrice = useCallback(async (
     item: InventoryItem
   ): Promise<PriceUpdate | null> => {
-    const oldPrice = item.current_value ?? null;
+    const oldPrice = item.market_price ?? null;
     let newPrice: number | null = null;
     let source: 'justtcg' | 'pokemontcg' | 'failed' = 'failed';
 
@@ -214,7 +214,7 @@ export function usePriceRefresh(): UsePriceRefreshReturn {
             if (result.newPrice !== null && result.newPrice !== result.oldPrice) {
               await supabase
                 .from('inventory_items')
-                .update({ current_value: result.newPrice })
+                .update({ market_price: result.newPrice })
                 .eq('id', result.itemId);
             }
           }

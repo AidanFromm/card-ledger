@@ -68,6 +68,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { PageTransition } from "@/components/PageTransition";
 import BottomNav from "@/components/BottomNav";
+import NotificationSettings from "@/components/NotificationSettings";
 
 // Types
 interface UserProfile {
@@ -269,6 +270,7 @@ const Settings = () => {
     | "connected"
     | "subscription"
     | "about"
+    | "notifications"
     | null;
   const [activeSheet, setActiveSheet] = useState<SheetType>(null);
 
@@ -673,18 +675,30 @@ const Settings = () => {
                 </div>
               </div>
               <div className="border-t border-border/50" />
-              <div className="p-4 flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Notifications</p>
-                  <p className="text-sm text-muted-foreground">Price alerts & updates</p>
-                </div>
-                <Switch
-                  checked={preferences.notificationsEnabled}
-                  onCheckedChange={(checked) =>
-                    setPreferences((prev) => ({ ...prev, notificationsEnabled: checked }))
-                  }
-                />
-              </div>
+              <MenuItem
+                icon={Bell}
+                label="Notifications"
+                description="Manage push notification preferences"
+                onClick={() => setActiveSheet("notifications")}
+              />
+            </div>
+          </motion.div>
+
+          {/* Reports Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18 }}
+            className="mb-6"
+          >
+            <SectionHeader icon={TrendingUp} title="Reports" />
+            <div className="glass-card overflow-hidden">
+              <MenuItem
+                icon={DollarSign}
+                label="Tax Reports"
+                description="Capital gains & P/L tracking"
+                onClick={() => navigate("/tax-reports")}
+              />
             </div>
           </motion.div>
 
@@ -1208,6 +1222,15 @@ const Settings = () => {
             Cancel anytime. Prices in USD.
           </p>
         </div>
+      </BottomSheet>
+
+      {/* Notifications Sheet */}
+      <BottomSheet
+        isOpen={activeSheet === "notifications"}
+        onClose={() => setActiveSheet(null)}
+        title="Notifications"
+      >
+        <NotificationSettings />
       </BottomSheet>
 
       <BottomNav />

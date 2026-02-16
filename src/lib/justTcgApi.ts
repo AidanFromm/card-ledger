@@ -24,7 +24,28 @@
 // Types
 // ============================================
 
-export type JustTcgGame = 'pokemon' | 'mtg' | 'yugioh' | 'lorcana' | 'onepiece' | 'digimon' | 'unionarena';
+export type JustTcgGame = 
+  | 'pokemon' 
+  | 'pokemon-japan'
+  | 'mtg' 
+  | 'magic-the-gathering'
+  | 'yugioh' 
+  | 'lorcana' 
+  | 'disney-lorcana'
+  | 'onepiece' 
+  | 'one-piece-card-game'
+  | 'digimon' 
+  | 'digimon-card-game'
+  | 'unionarena'
+  | 'union-arena'
+  | 'fab'
+  | 'flesh-and-blood-tcg'
+  | 'dbs'
+  | 'dragon-ball-super-fusion-world'
+  | 'star-wars-unlimited'
+  | 'gundam-card-game'
+  | 'sorcery-contested-realm'
+  | 'grand-archive-tcg';
 
 export type JustTcgCondition = 'NM' | 'LP' | 'MP' | 'HP' | 'DMG' | 'S';
 export type JustTcgConditionFull = 'Near Mint' | 'Lightly Played' | 'Moderately Played' | 'Heavily Played' | 'Damaged' | 'Sealed';
@@ -905,7 +926,23 @@ export async function searchOnePieceCards(query: string, options?: Omit<Paramete
 }
 
 export async function searchDigimonCards(query: string, options?: Omit<Parameters<typeof searchCards>[1], 'game'>) {
-  return searchCards(query, { ...options, game: 'digimon' });
+  return searchCards(query, { ...options, game: 'digimon-card-game' });
+}
+
+export async function searchFabCards(query: string, options?: Omit<Parameters<typeof searchCards>[1], 'game'>) {
+  return searchCards(query, { ...options, game: 'flesh-and-blood-tcg' });
+}
+
+export async function searchDbsCards(query: string, options?: Omit<Parameters<typeof searchCards>[1], 'game'>) {
+  return searchCards(query, { ...options, game: 'dragon-ball-super-fusion-world' });
+}
+
+export async function searchStarWarsCards(query: string, options?: Omit<Parameters<typeof searchCards>[1], 'game'>) {
+  return searchCards(query, { ...options, game: 'star-wars-unlimited' });
+}
+
+export async function searchGundamCards(query: string, options?: Omit<Parameters<typeof searchCards>[1], 'game'>) {
+  return searchCards(query, { ...options, game: 'gundam-card-game' });
 }
 
 // ============================================
@@ -931,6 +968,10 @@ export const justTcgApi = {
   searchLorcanaCards,
   searchOnePieceCards,
   searchDigimonCards,
+  searchFabCards,
+  searchDbsCards,
+  searchStarWarsCards,
+  searchGundamCards,
 };
 
 export default justTcgApi;
