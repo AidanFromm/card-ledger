@@ -32,8 +32,9 @@ import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import type { Database } from "@/integrations/supabase/types";
 import { format } from "date-fns";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+// Dynamic imports for code splitting - jsPDF (~417KB) and autoTable loaded on demand
+// import jsPDF from "jspdf";
+// import autoTable from "jspdf-autotable";
 import Papa from "papaparse";
 
 type InventoryItem = Database["public"]["Tables"]["inventory_items"]["Row"];
@@ -238,7 +239,12 @@ export const ExportDialog = ({
     onOpenChange(false);
   };
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
+    // Dynamic imports for code splitting - jsPDF (~417KB) + autoTable
+    const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+      import('jspdf'),
+      import('jspdf-autotable')
+    ]);
     const doc = new jsPDF();
     const date = format(new Date(), "MMMM d, yyyy");
 
@@ -339,7 +345,7 @@ export const ExportDialog = ({
     onOpenChange(false);
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
     switch (exportFormat) {
       case "csv-all":
         handleExportCSV(true);
@@ -348,7 +354,7 @@ export const ExportDialog = ({
         handleExportCSV(false);
         break;
       case "pdf":
-        handleExportPDF();
+        await handleExportPDF();
         break;
       case "json":
         handleExportJSON();

@@ -16,7 +16,8 @@ import { Button } from '@/components/ui/button';
 import { useInventoryDb } from '@/hooks/useInventoryDb';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useToast } from '@/hooks/use-toast';
-import html2canvas from 'html2canvas';
+// Dynamic import for code splitting - html2canvas is ~200KB
+// import html2canvas from 'html2canvas';
 
 interface ShareStatsModalProps {
   isOpen: boolean;
@@ -44,6 +45,8 @@ export function ShareStatsModal({ isOpen, onClose }: ShareStatsModalProps) {
     setDownloading(true);
     
     try {
+      // Dynamic import for code splitting - html2canvas is ~200KB
+      const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(cardRef.current, {
         backgroundColor: '#0a0a0a',
         scale: 2,

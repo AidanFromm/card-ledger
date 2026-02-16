@@ -331,6 +331,18 @@ const Profile = () => {
       action: () => navigate("/sets"),
     },
     {
+      icon: Trophy,
+      label: "Leaderboards",
+      description: "Compete with other collectors",
+      action: () => navigate("/leaderboards"),
+    },
+    {
+      icon: DollarSign,
+      label: "Tax Reports",
+      description: "Capital gains & tax exports",
+      action: () => navigate("/tax-reports"),
+    },
+    {
       icon: BookOpen,
       label: "App Tutorial",
       description: "Replay the welcome guide",
