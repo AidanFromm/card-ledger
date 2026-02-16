@@ -16,6 +16,7 @@ import { AchievementsWidget } from "@/components/Achievements";
 import { SmartTips } from "@/components/SmartTips";
 import { PortfolioInsights } from "@/components/PortfolioInsights";
 import { MarketTrends } from "@/components/MarketTrends";
+import { DailyLoginWidget } from "@/components/DailyLoginWidget";
 
 // Dashboard components - Premium V4
 import {
@@ -360,6 +361,16 @@ const Dashboard = () => {
             className="mb-8"
           >
             <QuickActions />
+          </motion.div>
+
+          {/* Daily Login */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.37 }}
+            className="mb-6"
+          >
+            <DailyLoginWidget mode="compact" />
           </motion.div>
 
           {/* Smart Tips */}
