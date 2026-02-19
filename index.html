@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <link rel="icon" href="/favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <link rel="manifest" href="/manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,7 +17,15 @@
     <meta name="apple-mobile-web-app-title" content="CardLedger" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#0074fb" />
+    <meta name="theme-color" content="#0074fb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-TileColor" content="#0074fb" />
+    <meta name="msapplication-tap-highlight" content="no" />
+
+    <!-- Apple splash screens -->
+    <link rel="apple-touch-startup-image" href="/apple-touch-icon.png" />
 
     <meta property="og:title" content="CardLedger — Track, Price, and Profit from Your Card Collection" />
     <meta property="og:description" content="The collector's edge. Live prices, portfolio analytics, and FIFO profit tracking for Pokemon, sports cards, Yu-Gi-Oh, Magic, and more." />
@@ -31,6 +41,12 @@
   </head>
 
   <body>
+    <noscript>
+      <div style="padding: 2rem; text-align: center; font-family: system-ui, sans-serif;">
+        <h1>CardLedger</h1>
+        <p>Please enable JavaScript to use CardLedger. For the best experience, add this app to your home screen.</p>
+      </div>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { BarChart3, TrendingUp, TrendingDown, Award, Package, Calendar, DollarSign, Crown, ChevronDown, ChevronUp } from "lucide-react";
+import { BarChart3, TrendingUp, TrendingDown, Award, Package, Calendar, DollarSign, Crown, ChevronDown, ChevronUp, Target } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from "recharts";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
@@ -7,6 +7,7 @@ import { DesktopSidebar } from "@/components/DesktopSidebar";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { PageTransition } from "@/components/PageTransition";
 import { motion } from "framer-motion";
+import { SetCompletionTracker } from "@/components/SetCompletionTracker";
 
 const COLORS = [
   'hsl(212, 100%, 49%)', 'hsl(142, 76%, 45%)', 'hsl(271, 81%, 56%)',
@@ -275,6 +276,11 @@ const Stats = () => {
                   );
                 })}
               </div>
+            </CollapsibleSection>
+
+            {/* Set Completion Tracker */}
+            <CollapsibleSection title="Set Completion Tracker" icon={<Target className="h-4 w-4" />} expanded={expandedSection === 'tracker'} onToggle={() => toggle('tracker')}>
+              <SetCompletionTracker />
             </CollapsibleSection>
 
             {/* Set Completion */}

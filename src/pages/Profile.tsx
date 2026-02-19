@@ -35,6 +35,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import BottomNav from "@/components/BottomNav";
 import { PageTransition } from "@/components/PageTransition";
+import { useInventoryDb } from "@/hooks/useInventoryDb";
+import { useSalesDb } from "@/hooks/useSalesDb";
 
 type SheetType = "notifications" | "privacy" | "help" | "feedback" | "subscription" | null;
 
@@ -108,10 +110,55 @@ const Profile = () => {
   const [marketing, setMarketing] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackRating, setFeedbackRating] = useState(0);
+  const { items: inventoryItems } = useInventoryDb();
+  const { sales } = useSalesDb();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
   }, []);
+
+  // Collection stats
+  const unsoldItems = inventoryItems.filter(i => !i.sale_price && i.quantity > 0);
+  const totalCards = unsoldItems.reduce((s, i) => s + i.quantity, 0);
+  const totalValue = unsoldItems.reduce((s, i) => s + (i.market_price || i.purchase_price) * i.quantity, 0);
+  const totalSalesProfit = sales.reduce((s, sale) => s + (sale.profit || 0) * sale.quantity_sold, 0);
+  const uniqueSets = new Set(unsoldItems.map(i => i.set_name).filter(Boolean)).size;
+  const memberSince = user?.created_at ? new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : null;
+
+  // Achievement badges
+  const achievements = [
+    { id: 'first', label: 'First Card', desc: 'Added your first card', unlocked: inventoryItems.length > 0, icon: '🎉' },
+    { id: '10cards', label: '10 Cards', desc: 'Collection of 10+', unlocked: totalCards >= 10, icon: '📦' },
+    { id: '100cards', label: '100 Club', desc: 'Collection of 100+', unlocked: totalCards >= 100, icon: '💯' },
+    { id: '1ksale', label: 'First Sale', desc: 'Recorded your first sale', unlocked: sales.length > 0, icon: '💰' },
+    { id: '1kvalue', label: '$1K Portfolio', desc: 'Portfolio worth $1,000+', unlocked: totalValue >= 1000, icon: '🏆' },
+    { id: '5kvalue', label: '$5K Portfolio', desc: 'Portfolio worth $5,000+', unlocked: totalValue >= 5000, icon: '👑' },
+    { id: '10sets', label: 'Set Collector', desc: 'Cards from 10+ sets', unlocked: uniqueSets >= 10, icon: '🗂️' },
+    { id: 'profit', label: 'In the Green', desc: 'Profitable sales total', unlocked: totalSalesProfit > 0, icon: '📈' },
+  ];
+
+  const formatCurrency = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  const handleExportAllData = async () => {
+    try {
+      const exportData = {
+        inventory: inventoryItems,
+        sales: sales,
+        exportedAt: new Date().toISOString(),
+        email: user?.email,
+      };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `cardledger-export-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: 'Export complete', description: 'Your data has been downloaded.' });
+    } catch {
+      toast({ variant: 'destructive', title: 'Export failed', description: 'Could not export your data.' });
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -191,6 +238,84 @@ const Profile = () => {
                 </div>
               </div>
             </div>
+          </motion.div>
+
+          {/* Collection Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.07 }}
+            className="card-clean-elevated p-5 rounded-3xl mb-5"
+          >
+            <h3 className="label-metric mb-3">Collection Summary</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="text-center p-3 bg-secondary/20 rounded-2xl">
+                <p className="text-lg font-bold">{totalCards.toLocaleString()}</p>
+                <p className="text-[10px] text-muted-foreground">Total Cards</p>
+              </div>
+              <div className="text-center p-3 bg-secondary/20 rounded-2xl">
+                <p className="text-lg font-bold">${formatCurrency(totalValue)}</p>
+                <p className="text-[10px] text-muted-foreground">Portfolio Value</p>
+              </div>
+              <div className="text-center p-3 bg-secondary/20 rounded-2xl">
+                <p className="text-lg font-bold">{uniqueSets}</p>
+                <p className="text-[10px] text-muted-foreground">Unique Sets</p>
+              </div>
+              <div className="text-center p-3 bg-secondary/20 rounded-2xl">
+                <p className="text-lg font-bold">{sales.length}</p>
+                <p className="text-[10px] text-muted-foreground">Sales Recorded</p>
+              </div>
+            </div>
+            {memberSince && (
+              <p className="text-[11px] text-muted-foreground/50 text-center mt-3">
+                Member since {memberSince}
+              </p>
+            )}
+          </motion.div>
+
+          {/* Achievement Badges */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+            className="card-clean-elevated p-5 rounded-3xl mb-5"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="label-metric">Achievements</h3>
+              <span className="text-[10px] text-muted-foreground">{achievements.filter(a => a.unlocked).length}/{achievements.length}</span>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {achievements.map(a => (
+                <div
+                  key={a.id}
+                  className={`text-center p-2 rounded-xl transition-all ${
+                    a.unlocked 
+                      ? 'bg-primary/10 border border-primary/20' 
+                      : 'bg-muted/20 opacity-40 grayscale'
+                  }`}
+                >
+                  <span className="text-xl">{a.icon}</span>
+                  <p className="text-[9px] font-medium mt-1 leading-tight">{a.label}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Export All Data */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.09 }}
+            className="mb-5"
+          >
+            <Button
+              onClick={handleExportAllData}
+              variant="outline"
+              className="w-full h-12 rounded-2xl gap-2 font-semibold"
+            >
+              <Download className="w-4 h-4" />
+              Export All Data
+            </Button>
           </motion.div>
 
           {/* Theme Selection */}

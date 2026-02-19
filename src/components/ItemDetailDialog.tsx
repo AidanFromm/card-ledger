@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Pencil, Trash2, Check, X, ImageOff, Package, Loader2, Save, ExternalLink, ShoppingCart } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, X, ImageOff, Package, Loader2, Save, ExternalLink, ShoppingCart, Share2, ZoomIn } from "lucide-react";
 import { usePurchaseEntries } from "@/hooks/usePurchaseEntries";
 import { usePriceHistory } from "@/hooks/usePriceHistory";
 import { format } from "date-fns";
@@ -205,6 +205,9 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
   const [isFetchingImage, setIsFetchingImage] = useState(false);
   const [localImageUrl, setLocalImageUrl] = useState<string | null>(null);
   const [localCategory, setLocalCategory] = useState<string | null>(null);
+
+  // Image zoom state
+  const [isImageZoomed, setIsImageZoomed] = useState(false);
 
   // Price display state (50-100%)
   const [valuePercent, setValuePercent] = useState<50 | 60 | 70 | 80 | 90 | 100>(100);
@@ -581,6 +584,18 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
     }
   };
 
+  const handleShare = async () => {
+    const text = `${item.name}${item.set_name ? ` — ${item.set_name}` : ""}${item.market_price ? ` • $${formatNumber(item.market_price)}` : ""}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: item.name, text, url: window.location.href });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "Copied to clipboard", description: text });
+    }
+  };
+
   const productForDialog = {
     id: item.id,
     name: item.name,
@@ -601,15 +616,27 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
           <DrawerHeader className="px-5 pb-1 pt-1">
             <div className="flex items-center justify-between">
               <DrawerTitle className="text-base font-semibold">Card Details</DrawerTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsAddDialogOpen(true)}
-                className="gap-1 border-primary/30 hover:border-primary/50 h-7 text-xs rounded-lg"
-              >
-                <Plus className="h-3 w-3" />
-                Add
-              </Button>
+              <div className="flex gap-1.5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShare}
+                  className="gap-1 h-7 text-xs rounded-lg border-border/30"
+                  aria-label="Share card details"
+                >
+                  <Share2 className="h-3 w-3" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsAddDialogOpen(true)}
+                  className="gap-1 border-primary/30 hover:border-primary/50 h-7 text-xs rounded-lg"
+                  aria-label="Add purchase entry"
+                >
+                  <Plus className="h-3 w-3" />
+                  Add
+                </Button>
+              </div>
             </div>
           </DrawerHeader>
 
@@ -618,17 +645,22 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
             <div className="space-y-3 pb-6">
           {/* Item Info */}
           <div className="flex gap-3 p-4 rounded-2xl bg-secondary/30 border border-border/20">
-            <div className="w-20 h-28 flex-shrink-0 rounded border border-border/30 overflow-hidden relative group">
+            <div className="w-20 h-28 flex-shrink-0 rounded border border-border/30 overflow-hidden relative group cursor-pointer" onClick={() => localImageUrl && setIsImageZoomed(true)} role="button" aria-label="Click to zoom image" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && localImageUrl && setIsImageZoomed(true)}>
               {isFetchingImage && (
                 <div className="absolute inset-0 flex items-center justify-center bg-muted/80 z-10">
                   <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                </div>
+              )}
+              {localImageUrl && (
+                <div className="absolute top-1 right-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ZoomIn className="w-3 h-3 text-muted-foreground" />
                 </div>
               )}
               {localImageUrl ? (
                 <img
                   src={localImageUrl}
                   alt={item.name}
-                  className="w-full h-full object-contain p-2"
+                  className="w-full h-full object-contain p-2 hover:scale-105 transition-transform"
                 />
               ) : (
                 <button
@@ -1030,6 +1062,30 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+
+    {/* Image Zoom Overlay */}
+    {isImageZoomed && localImageUrl && (
+      <div
+        className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-8"
+        onClick={() => setIsImageZoomed(false)}
+        role="dialog"
+        aria-label="Zoomed card image"
+      >
+        <button
+          onClick={() => setIsImageZoomed(false)}
+          className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+          aria-label="Close zoom"
+        >
+          <X className="h-5 w-5 text-white" />
+        </button>
+        <img
+          src={localImageUrl}
+          alt={item.name}
+          className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        />
+      </div>
+    )}
     </>
   );
 };

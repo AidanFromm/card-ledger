@@ -248,6 +248,26 @@
 
   .dark .card-clean-elevated {
     box-shadow: var(--shadow-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: hsl(225 15% 11% / 0.85);
+    border-color: hsl(225 14% 22% / 0.4);
+  }
+
+  .card-clean-elevated {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* Dark mode glass card refinement */
+  .dark .glass-card {
+    background: hsl(225 15% 11% / 0.88);
+    border-color: hsl(225 14% 22% / 0.5);
+  }
+
+  /* Ensure text contrast in dark mode */
+  .dark .text-muted-foreground {
+    opacity: 0.85;
   }
 
   /* ===== iOS CONTROLS ===== */

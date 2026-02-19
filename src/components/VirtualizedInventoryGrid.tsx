@@ -68,7 +68,7 @@ export const VirtualizedInventoryGrid = ({
   const virtualRows = rowVirtualizer.getVirtualItems();
 
   return (
-    <div ref={listRef} className="px-4 md:px-0">
+    <div ref={listRef} className="px-4 md:px-0" role="grid" aria-label="Card inventory grid">
       <div
         style={{
           height: `${rowVirtualizer.getTotalSize()}px`,
@@ -96,6 +96,7 @@ export const VirtualizedInventoryGrid = ({
             >
               <div
                 className="grid items-stretch"
+                role="row"
                 style={{
                   gridTemplateColumns: `repeat(${columnCount}, minmax(0, 1fr))`,
                   gap: GAP,

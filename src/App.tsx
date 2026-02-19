@@ -10,6 +10,7 @@ import { OfflineIndicator } from "./components/OfflineIndicator";
 import { WhatsNew } from "./components/WhatsNew";
 import { useBackgroundImageFetch } from "./hooks/useBackgroundImageFetch";
 import { supabase } from "./integrations/supabase/client";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 
 // Lazy-loaded route pages
 const Index = lazy(() => import("./pages/Index"));
@@ -27,6 +28,10 @@ const ClientListView = lazy(() => import("./pages/ClientListView"));
 const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
 const Stats = lazy(() => import("./pages/Stats"));
 const Trends = lazy(() => import("./pages/Trends"));
+const Help = lazy(() => import("./pages/Help"));
+const Legal = lazy(() => import("./pages/Legal"));
+const GradingGuide = lazy(() => import("./pages/GradingGuide"));
+const OnboardingFlow = lazy(() => import("./components/OnboardingFlow"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,6 +82,35 @@ const BackgroundTasks = () => {
   return null;
 };
 
+// Keyboard shortcuts wrapper (needs to be inside BrowserRouter)
+const KeyboardShortcutsProvider = ({ children }: { children: React.ReactNode }) => {
+  useKeyboardShortcuts();
+  return <>{children}</>;
+};
+
+// Screen reader announcer for accessibility
+const ScreenReaderAnnouncer = () => {
+  useEffect(() => {
+    const el = document.createElement("div");
+    el.setAttribute("role", "status");
+    el.setAttribute("aria-live", "polite");
+    el.setAttribute("aria-atomic", "true");
+    el.className = "sr-only";
+    el.id = "sr-announcer";
+    document.body.appendChild(el);
+    return () => { el.remove(); };
+  }, []);
+  return null;
+};
+
+export const announce = (message: string) => {
+  const el = document.getElementById("sr-announcer");
+  if (el) {
+    el.textContent = "";
+    requestAnimationFrame(() => { el.textContent = message; });
+  }
+};
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -85,54 +119,64 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <OfflineIndicator />
-            <WhatsNew />
-            <BackgroundTasks />
-            <Suspense fallback={<PageLoader />}>
-              <ErrorBoundary>
-                <Routes>
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/" element={<Index />} />
-                  <Route path="/dashboard" element={
-                    <Suspense fallback={<PageLoader />}><ProtectedRoute><Dashboard /></ProtectedRoute></Suspense>
-                  } />
-                  <Route path="/inventory" element={
-                    <Suspense fallback={<PageLoader />}><ProtectedRoute><Inventory /></ProtectedRoute></Suspense>
-                  } />
-                  <Route path="/add" element={
-                    <Suspense fallback={<PageLoader />}><ProtectedRoute><AddItem /></ProtectedRoute></Suspense>
-                  } />
-                  <Route path="/scan" element={
-                    <Suspense fallback={<PageLoader />}><ProtectedRoute><ScanCard /></ProtectedRoute></Suspense>
-                  } />
-                  <Route path="/scan/barcode" element={
-                    <Suspense fallback={<PageLoader />}><ProtectedRoute><ScanBarcode /></ProtectedRoute></Suspense>
-                  } />
-                  <Route path="/scan/ai" element={
-                    <Suspense fallback={<PageLoader />}><ProtectedRoute><ScanAI /></ProtectedRoute></Suspense>
-                  } />
-                  <Route path="/sales" element={
-                    <Suspense fallback={<PageLoader />}><ProtectedRoute><Sales /></ProtectedRoute></Suspense>
-                  } />
-                  <Route path="/profile" element={
-                    <Suspense fallback={<PageLoader />}><ProtectedRoute><Profile /></ProtectedRoute></Suspense>
-                  } />
-                  <Route path="/stats" element={
-                    <Suspense fallback={<PageLoader />}><ProtectedRoute><Stats /></ProtectedRoute></Suspense>
-                  } />
-                  <Route path="/trends" element={
-                    <Suspense fallback={<PageLoader />}><ProtectedRoute><Trends /></ProtectedRoute></Suspense>
-                  } />
-                  <Route path="/client-list/:shareToken" element={<ClientListView />} />
-                  <Route path="/onboarding" element={<OnboardingFlow />} />
-                  <Route path="/help" element={
-                    <Suspense fallback={<PageLoader />}><ProtectedRoute><Help /></ProtectedRoute></Suspense>
-                  } />
-                  <Route path="/legal" element={<Legal />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </ErrorBoundary>
-            </Suspense>
+            <KeyboardShortcutsProvider>
+              <OfflineIndicator />
+              <WhatsNew />
+              <BackgroundTasks />
+              <ScreenReaderAnnouncer />
+              <Suspense fallback={<PageLoader />}>
+                <ErrorBoundary>
+                  <Routes>
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/" element={<Index />} />
+                    <Route path="/dashboard" element={
+                      <Suspense fallback={<PageLoader />}><ProtectedRoute><Dashboard /></ProtectedRoute></Suspense>
+                    } />
+                    <Route path="/inventory" element={
+                      <Suspense fallback={<PageLoader />}><ProtectedRoute><Inventory /></ProtectedRoute></Suspense>
+                    } />
+                    <Route path="/add" element={
+                      <Suspense fallback={<PageLoader />}><ProtectedRoute><AddItem /></ProtectedRoute></Suspense>
+                    } />
+                    <Route path="/scan" element={
+                      <Suspense fallback={<PageLoader />}><ProtectedRoute><ScanCard /></ProtectedRoute></Suspense>
+                    } />
+                    <Route path="/scan/barcode" element={
+                      <Suspense fallback={<PageLoader />}><ProtectedRoute><ScanBarcode /></ProtectedRoute></Suspense>
+                    } />
+                    <Route path="/scan/ai" element={
+                      <Suspense fallback={<PageLoader />}><ProtectedRoute><ScanAI /></ProtectedRoute></Suspense>
+                    } />
+                    <Route path="/sales" element={
+                      <Suspense fallback={<PageLoader />}><ProtectedRoute><Sales /></ProtectedRoute></Suspense>
+                    } />
+                    <Route path="/profile" element={
+                      <Suspense fallback={<PageLoader />}><ProtectedRoute><Profile /></ProtectedRoute></Suspense>
+                    } />
+                    <Route path="/stats" element={
+                      <Suspense fallback={<PageLoader />}><ProtectedRoute><Stats /></ProtectedRoute></Suspense>
+                    } />
+                    <Route path="/trends" element={
+                      <Suspense fallback={<PageLoader />}><ProtectedRoute><Trends /></ProtectedRoute></Suspense>
+                    } />
+                    <Route path="/grading-guide" element={
+                      <Suspense fallback={<PageLoader />}><GradingGuide /></Suspense>
+                    } />
+                    <Route path="/client-list/:shareToken" element={<ClientListView />} />
+                    <Route path="/onboarding" element={
+                      <Suspense fallback={<PageLoader />}><OnboardingFlow /></Suspense>
+                    } />
+                    <Route path="/help" element={
+                      <Suspense fallback={<PageLoader />}><ProtectedRoute><Help /></ProtectedRoute></Suspense>
+                    } />
+                    <Route path="/legal" element={
+                      <Suspense fallback={<PageLoader />}><Legal /></Suspense>
+                    } />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </ErrorBoundary>
+              </Suspense>
+            </KeyboardShortcutsProvider>
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>

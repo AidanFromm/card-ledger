@@ -14,6 +14,7 @@ import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, 
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { SkeletonDashboardCard, SkeletonChart } from "@/components/ui/skeleton-card";
+import { MiniSparkline } from "@/components/dashboard/Sparkline";
 import { PageTransition } from "@/components/PageTransition";
 import { calculatePerformanceMetrics, calculateROI } from "@/lib/analytics";
 
@@ -507,14 +508,35 @@ const Dashboard = () => {
                             <p className="text-sm font-medium truncate">{item.product_name}</p>
                             <p className="text-xs text-muted-foreground truncate">{item.set_name}</p>
                           </div>
+                          {/* Mini sparkline */}
+                          {item.current_price && item.previous_price && (
+                            <MiniSparkline
+                              data={[
+                                item.previous_price * 0.98,
+                                item.previous_price,
+                                (item.previous_price + item.current_price) / 2,
+                                item.current_price * 0.99,
+                                item.current_price,
+                              ]}
+                              width={48}
+                              height={24}
+                              color={item.price_change_percent && item.price_change_percent > 0 ? '#10b981' : '#ef4444'}
+                            />
+                          )}
                           <div className="text-right flex-shrink-0">
                             {item.current_price ? (
                               <>
                                 <p className="text-sm font-bold text-success">${item.current_price.toFixed(2)}</p>
                                 {item.price_change_percent !== null && item.price_change_percent !== 0 && (
-                                  <p className={`text-[10px] font-semibold ${item.price_change_percent > 0 ? 'text-success' : 'text-destructive'}`}>
-                                    {item.price_change_percent > 0 ? '+' : ''}{item.price_change_percent.toFixed(1)}%
-                                  </p>
+                                  <div className="flex items-center gap-1 justify-end">
+                                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                                      item.price_change_percent > 0 
+                                        ? 'bg-success/15 text-success' 
+                                        : 'bg-destructive/15 text-destructive'
+                                    }`}>
+                                      {item.price_change_percent > 0 ? '↑' : '↓'} {Math.abs(item.price_change_percent).toFixed(1)}%
+                                    </span>
+                                  </div>
                                 )}
                               </>
                             ) : (

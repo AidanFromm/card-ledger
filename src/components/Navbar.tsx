@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { useState } from "react";
+import { NotificationCenter } from "./NotificationCenter";
 
 const Navbar = () => {
   const location = useLocation();
@@ -42,7 +43,7 @@ const Navbar = () => {
       <div className="container mx-auto px-6">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link to="/scan" className="flex items-center">
+            <Link to="/scan" className="flex items-center" aria-label="Home">
               <motion.div
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
@@ -87,6 +88,14 @@ const Navbar = () => {
                 );
               })}
             </div>
+          </div>
+
+          {/* Right side — notifications + shortcuts hint */}
+          <div className="flex items-center gap-2">
+            <NotificationCenter />
+            <kbd className="hidden lg:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary/40 text-[11px] text-muted-foreground/50 font-mono border border-border/20" aria-label="Press Command+K for quick search">
+              ⌘K
+            </kbd>
           </div>
         </div>
       </div>

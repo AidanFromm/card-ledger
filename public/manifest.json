@@ -1,12 +1,16 @@
 {
-  "name": "CardLedger",
+  "name": "CardLedger — Card Collection Tracker",
   "short_name": "CardLedger",
-  "description": "Track, analyze, and grow your card collection portfolio",
-  "start_url": "/",
+  "description": "Track, analyze, and grow your card collection portfolio. Live prices, FIFO accounting, and portfolio analytics for Pokemon, sports cards, Yu-Gi-Oh, Magic, and more.",
+  "start_url": "/dashboard",
+  "id": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
-  "theme_color": "#1e3a5f",
+  "theme_color": "#0074fb",
   "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en-US",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/logo-icon.jpg",
@@ -33,26 +37,41 @@
       "src": "/brand/marketing-hero.jpg",
       "sizes": "1200x630",
       "type": "image/jpeg",
-      "label": "CardLedger Dashboard"
+      "label": "CardLedger Dashboard — portfolio analytics at a glance",
+      "form_factor": "wide"
     }
   ],
   "shortcuts": [
     {
       "name": "Scan Card",
+      "short_name": "Scan",
       "url": "/scan",
-      "description": "Quickly scan and add a card"
+      "description": "Quickly scan and add a card",
+      "icons": [{ "src": "/logo-icon.jpg", "sizes": "192x192" }]
     },
     {
       "name": "View Inventory",
+      "short_name": "Inventory",
       "url": "/inventory",
       "description": "Browse your collection"
     },
     {
       "name": "Analytics",
+      "short_name": "Analytics",
       "url": "/dashboard",
       "description": "View portfolio analytics"
+    },
+    {
+      "name": "Grading Guide",
+      "short_name": "Grading",
+      "url": "/grading-guide",
+      "description": "PSA, BGS & CGC grading scales"
     }
   ],
   "related_applications": [],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
 }

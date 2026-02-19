@@ -46,6 +46,8 @@ const BottomNav = () => {
     <>
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-50"
+        aria-label="Main navigation"
+        role="navigation"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
@@ -72,6 +74,8 @@ const BottomNav = () => {
                   key={to}
                   to={to}
                   end
+                  aria-label={label}
+                  aria-current={isActive ? "page" : undefined}
                   className="relative flex flex-col items-center justify-center gap-0.5 py-1.5 px-1 rounded-2xl transition-all duration-200 touch-target tap-highlight flex-1"
                 >
                   {/* Active pill */}

@@ -17,17 +17,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, DollarSign, User, ChevronDown, ChevronUp, Pencil, Trash2, TrendingUp, Trophy, Image as ImageIcon, Package } from "lucide-react";
+import { Search, DollarSign, User, ChevronDown, ChevronUp, Pencil, Trash2, TrendingUp, TrendingDown, Trophy, Image as ImageIcon, Package, BarChart3, Calendar } from "lucide-react";
 import { format, subDays, subMonths, subYears, isAfter } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import {
   AreaChart,
   Area,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 
 // Animated counter hook for count-up effect
@@ -176,6 +181,90 @@ const Sales = () => {
     return Array.from(itemProfits.values())
       .sort((a, b) => b.totalProfit - a.totalProfit)
       .slice(0, 10);
+  }, [salesInRange]);
+
+  // Worst performers (bottom 5 by profit)
+  const worstSellers = useMemo(() => {
+    const itemProfits = new Map<string, {
+      name: string;
+      totalProfit: number;
+      quantitySold: number;
+      imageUrl?: string;
+    }>();
+
+    salesInRange.forEach(sale => {
+      const key = sale.item_name;
+      const existing = itemProfits.get(key);
+      const profit = (sale.profit || 0) * sale.quantity_sold;
+
+      if (existing) {
+        existing.totalProfit += profit;
+        existing.quantitySold += sale.quantity_sold;
+      } else {
+        itemProfits.set(key, {
+          name: sale.item_name,
+          totalProfit: profit,
+          quantitySold: sale.quantity_sold,
+          imageUrl: (sale as any).card_image_url,
+        });
+      }
+    });
+
+    return Array.from(itemProfits.values())
+      .sort((a, b) => a.totalProfit - b.totalProfit)
+      .slice(0, 5);
+  }, [salesInRange]);
+
+  // Sales by category breakdown
+  const salesByCategory = useMemo(() => {
+    const categories: Record<string, { count: number; revenue: number; profit: number }> = {};
+    salesInRange.forEach(sale => {
+      const cat = (sale as any).grading_company && (sale as any).grading_company !== 'raw' 
+        ? 'Graded' 
+        : (sale as any).category === 'sealed' ? 'Sealed' : 'Raw';
+      if (!categories[cat]) categories[cat] = { count: 0, revenue: 0, profit: 0 };
+      categories[cat].count += sale.quantity_sold;
+      categories[cat].revenue += sale.sale_price * sale.quantity_sold;
+      categories[cat].profit += (sale.profit || 0) * sale.quantity_sold;
+    });
+    const COLORS = ['hsl(212, 100%, 49%)', 'hsl(142, 76%, 45%)', 'hsl(271, 81%, 56%)'];
+    return Object.entries(categories).map(([name, data], i) => ({
+      name,
+      ...data,
+      color: COLORS[i % COLORS.length],
+    }));
+  }, [salesInRange]);
+
+  // Monthly comparison
+  const monthlyComparison = useMemo(() => {
+    const months: Record<string, { month: string; revenue: number; profit: number; count: number }> = {};
+    sales.forEach(sale => {
+      const d = new Date(sale.sale_date);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const label = format(d, 'MMM yy');
+      if (!months[key]) months[key] = { month: label, revenue: 0, profit: 0, count: 0 };
+      months[key].revenue += sale.sale_price * sale.quantity_sold;
+      months[key].profit += (sale.profit || 0) * sale.quantity_sold;
+      months[key].count += sale.quantity_sold;
+    });
+    return Object.entries(months)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([, d]) => d)
+      .slice(-12);
+  }, [sales]);
+
+  // Profit margin over time (per-sale margin %)
+  const marginOverTime = useMemo(() => {
+    if (salesInRange.length === 0) return [];
+    const sorted = [...salesInRange].sort((a, b) => new Date(a.sale_date).getTime() - new Date(b.sale_date).getTime());
+    return sorted.map(sale => {
+      const margin = sale.sale_price > 0 ? ((sale.profit || 0) / sale.sale_price) * 100 : 0;
+      return {
+        date: format(new Date(sale.sale_date), "MMM d"),
+        margin: Number(margin.toFixed(1)),
+        name: sale.item_name,
+      };
+    });
   }, [salesInRange]);
 
   const timeRanges: TimeRange[] = ["7D", "1M", "3M", "6M", "1Y", "ALL"];
@@ -706,6 +795,131 @@ const Sales = () => {
           )}
         </motion.div>
 
+        {/* Profit Margin Over Time */}
+        {marginOverTime.length > 2 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+            className="card-clean-elevated rounded-3xl p-5 mb-6"
+          >
+            <h3 className="text-base font-bold flex items-center gap-2 mb-4">
+              <BarChart3 className="h-4 w-4 text-primary" />
+              Profit Margin Trend
+            </h3>
+            <div className="h-[160px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={marginOverTime} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))', opacity: 0.6 }} interval="preserveStartEnd" />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))', opacity: 0.6 }} tickFormatter={(v) => `${v}%`} />
+                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', fontSize: '12px' }}
+                    formatter={(value: number) => [`${value}%`, 'Margin']} />
+                  <Line type="monotone" dataKey="margin" stroke="hsl(212, 100%, 49%)" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Worst Performers */}
+        {worstSellers.length > 0 && worstSellers[0].totalProfit < 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.47 }}
+            className="card-clean-elevated rounded-3xl p-5 mb-6"
+          >
+            <h3 className="text-base font-bold flex items-center gap-2 mb-4">
+              <TrendingDown className="h-4 w-4 text-destructive" />
+              Worst Performers
+            </h3>
+            <div className="space-y-2">
+              {worstSellers.filter(s => s.totalProfit < 0).map((item, i) => (
+                <div key={item.name} className="flex items-center gap-3 p-2 rounded-xl bg-secondary/30">
+                  <span className="text-xs font-bold text-muted-foreground w-5">{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{item.name}</p>
+                    <p className="text-[10px] text-muted-foreground">{item.quantitySold} sold</p>
+                  </div>
+                  <span className="text-sm font-bold text-destructive">
+                    -${formatCurrency(Math.abs(item.totalProfit))}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Sales by Category */}
+        {salesByCategory.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.48 }}
+            className="card-clean-elevated rounded-3xl p-5 mb-6"
+          >
+            <h3 className="text-base font-bold flex items-center gap-2 mb-4">
+              <Package className="h-4 w-4 text-purple-500" />
+              Sales by Category
+            </h3>
+            <div className="space-y-3">
+              {salesByCategory.map(cat => {
+                const totalRev = salesByCategory.reduce((s, c) => s + c.revenue, 0);
+                const pct = totalRev > 0 ? (cat.revenue / totalRev) * 100 : 0;
+                return (
+                  <div key={cat.name}>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
+                        <span className="text-sm font-medium">{cat.name}</span>
+                      </div>
+                      <span className="text-xs text-muted-foreground">{cat.count} items · ${formatCurrency(cat.revenue)}</span>
+                    </div>
+                    <div className="h-2 bg-secondary/30 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: cat.color }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Monthly Comparison */}
+        {monthlyComparison.length > 1 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.49 }}
+            className="card-clean-elevated rounded-3xl p-5 mb-6"
+          >
+            <h3 className="text-base font-bold flex items-center gap-2 mb-4">
+              <Calendar className="h-4 w-4 text-amber-500" />
+              Monthly Comparison
+            </h3>
+            <div className="h-[180px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyComparison} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))', opacity: 0.6 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))', opacity: 0.6 }} />
+                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', fontSize: '12px' }}
+                    formatter={(value: number, name: string) => [`$${formatCurrency(value)}`, name === 'revenue' ? 'Revenue' : 'Profit']} />
+                  <Bar dataKey="revenue" fill="hsl(212, 100%, 49%)" radius={[4, 4, 0, 0]} opacity={0.4} />
+                  <Bar dataKey="profit" radius={[4, 4, 0, 0]}>
+                    {monthlyComparison.map((entry, index) => (
+                      <Cell key={index} fill={entry.profit >= 0 ? 'rgb(16, 185, 129)' : 'rgb(239, 68, 68)'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="flex items-center gap-4 mt-2 justify-center">
+              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-primary/40" /><span className="text-[10px] text-muted-foreground">Revenue</span></div>
+              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-emerald-500" /><span className="text-[10px] text-muted-foreground">Profit</span></div>
+            </div>
+          </motion.div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -742,11 +956,17 @@ const Sales = () => {
           </div>
           <div className="pb-4 px-3">
             {filteredSales.length === 0 ? (
-              <div className="text-center py-8 border border-border/30 rounded-lg bg-muted/10">
-                <p className="text-sm text-muted-foreground/70">
+              <div className="text-center py-12 border border-border/30 rounded-2xl bg-muted/5">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="h-7 w-7 text-emerald-500/40" />
+                </div>
+                <p className="text-sm font-medium text-foreground mb-1">
+                  {sales.length === 0 ? "No sales yet" : "No matches"}
+                </p>
+                <p className="text-xs text-muted-foreground/60 max-w-[200px] mx-auto">
                   {sales.length === 0
-                    ? "No sales yet"
-                    : "No matches"}
+                    ? "Record your first sale from your inventory to start tracking profits."
+                    : "Try a different search term."}
                 </p>
               </div>
             ) : (

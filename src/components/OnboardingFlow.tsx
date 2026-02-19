@@ -10,6 +10,8 @@ interface OnboardingScreen {
   icon: React.ElementType;
   iconColor: string;
   iconBg: string;
+  gradientFrom: string;
+  gradientTo: string;
   headline: string;
   description: string;
 }
@@ -19,6 +21,8 @@ const screens: OnboardingScreen[] = [
     icon: Search,
     iconColor: "text-primary",
     iconBg: "bg-primary/15",
+    gradientFrom: "from-primary/20",
+    gradientTo: "to-blue-600/5",
     headline: "Track Your Collection",
     description:
       "Add cards from any game — Pokemon, sports, Yu-Gi-Oh, Magic, and more. Import from CSV or search our database of thousands of cards.",
@@ -27,6 +31,8 @@ const screens: OnboardingScreen[] = [
     icon: TrendingUp,
     iconColor: "text-emerald-500",
     iconBg: "bg-emerald-500/15",
+    gradientFrom: "from-emerald-500/20",
+    gradientTo: "to-green-600/5",
     headline: "Get Live Prices",
     description:
       "See real-time market values from TCGPlayer, eBay, and more. Know exactly what your collection is worth — updated every day.",
@@ -35,6 +41,8 @@ const screens: OnboardingScreen[] = [
     icon: PieChart,
     iconColor: "text-violet-500",
     iconBg: "bg-violet-500/15",
+    gradientFrom: "from-violet-500/20",
+    gradientTo: "to-purple-600/5",
     headline: "Analyze Performance",
     description:
       "Track your wins, calculate FIFO profits, and see your portfolio over time. Understand which cards are making you money.",
@@ -43,6 +51,8 @@ const screens: OnboardingScreen[] = [
     icon: Sparkles,
     iconColor: "text-amber-500",
     iconBg: "bg-amber-500/15",
+    gradientFrom: "from-amber-500/20",
+    gradientTo: "to-yellow-600/5",
     headline: "Start Collecting",
     description:
       "You're all set! Search for your first card, import a CSV, or add one manually. Your collection journey starts now.",
@@ -60,6 +70,7 @@ export const hasCompletedOnboarding = () => {
 const OnboardingFlow = () => {
   const navigate = useNavigate();
   const [currentScreen, setCurrentScreen] = useState(0);
+  const [direction, setDirection] = useState(1);
   const isLast = currentScreen === screens.length - 1;
 
   const handleNext = () => {
@@ -67,12 +78,16 @@ const OnboardingFlow = () => {
       markOnboardingComplete();
       navigate("/auth");
     } else {
+      setDirection(1);
       setCurrentScreen((s) => s + 1);
     }
   };
 
   const handleBack = () => {
-    if (currentScreen > 0) setCurrentScreen((s) => s - 1);
+    if (currentScreen > 0) {
+      setDirection(-1);
+      setCurrentScreen((s) => s - 1);
+    }
   };
 
   const handleSkip = () => {
@@ -80,41 +95,92 @@ const OnboardingFlow = () => {
     navigate("/auth");
   };
 
+  const goToScreen = (i: number) => {
+    setDirection(i > currentScreen ? 1 : -1);
+    setCurrentScreen(i);
+  };
+
   const screen = screens[currentScreen];
+
+  const slideVariants = {
+    enter: (dir: number) => ({ opacity: 0, x: dir * 60, scale: 0.96 }),
+    center: { opacity: 1, x: 0, scale: 1 },
+    exit: (dir: number) => ({ opacity: 0, x: dir * -60, scale: 0.96 }),
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Ambient glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[140px]" />
-      </div>
+      {/* Animated ambient glow — changes color per step */}
+      <motion.div
+        key={currentScreen}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="absolute inset-0 pointer-events-none"
+      >
+        <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-radial ${screen.gradientFrom} ${screen.gradientTo} to-transparent rounded-full blur-[160px]`} />
+      </motion.div>
+
+      {/* Welcome animation on first screen */}
+      {currentScreen === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="absolute top-12 text-center"
+        >
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.5 }}
+            transition={{ delay: 0.3 }}
+            className="text-xs font-medium text-muted-foreground tracking-widest uppercase"
+          >
+            Welcome to
+          </motion.p>
+        </motion.div>
+      )}
 
       <div className="w-full max-w-sm relative z-10 flex flex-col items-center text-center flex-1 justify-center">
         {/* Skip button */}
         {!isLast && (
-          <button
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
             onClick={handleSkip}
             className="absolute top-0 right-0 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Skip onboarding"
           >
             Skip
-          </button>
+          </motion.button>
         )}
 
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={currentScreen}
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
             className="flex flex-col items-center"
           >
-            {/* Illustration area */}
-            <div
-              className={`w-28 h-28 rounded-3xl ${screen.iconBg} flex items-center justify-center mb-8`}
+            {/* Glassmorphism card for icon */}
+            <motion.div
+              initial={{ scale: 0.8, rotate: -5 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 20 }}
+              className="relative mb-8"
             >
-              <screen.icon className={`w-14 h-14 ${screen.iconColor}`} />
-            </div>
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 dark:from-white/10 dark:to-white/5 rounded-3xl blur-xl scale-110" />
+              <div
+                className={`relative w-28 h-28 rounded-3xl ${screen.iconBg} flex items-center justify-center backdrop-blur-sm border border-white/10 dark:border-white/10`}
+                style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)' }}
+              >
+                <screen.icon className={`w-14 h-14 ${screen.iconColor}`} />
+              </div>
+            </motion.div>
 
             {/* Headline */}
             <h1 className="text-2xl font-bold text-foreground mb-3">
@@ -128,19 +194,33 @@ const OnboardingFlow = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Progress dots */}
-        <div className="flex items-center gap-2 mt-10 mb-8">
+        {/* Progress dots — animated pill style */}
+        <div className="flex items-center gap-2 mt-10 mb-8" role="tablist" aria-label="Onboarding progress">
           {screens.map((_, i) => (
             <button
               key={i}
-              onClick={() => setCurrentScreen(i)}
-              className={`rounded-full transition-all duration-300 ${
-                i === currentScreen
-                  ? "w-8 h-2.5 bg-primary"
-                  : "w-2.5 h-2.5 bg-muted-foreground/30"
-              }`}
-              aria-label={`Go to screen ${i + 1}`}
-            />
+              onClick={() => goToScreen(i)}
+              role="tab"
+              aria-selected={i === currentScreen}
+              aria-label={`Go to step ${i + 1} of ${screens.length}`}
+              className="relative rounded-full transition-all duration-300"
+              style={{
+                width: i === currentScreen ? 32 : 10,
+                height: 10,
+              }}
+            >
+              <motion.div
+                layoutId={undefined}
+                className="absolute inset-0 rounded-full"
+                style={{
+                  backgroundColor: i === currentScreen ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground) / 0.3)',
+                }}
+                animate={{
+                  scale: i === currentScreen ? 1 : 0.8,
+                }}
+                transition={{ duration: 0.3 }}
+              />
+            </button>
           ))}
         </div>
 
@@ -151,7 +231,8 @@ const OnboardingFlow = () => {
               variant="outline"
               size="lg"
               onClick={handleBack}
-              className="rounded-xl h-12 px-5"
+              className="rounded-xl h-12 px-5 backdrop-blur-sm bg-secondary/30 border-border/30"
+              aria-label="Go to previous step"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
               Back
@@ -160,10 +241,13 @@ const OnboardingFlow = () => {
           <Button
             size="lg"
             onClick={handleNext}
-            className="rounded-xl h-12 flex-1 text-base font-medium"
+            className="rounded-xl h-12 flex-1 text-base font-medium relative overflow-hidden"
+            aria-label={isLast ? "Complete onboarding" : "Go to next step"}
           >
-            {isLast ? "Let's Go!" : "Continue"}
-            {!isLast && <ChevronRight className="w-4 h-4 ml-1" />}
+            <span className="relative z-10 flex items-center justify-center gap-1">
+              {isLast ? "Let's Go!" : "Continue"}
+              {!isLast && <ChevronRight className="w-4 h-4" />}
+            </span>
           </Button>
         </div>
       </div>
