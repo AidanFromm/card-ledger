@@ -305,7 +305,11 @@ const Profile = () => {
                   }`}
                 >
                   {a.image ? (
-                    <img src={a.image} alt={a.label} loading="lazy" className="w-12 h-12 object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; const next = e.currentTarget.nextElementSibling as HTMLElement; if (next) next.style.display = 'block'; }} />
+                    <img src={a.image} alt={a.label} loading="lazy" className="w-12 h-12 object-contain" onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const next = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (next) next.style.display = 'block';
+                    }} />
                   ) : null}
                   <span className={`text-xl${a.image ? ' hidden' : ''}`}>{a.icon}</span>
                   <p className="text-[9px] font-medium mt-1 leading-tight">{a.label}</p>

@@ -203,9 +203,13 @@ const OnboardingFlow = () => {
                   alt={screen.imageAlt}
                   loading="lazy"
                   className="w-full h-full object-cover"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = 'block';
+                  }}
                 />
-                <screen.icon className={`w-14 h-14 ${screen.iconColor} absolute`} style={{ display: 'none' }} />
+                <screen.icon className={`w-14 h-14 ${screen.iconColor} absolute hidden`} />
               </div>
             </motion.div>
 
