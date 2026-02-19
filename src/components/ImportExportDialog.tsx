@@ -223,7 +223,7 @@ export const ImportExportDialog = ({
       }
 
       if (imagesFound > 0) {
-        toast({ title: "Card images found! 🖼️", description: `Matched ${imagesFound} images. Pull to refresh!`, duration: 8000 });
+        toast({ title: "Card images found", description: `Matched ${imagesFound} images. Pull to refresh.`, duration: 8000 });
       }
     } catch {}
   };
@@ -236,7 +236,7 @@ export const ImportExportDialog = ({
     const csv = exportToCSV(items);
     const date = new Date().toISOString().split("T")[0];
     downloadCSV(csv, `cardledger-inventory-${date}.csv`);
-    toast({ title: "CSV downloaded! 📋", description: `${items.length} cards exported.` });
+    toast({ title: "CSV downloaded", description: `${items.length} cards exported.` });
   };
 
   const handleExportJSON = () => {
@@ -247,7 +247,7 @@ export const ImportExportDialog = ({
     const json = exportToJSON(items);
     const date = new Date().toISOString().split("T")[0];
     downloadJSON(json, `cardledger-backup-${date}.json`);
-    toast({ title: "Backup saved! 💾", description: `${items.length} cards backed up.` });
+    toast({ title: "Backup saved", description: `${items.length} cards backed up.` });
   };
 
   const handleDownloadTemplate = () => {
@@ -428,12 +428,12 @@ export const ImportExportDialog = ({
       saveImportHistoryEntry(historyEntry);
 
       toast({
-        title: "Import complete! 🎉",
+        title: "Import complete",
         description: `${imported} cards added to your collection.`,
       });
 
       setTimeout(() => {
-        toast({ title: "📷 Finding card images...", description: "Matching images in the background...", duration: 10000 });
+        toast({ title: "Finding card images", description: "Matching images in the background...", duration: 10000 });
       }, 1000);
 
       setValidationResults(null);
@@ -475,7 +475,7 @@ export const ImportExportDialog = ({
       setImportHistory(getImportHistory());
       onImportComplete();
 
-      toast({ title: "Import undone! ↩️", description: `Removed ${entry.cardCount} cards from that import.` });
+      toast({ title: "Import undone", description: `Removed ${entry.cardCount} cards from that import.` });
     } catch (error: any) {
       toast({ variant: "destructive", title: "Undo failed", description: error.message });
     } finally {

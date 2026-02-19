@@ -217,7 +217,7 @@ export const Goals = ({
       triggerCelebration('big');
       newlyCompleted.forEach(goal => {
         toast({
-          title: "🎯 Goal Achieved!",
+          title: "Goal achieved",
           description: `You've reached your goal: ${goal.title}`,
         });
       });

@@ -163,7 +163,7 @@ export const CreateClientListDialog = ({
     const shareUrl = `${window.location.origin}/client-list/${shareToken}`;
     navigator.clipboard.writeText(shareUrl);
     toast({
-      title: "Link copied! 📋",
+      title: "Link copied",
       description: "Share this link with your client — no login required.",
     });
   };

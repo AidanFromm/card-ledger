@@ -52,8 +52,8 @@ export const InventoryTableView = ({ items, selectionMode, selectedItems, onTogg
     return sortDir === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />;
   };
 
-  const columns: { key: SortKey; label: string; className?: string }[] = [
-    { key: 'name', label: 'Name', className: 'text-left min-w-[150px]' },
+  const columns: { key: SortKey; label: string; className?: string; sticky?: boolean }[] = [
+    { key: 'name', label: 'Name', className: 'text-left min-w-[150px]', sticky: true },
     { key: 'set_name', label: 'Set', className: 'text-left min-w-[120px] hidden sm:table-cell' },
     { key: 'grade', label: 'Grade', className: 'text-left min-w-[80px]' },
     { key: 'quantity', label: 'Qty', className: 'text-right w-[60px]' },
@@ -67,7 +67,10 @@ export const InventoryTableView = ({ items, selectionMode, selectedItems, onTogg
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="overflow-x-auto rounded-2xl border border-border/20"
+      className="overflow-x-auto rounded-2xl border border-border/20 -mx-4 sm:mx-0"
+      role="region"
+      aria-label="Inventory table"
+      tabIndex={0}
     >
       <table className="w-full text-sm">
         <thead>
@@ -77,7 +80,7 @@ export const InventoryTableView = ({ items, selectionMode, selectedItems, onTogg
               <th
                 key={col.key}
                 onClick={() => toggleSort(col.key)}
-                className={`px-3 py-3 font-semibold text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors select-none ${col.className || ''}`}
+                className={`px-3 py-3 font-semibold text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors select-none ${col.className || ''} ${col.sticky ? 'sticky left-0 z-10 bg-secondary/20 backdrop-blur-sm' : ''}`}
               >
                 <div className={`flex items-center gap-1 ${col.className?.includes('text-right') ? 'justify-end' : ''}`}>
                   {col.label}
@@ -108,7 +111,7 @@ export const InventoryTableView = ({ items, selectionMode, selectedItems, onTogg
                     </div>
                   </td>
                 )}
-                <td className="px-3 py-2.5">
+                <td className="px-3 py-2.5 sticky left-0 z-10 bg-card backdrop-blur-sm">
                   <div className="flex items-center gap-2">
                     {item.card_image_url && <img src={item.card_image_url} alt="" className="w-7 h-10 object-contain rounded flex-shrink-0" />}
                     <span className="font-medium truncate max-w-[180px]">{item.name}</span>

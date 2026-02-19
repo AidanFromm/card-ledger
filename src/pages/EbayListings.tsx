@@ -123,7 +123,7 @@ const EbayListings = () => {
       if (error) throw error;
 
       toast({
-        title: "Import Successful! 🎉",
+        title: "Import successful",
         description: `Imported ${inventoryItems.length} items to your inventory`,
       });
 

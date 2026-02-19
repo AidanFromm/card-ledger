@@ -20,7 +20,8 @@ import {
 import { Search, DollarSign, User, ChevronDown, ChevronUp, Pencil, Trash2, TrendingUp, TrendingDown, Trophy, Image as ImageIcon, Package, BarChart3, Calendar } from "lucide-react";
 import { format, subDays, subMonths, subYears, isAfter } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { PageTransition } from "@/components/PageTransition";
 import {
   AreaChart,
   Area,
@@ -534,6 +535,7 @@ const Sales = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
+      <PageTransition>
       <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
         {/* Compact Stats Grid - Robinhood Style */}
         <motion.div
@@ -1425,6 +1427,7 @@ const Sales = () => {
         </AlertDialogContent>
       </AlertDialog>
       </main>
+      </PageTransition>
       <BottomNav />
     </div>
   );

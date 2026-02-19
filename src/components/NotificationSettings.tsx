@@ -343,7 +343,7 @@ const NotificationSettings = () => {
             onClick={async () => {
               const { showLocalNotification } = await import("@/lib/notifications");
               await showLocalNotification({
-                title: "🎉 Test Notification",
+                title: "Test Notification",
                 body: "Push notifications are working correctly!",
                 tag: "test",
               });

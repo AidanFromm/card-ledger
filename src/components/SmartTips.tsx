@@ -66,7 +66,7 @@ export function SmartTips() {
         id: 'streak-7',
         type: 'celebration',
         icon: Sparkles,
-        title: '🔥 Week Warrior!',
+        title: 'Week Warrior',
         message: `Amazing! You've used CardLedger ${streak.currentStreak} days in a row. Keep it up!`,
       });
     } else if (streak.currentStreak >= 3) {

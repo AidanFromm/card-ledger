@@ -158,7 +158,7 @@ export function usePriceAlerts(): UsePriceAlertsReturn {
     // Show notifications for triggered alerts
     for (const alert of triggered) {
       toast({
-        title: '🔔 Price Alert Triggered!',
+        title: 'Price alert triggered',
         description: `${alert.itemName} is now $${alert.currentPrice?.toFixed(2)} (${alert.type} $${alert.targetPrice})`,
       });
     }

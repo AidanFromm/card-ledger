@@ -141,7 +141,7 @@ export const useSalesDb = () => {
       if (error) throw error;
 
       toast({
-        title: "Sale recorded! 💰",
+        title: "Sale recorded",
         description: "Nice move — your profit is updated.",
       });
     } catch (error: any) {

@@ -57,6 +57,7 @@ const RecordSaleDialog = ({ open, onOpenChange, preselectedItems = [], onSaleCom
   const [useBulkTotal, setUseBulkTotal] = useState(false);
   const [bulkTotalPrice, setBulkTotalPrice] = useState("");
   const [shippingCost, setShippingCost] = useState("");
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Format currency with commas
   const formatCurrency = (amount: number) => {
@@ -151,34 +152,26 @@ const RecordSaleDialog = ({ open, onOpenChange, preselectedItems = [], onSaleCom
   };
 
   const handleSingleSaleSubmit = async () => {
-    if (!selectedItem) {
-      toast({
-        title: "Error",
-        description: "Please select an item",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!selectedItem) return;
 
+    const newErrors: Record<string, string> = {};
     const quantityNum = parseInt(quantity);
+    const salePriceVal = parseFloat(salePrice);
     
-    if (isNaN(quantityNum) || quantityNum <= 0) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid quantity",
-        variant: "destructive",
-      });
-      return;
+    if (isNaN(quantityNum) || quantityNum < 1) {
+      newErrors.quantity = 'Quantity must be at least 1';
+    } else if (quantityNum > selectedItem.quantity) {
+      newErrors.quantity = `Only ${selectedItem.quantity} available`;
+    }
+    if (isNaN(salePriceVal) || salePriceVal < 0) {
+      newErrors.salePrice = 'Enter a valid sale price';
     }
 
-    if (quantityNum > selectedItem.quantity) {
-      toast({
-        title: "Error",
-        description: "Sale quantity exceeds available inventory",
-        variant: "destructive",
-      });
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(newErrors);
       return;
     }
+    setFormErrors({});
 
     setLoading(true);
 
@@ -731,10 +724,11 @@ const RecordSaleDialog = ({ open, onOpenChange, preselectedItems = [], onSaleCom
                       onChange={(e) => {
                         const value = e.target.value.replace(/[^0-9]/g, '');
                         setQuantity(value);
+                        setFormErrors(prev => ({ ...prev, quantity: '' }));
                       }}
                       onFocus={(e) => e.target.select()}
                       placeholder="1"
-                      className="h-10 w-16 text-center font-semibold"
+                      className={`h-10 w-16 text-center font-semibold ${formErrors.quantity ? 'border-destructive' : ''}`}
                     />
                     {selectedItem && (
                       <div className="flex gap-1 flex-wrap">
@@ -755,6 +749,7 @@ const RecordSaleDialog = ({ open, onOpenChange, preselectedItems = [], onSaleCom
                       </div>
                     )}
                   </div>
+                  {formErrors.quantity && <p className="text-xs text-destructive mt-1">{formErrors.quantity}</p>}
                 </div>
 
                 {/* Sale Price with market price quick buttons */}
@@ -768,9 +763,9 @@ const RecordSaleDialog = ({ open, onOpenChange, preselectedItems = [], onSaleCom
                       step="0.01"
                       min="0"
                       value={salePrice}
-                      onChange={(e) => setSalePrice(e.target.value)}
+                      onChange={(e) => { setSalePrice(e.target.value); setFormErrors(prev => ({ ...prev, salePrice: '' })); }}
                       placeholder="0.00"
-                      className="h-10 pl-7 font-semibold"
+                      className={`h-10 pl-7 font-semibold ${formErrors.salePrice ? 'border-destructive' : ''}`}
                       required
                     />
                   </div>

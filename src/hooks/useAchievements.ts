@@ -293,7 +293,7 @@ export function useAchievements(): UseAchievementsReturn {
           triggerCelebration(intensity);
           
           toast({
-            title: "🏆 Achievement Unlocked!",
+            title: "Achievement unlocked",
             description: `${achievement.name}: ${achievement.description}`,
           });
           

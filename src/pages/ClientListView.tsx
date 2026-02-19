@@ -80,7 +80,7 @@ export default function ClientListView() {
 
   const copyLink = () => {
     navigator.clipboard.writeText(window.location.href);
-    toast({ title: "Link copied! 📋", description: "Share this link with anyone." });
+    toast({ title: "Link copied", description: "Share this link with anyone." });
   };
 
   if (loading) {

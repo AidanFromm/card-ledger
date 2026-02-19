@@ -59,6 +59,31 @@ const Dashboard = () => {
   const [timeRange, setTimeRange] = useState<'7D' | '1M' | '3M' | '6M' | '1Y' | 'ALL'>('ALL');
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [portfolioTimelineRange, setPortfolioTimelineRange] = useState<'7D' | '30D' | '90D'>('30D');
+  const [lastSyncTime, setLastSyncTime] = useState<number>(Date.now());
+
+  // Track last sync time
+  useEffect(() => {
+    if (!loading && !isSyncing) {
+      setLastSyncTime(Date.now());
+    }
+  }, [loading, isSyncing]);
+
+  const getTimeSinceSync = () => {
+    const diff = Date.now() - lastSyncTime;
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return 'Just now';
+    if (minutes === 1) return '1 min ago';
+    if (minutes < 60) return `${minutes} min ago`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours}h ago`;
+  };
+
+  // Force re-render every minute for the time display
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => setTick(t => t + 1), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const formatCurrency = (amount: number) =>
     amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -199,15 +224,18 @@ const Dashboard = () => {
           >
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground/70">Portfolio</p>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => refetch()}
-                disabled={isSyncing}
-                className="gap-1.5 h-8 px-2 text-xs rounded-xl text-muted-foreground/60"
-              >
-                <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-              </Button>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-muted-foreground/50">Synced {getTimeSinceSync()}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => { refetch(); setLastSyncTime(Date.now()); }}
+                  disabled={isSyncing}
+                  className="gap-1.5 h-8 px-2 text-xs rounded-xl text-muted-foreground/60"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
             </div>
 
             {/* Big Number — gradient text, count-up animated */}
@@ -309,7 +337,7 @@ const Dashboard = () => {
             </div>
 
             {cumulativeChartData.length > 0 ? (
-              <div className="h-[220px] w-full">
+              <div className="h-[220px] w-full" role="img" aria-label={`Portfolio value chart showing cumulative value over time. Current value: $${formatCurrency(totalValue)}`}>
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={cumulativeChartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                     <defs>
@@ -457,7 +485,7 @@ const Dashboard = () => {
                         ))}
                       </div>
                     </div>
-                    <div className="h-[140px]">
+                    <div className="h-[140px]" role="img" aria-label="Collection value timeline chart">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={portfolioTimeline} margin={{ top: 5, right: 5, left: 5, bottom: 0 }}>
                           <defs>
@@ -680,7 +708,7 @@ const Dashboard = () => {
                   <div className="card-clean-elevated p-4 rounded-2xl">
                     <p className="label-metric mb-4">By Grading Company</p>
                     <div className="flex items-center gap-6">
-                      <div className="w-28 h-28 flex-shrink-0">
+                      <div className="w-28 h-28 flex-shrink-0" role="img" aria-label="Grading company distribution pie chart">
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
                             <Pie
@@ -718,7 +746,7 @@ const Dashboard = () => {
                 {hasBarData && (
                   <div className="card-clean-elevated p-4 rounded-2xl">
                     <p className="label-metric mb-4">By Grade Level</p>
-                    <div className="h-[160px]">
+                    <div className="h-[160px]" role="img" aria-label="Grade level distribution bar chart">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={barData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                           <defs>

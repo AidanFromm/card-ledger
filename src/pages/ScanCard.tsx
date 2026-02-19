@@ -734,10 +734,10 @@ const ScanCard = () => {
                   ? "Try adjusting your filters or clear them."
                   : "Try a different name or check the spelling."}
               </p>
-              <div className="text-xs text-muted-foreground/60 mb-4 space-y-0.5">
-                <p>💡 Try searching with fewer words</p>
-                <p>💡 Check for typos in the card name</p>
-                <p>💡 Use set abbreviations like "SV" or "OP01"</p>
+              <div className="text-xs text-muted-foreground/60 mb-4 space-y-1">
+                <p>Try searching with fewer words</p>
+                <p>Check for typos in the card name</p>
+                <p>Use set abbreviations like "SV" or "OP01"</p>
               </div>
               {hasActiveFilters && searchResults.length > 0 ? (
                 <Button variant="outline" onClick={clearFilters} className="rounded-xl"><X className="w-4 h-4 mr-2" />Clear Filters</Button>

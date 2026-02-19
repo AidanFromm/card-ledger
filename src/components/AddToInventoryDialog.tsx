@@ -239,9 +239,30 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
     fetchGradedPrice();
   }, [product, formData.grading_company, formData.grade]);
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    const qty = parseInt(formData.quantity || '1');
+    const price = parseFloat(formData.purchase_price);
+
+    if (formData.quantity && (isNaN(qty) || qty < 1)) {
+      newErrors.quantity = 'Quantity must be at least 1';
+    }
+    if (formData.purchase_price && (isNaN(price) || price < 0)) {
+      newErrors.purchase_price = 'Price must be 0 or more';
+    }
+    if (formData.grading_company !== 'raw' && !formData.grade) {
+      newErrors.grade = 'Select a grade for graded cards';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!product) return;
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
     try {
@@ -527,10 +548,12 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
                 type="number"
                 min="1"
                 value={formData.quantity}
-                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                onChange={(e) => { setFormData({ ...formData, quantity: e.target.value }); setErrors(prev => ({ ...prev, quantity: '' })); }}
                 placeholder="1"
                 required
+                className={errors.quantity ? 'border-destructive focus:ring-destructive/20' : ''}
               />
+              {errors.quantity && <p className="text-xs text-destructive">{errors.quantity}</p>}
             </div>
 
             {/* Grading - only show for non-sealed products */}
@@ -710,12 +733,13 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
                       step="0.01"
                       min="0"
                       value={formData.purchase_price}
-                      onChange={(e) => setFormData({ ...formData, purchase_price: e.target.value })}
+                      onChange={(e) => { setFormData({ ...formData, purchase_price: e.target.value }); setErrors(prev => ({ ...prev, purchase_price: '' })); }}
                       placeholder="0.00"
-                      className="pl-7"
+                      className={`pl-7 ${errors.purchase_price ? 'border-destructive focus:ring-destructive/20' : ''}`}
                       required
                     />
                   </div>
+                  {errors.purchase_price && <p className="text-xs text-destructive">{errors.purchase_price}</p>}
                 </div>
                 
                 {/* Purchase Date */}

@@ -114,7 +114,7 @@ export const useInventoryDb = () => {
       if (error) throw error;
 
       toast({
-        title: "Added to your collection! 🎉",
+        title: "Added to collection",
         description: `${item.name || "Card"} is now in your inventory.`,
       });
     } catch (error: any) {

@@ -66,6 +66,26 @@ const Inventory = () => {
   const [bulkGrading, setBulkGrading] = useState<string>('');
   const [bulkCondition, setBulkCondition] = useState<string>('');
   const [sortBy, setSortBy] = useState<"valuable" | "gainers" | "losers" | "recent" | "alpha">("recent");
+  const [lastSyncTime, setLastSyncTime] = useState<number>(Date.now());
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!loading) setLastSyncTime(Date.now());
+  }, [loading]);
+
+  useEffect(() => {
+    const interval = setInterval(() => setTick(t => t + 1), 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const getTimeSinceSync = () => {
+    const diff = Date.now() - lastSyncTime;
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return 'Just now';
+    if (minutes === 1) return '1 min ago';
+    if (minutes < 60) return `${minutes} min ago`;
+    return `${Math.floor(minutes / 60)}h ago`;
+  };
 
   const { isRunning: isFetchingImages, startBackgroundFetch } = useBackgroundImageFetch();
 
@@ -244,7 +264,10 @@ const Inventory = () => {
             className="mb-5"
           >
             <div className="flex items-center justify-between mb-4 gap-2">
-              <h1 className="text-2xl font-bold tracking-tight flex-shrink-0">Inventory</h1>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <h1 className="text-2xl font-bold tracking-tight">Inventory</h1>
+                <span className="text-[11px] text-muted-foreground/50 hidden sm:inline">Synced {getTimeSinceSync()}</span>
+              </div>
               <div className="flex gap-1.5">
                 {[
                   { icon: FileDown, onClick: () => setIsImportExportOpen(true), label: "Import", disabled: false },

@@ -97,7 +97,7 @@ const EbayConnect = () => {
     try {
       await exchangeCodeForTokens(code);
       toast({
-        title: "eBay Connected! 🎉",
+        title: "eBay connected",
         description: "Your eBay account has been successfully linked.",
       });
       await loadConnectionStatus();

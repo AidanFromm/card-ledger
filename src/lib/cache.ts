@@ -152,3 +152,61 @@ export const onConnectivityChange = (callback: (online: boolean) => void): (() =
     window.removeEventListener('offline', handleOffline);
   };
 };
+
+// ============================================
+// OFFLINE WRITE QUEUE
+// ============================================
+const QUEUE_KEY = 'cardledger-write-queue';
+
+interface QueuedWrite {
+  id: string;
+  timestamp: number;
+  action: string;
+  payload: unknown;
+}
+
+export const queueWrite = async (action: string, payload: unknown): Promise<void> => {
+  try {
+    const database = await openDB();
+    const transaction = database.transaction('cache', 'readwrite');
+    const store = transaction.objectStore('cache');
+    const existing = await new Promise<QueuedWrite[]>((resolve) => {
+      const req = store.get(QUEUE_KEY);
+      req.onsuccess = () => resolve(req.result?.data || []);
+      req.onerror = () => resolve([]);
+    });
+    const entry: QueuedWrite = { id: crypto.randomUUID(), timestamp: Date.now(), action, payload };
+    existing.push(entry);
+    store.put({ key: QUEUE_KEY, data: existing, timestamp: Date.now() });
+    await new Promise<void>((resolve, reject) => {
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  } catch (error) {
+    console.warn('Queue write failed:', error);
+  }
+};
+
+export const getQueuedWrites = async (): Promise<QueuedWrite[]> => {
+  try {
+    const result = await cacheGet<QueuedWrite[]>(QUEUE_KEY);
+    return result || [];
+  } catch {
+    return [];
+  }
+};
+
+export const clearQueuedWrites = async (): Promise<void> => {
+  try {
+    const database = await openDB();
+    const transaction = database.transaction('cache', 'readwrite');
+    const store = transaction.objectStore('cache');
+    store.delete(QUEUE_KEY);
+    await new Promise<void>((resolve, reject) => {
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  } catch (error) {
+    console.warn('Clear queue failed:', error);
+  }
+};

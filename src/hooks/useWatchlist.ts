@@ -145,7 +145,7 @@ export const useWatchlist = () => {
       }
 
       toast({
-        title: 'Watching this card 👀',
+        title: 'Added to watchlist',
         description: `${params.product_name} added to your watchlist.`,
       });
 
