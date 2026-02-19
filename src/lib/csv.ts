@@ -425,7 +425,7 @@ export const parseAndValidateCSV = (
         // Use intelligent CSV analysis
         const analysis = analyzeCSV(columns, rows);
         console.log(`\n${'='.repeat(50)}`);
-        console.log(`📊 CSV ANALYSIS`);
+        console.log(` CSV ANALYSIS`);
         console.log(`${'='.repeat(50)}`);
         console.log(`Detected format: ${analysis.detectedFormat}`);
         console.log(`Columns found: ${columns.length}`);
@@ -436,7 +436,7 @@ export const parseAndValidateCSV = (
         });
         if (analysis.warnings.length > 0) {
           console.log(`\nWarnings:`);
-          analysis.warnings.forEach(w => console.log(`  ⚠ ${w}`));
+          analysis.warnings.forEach(w => console.log(`   ${w}`));
         }
         console.log(`${'='.repeat(50)}\n`);
 

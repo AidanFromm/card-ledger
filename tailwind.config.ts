@@ -18,7 +18,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro Text', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro Text', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'SF Mono', 'ui-monospace', 'Menlo', 'Monaco', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -26,6 +27,20 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        // Navy blue palette (matches CL logo)
+        navy: {
+          50: "#f0f4f8",
+          100: "#d9e2ec",
+          200: "#bcccdc",
+          300: "#9fb3c8",
+          400: "#829ab1",
+          500: "#627d98",
+          600: "#486581",
+          700: "#334e68",
+          800: "#243b53",
+          900: "#1e3a5f",
+          950: "#102a43",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -69,6 +84,15 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        // Robinhood-style semantic colors for gains/losses
+        gain: {
+          DEFAULT: "hsl(var(--gain))",
+          foreground: "hsl(var(--gain-foreground))",
+        },
+        loss: {
+          DEFAULT: "hsl(var(--loss))",
+          foreground: "hsl(var(--loss-foreground))",
+        },
       },
       // iOS 18 style rounded corners
       borderRadius: {
@@ -106,8 +130,24 @@ export default {
         "fade-up": "fade-up 0.5s ease-out",
         "scale-in": "scale-in 0.3s ease-out",
         "slide-up": "slide-up 0.4s ease-out",
+        "slide-down": "slide-down 0.3s ease-out",
+        "slide-left": "slide-left 0.3s ease-out",
+        "slide-right": "slide-right 0.3s ease-out",
         "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "bounce-soft": "bounce-soft 0.5s ease-out",
+        "ripple": "ripple 0.6s ease-out forwards",
+        "expand": "expand 0.25s ease-out forwards",
+        "collapse": "collapse 0.2s ease-out forwards",
+        "number-up": "number-up 0.3s ease-out",
+        "number-down": "number-down 0.3s ease-out",
+        "shimmer": "shimmer 2s infinite linear",
+        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
+        "float": "float 3s ease-in-out infinite",
+        "shake": "shake 0.5s ease-in-out",
+        "spin-slow": "spin 3s linear infinite",
+        "ping-slow": "ping 2s cubic-bezier(0, 0, 0.2, 1) infinite",
+        "count-up": "count-up 0.5s ease-out forwards",
+        "press": "press 0.15s ease-out",
       },
       keyframes: {
         "accordion-down": {
@@ -137,6 +177,65 @@ export default {
         "bounce-soft": {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-4px)" },
+        },
+        "ripple": {
+          "0%": { transform: "scale(0)", opacity: "0.5" },
+          "100%": { transform: "scale(4)", opacity: "0" },
+        },
+        "expand": {
+          "0%": { opacity: "0", transform: "scaleY(0.95)", transformOrigin: "top" },
+          "100%": { opacity: "1", transform: "scaleY(1)", transformOrigin: "top" },
+        },
+        "collapse": {
+          "0%": { opacity: "1", transform: "scaleY(1)", transformOrigin: "top" },
+          "100%": { opacity: "0", transform: "scaleY(0.95)", transformOrigin: "top" },
+        },
+        "number-up": {
+          "0%": { transform: "translateY(100%)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "number-down": {
+          "0%": { transform: "translateY(-100%)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "slide-down": {
+          "0%": { transform: "translateY(-10px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "slide-left": {
+          "0%": { transform: "translateX(20px)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
+        "slide-right": {
+          "0%": { transform: "translateX(-20px)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
+        "shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { boxShadow: "0 0 20px hsl(213 55% 45% / 0.2)" },
+          "50%": { boxShadow: "0 0 40px hsl(213 55% 45% / 0.4)" },
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        "shake": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "10%, 30%, 50%, 70%, 90%": { transform: "translateX(-4px)" },
+          "20%, 40%, 60%, 80%": { transform: "translateX(4px)" },
+        },
+        "count-up": {
+          "0%": { transform: "translateY(100%)", opacity: "0" },
+          "50%": { transform: "translateY(-10%)" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "press": {
+          "0%": { transform: "scale(1)" },
+          "50%": { transform: "scale(0.95)" },
+          "100%": { transform: "scale(1)" },
         },
       },
       transitionTimingFunction: {

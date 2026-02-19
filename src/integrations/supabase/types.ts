@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      price_alerts: {
+        Row: {
+          id: string
+          user_id: string
+          card_id: string
+          card_name: string
+          set_name: string | null
+          card_image_url: string | null
+          current_price: number | null
+          target_price: number
+          direction: string
+          is_active: boolean
+          triggered_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          card_id: string
+          card_name: string
+          set_name?: string | null
+          card_image_url?: string | null
+          current_price?: number | null
+          target_price: number
+          direction: string
+          is_active?: boolean
+          triggered_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          card_id?: string
+          card_name?: string
+          set_name?: string | null
+          card_image_url?: string | null
+          current_price?: number | null
+          target_price?: number
+          direction?: string
+          is_active?: boolean
+          triggered_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       client_list_items: {
         Row: {
           card_image_url: string | null
@@ -101,6 +149,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ebay_connections: {
+        Row: {
+          id: string
+          user_id: string
+          ebay_username: string | null
+          ebay_user_id: string | null
+          access_token: string
+          refresh_token: string
+          access_token_expires_at: string
+          refresh_token_expires_at: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          ebay_username?: string | null
+          ebay_user_id?: string | null
+          access_token: string
+          refresh_token: string
+          access_token_expires_at: string
+          refresh_token_expires_at: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          ebay_username?: string | null
+          ebay_user_id?: string | null
+          access_token?: string
+          refresh_token?: string
+          access_token_expires_at?: string
+          refresh_token_expires_at?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           created_at: string
@@ -128,6 +215,176 @@ export type Database = {
         }
         Relationships: []
       }
+      folders: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          color: string
+          icon: string
+          is_default: boolean
+          position: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          color?: string
+          icon?: string
+          is_default?: boolean
+          position?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          color?: string
+          icon?: string
+          is_default?: boolean
+          position?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      folder_items: {
+        Row: {
+          id: string
+          folder_id: string
+          inventory_item_id: string
+          added_at: string
+        }
+        Insert: {
+          id?: string
+          folder_id: string
+          inventory_item_id: string
+          added_at?: string
+        }
+        Update: {
+          id?: string
+          folder_id?: string
+          inventory_item_id?: string
+          added_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "folder_items_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "folder_items_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      shared_collections: {
+        Row: {
+          id: string
+          user_id: string
+          share_token: string
+          title: string
+          description: string | null
+          share_type: string
+          folder_id: string | null
+          show_values: boolean
+          show_purchase_prices: boolean
+          expires_at: string | null
+          view_count: number
+          last_viewed_at: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          share_token: string
+          title?: string
+          description?: string | null
+          share_type?: string
+          folder_id?: string | null
+          show_values?: boolean
+          show_purchase_prices?: boolean
+          expires_at?: string | null
+          view_count?: number
+          last_viewed_at?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          share_token?: string
+          title?: string
+          description?: string | null
+          share_type?: string
+          folder_id?: string | null
+          show_values?: boolean
+          show_purchase_prices?: boolean
+          expires_at?: string | null
+          view_count?: number
+          last_viewed_at?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_collections_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      shared_collection_items: {
+        Row: {
+          id: string
+          shared_collection_id: string
+          inventory_item_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          shared_collection_id: string
+          inventory_item_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          shared_collection_id?: string
+          inventory_item_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_collection_items_shared_collection_id_fkey"
+            columns: ["shared_collection_id"]
+            isOneToOne: false
+            referencedRelation: "shared_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shared_collection_items_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       inventory_items: {
         Row: {
           bgs_centering: number | null
@@ -148,6 +405,8 @@ export type Database = {
           name: string
           notes: string | null
           platform_sold: string | null
+          purchase_date: string | null
+          purchase_location: string | null
           purchase_price: number
           quantity: number
           raw_condition: string | null
@@ -175,6 +434,8 @@ export type Database = {
           name: string
           notes?: string | null
           platform_sold?: string | null
+          purchase_date?: string | null
+          purchase_location?: string | null
           purchase_price: number
           quantity?: number
           raw_condition?: string | null
@@ -202,6 +463,8 @@ export type Database = {
           name?: string
           notes?: string | null
           platform_sold?: string | null
+          purchase_date?: string | null
+          purchase_location?: string | null
           purchase_price?: number
           quantity?: number
           raw_condition?: string | null
@@ -435,6 +698,449 @@ export type Database = {
           },
         ]
       }
+      grading_submissions: {
+        Row: {
+          id: string
+          user_id: string
+          inventory_item_id: string | null
+          card_name: string
+          set_name: string | null
+          card_number: string | null
+          card_image_url: string | null
+          grading_company: string
+          submission_date: string
+          expected_return_date: string | null
+          tracking_number: string | null
+          status: Database["public"]["Enums"]["grading_status"]
+          status_updated_at: string
+          final_grade: string | null
+          cert_number: string | null
+          submission_cost: number
+          shipping_cost: number
+          insurance_cost: number
+          service_level: string | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          inventory_item_id?: string | null
+          card_name: string
+          set_name?: string | null
+          card_number?: string | null
+          card_image_url?: string | null
+          grading_company: string
+          submission_date?: string
+          expected_return_date?: string | null
+          tracking_number?: string | null
+          status?: Database["public"]["Enums"]["grading_status"]
+          status_updated_at?: string
+          final_grade?: string | null
+          cert_number?: string | null
+          submission_cost?: number
+          shipping_cost?: number
+          insurance_cost?: number
+          service_level?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          inventory_item_id?: string | null
+          card_name?: string
+          set_name?: string | null
+          card_number?: string | null
+          card_image_url?: string | null
+          grading_company?: string
+          submission_date?: string
+          expected_return_date?: string | null
+          tracking_number?: string | null
+          status?: Database["public"]["Enums"]["grading_status"]
+          status_updated_at?: string
+          final_grade?: string | null
+          cert_number?: string | null
+          submission_cost?: number
+          shipping_cost?: number
+          insurance_cost?: number
+          service_level?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grading_submissions_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wishlist: {
+        Row: {
+          id: string
+          user_id: string
+          card_id: string
+          card_name: string
+          set_name: string | null
+          image_url: string | null
+          target_price: number | null
+          current_price: number | null
+          notes: string | null
+          tcg_type: string | null
+          card_number: string | null
+          rarity: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          card_id: string
+          card_name: string
+          set_name?: string | null
+          image_url?: string | null
+          target_price?: number | null
+          current_price?: number | null
+          notes?: string | null
+          tcg_type?: string | null
+          card_number?: string | null
+          rarity?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          card_id?: string
+          card_name?: string
+          set_name?: string | null
+          image_url?: string | null
+          target_price?: number | null
+          current_price?: number | null
+          notes?: string | null
+          tcg_type?: string | null
+          card_number?: string | null
+          rarity?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      set_progress: {
+        Row: {
+          id: string
+          user_id: string
+          set_id: string
+          set_name: string
+          tcg_type: string
+          set_logo_url: string | null
+          set_symbol_url: string | null
+          release_date: string | null
+          total_cards: number
+          owned_cards: number
+          completion_percentage: number
+          owned_card_ids: string[]
+          notes: string | null
+          goal_percentage: number | null
+          track_master_set: boolean | null
+          master_total: number | null
+          master_owned: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          set_id: string
+          set_name: string
+          tcg_type?: string
+          set_logo_url?: string | null
+          set_symbol_url?: string | null
+          release_date?: string | null
+          total_cards?: number
+          owned_cards?: number
+          owned_card_ids?: string[]
+          notes?: string | null
+          goal_percentage?: number | null
+          track_master_set?: boolean | null
+          master_total?: number | null
+          master_owned?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          set_id?: string
+          set_name?: string
+          tcg_type?: string
+          set_logo_url?: string | null
+          set_symbol_url?: string | null
+          release_date?: string | null
+          total_cards?: number
+          owned_cards?: number
+          owned_card_ids?: string[]
+          notes?: string | null
+          goal_percentage?: number | null
+          track_master_set?: boolean | null
+          master_total?: number | null
+          master_owned?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      set_cards_cache: {
+        Row: {
+          id: string
+          set_id: string
+          tcg_type: string
+          set_name: string
+          total_cards: number
+          cards: Json
+          last_updated: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          set_id: string
+          tcg_type: string
+          set_name: string
+          total_cards: number
+          cards?: Json
+          last_updated?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          set_id?: string
+          tcg_type?: string
+          set_name?: string
+          total_cards?: number
+          cards?: Json
+          last_updated?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      trade_listings: {
+        Row: {
+          id: string
+          user_id: string
+          inventory_item_id: string | null
+          listing_type: string
+          card_name: string
+          set_name: string | null
+          card_image_url: string | null
+          looking_for: string | null
+          notes: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          inventory_item_id?: string | null
+          listing_type: string
+          card_name: string
+          set_name?: string | null
+          card_image_url?: string | null
+          looking_for?: string | null
+          notes?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          inventory_item_id?: string | null
+          listing_type?: string
+          card_name?: string
+          set_name?: string | null
+          card_image_url?: string | null
+          looking_for?: string | null
+          notes?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_listings_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      trade_matches: {
+        Row: {
+          id: string
+          user_a_id: string
+          user_b_id: string
+          user_a_listing_id: string | null
+          user_b_listing_id: string | null
+          status: string
+          match_score: number | null
+          proposed_by: string | null
+          proposed_at: string | null
+          responded_at: string | null
+          completed_at: string | null
+          notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_a_id: string
+          user_b_id: string
+          user_a_listing_id?: string | null
+          user_b_listing_id?: string | null
+          status?: string
+          match_score?: number | null
+          proposed_by?: string | null
+          proposed_at?: string | null
+          responded_at?: string | null
+          completed_at?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_a_id?: string
+          user_b_id?: string
+          user_a_listing_id?: string | null
+          user_b_listing_id?: string | null
+          status?: string
+          match_score?: number | null
+          proposed_by?: string | null
+          proposed_at?: string | null
+          responded_at?: string | null
+          completed_at?: string | null
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_matches_user_a_listing_id_fkey"
+            columns: ["user_a_listing_id"]
+            isOneToOne: false
+            referencedRelation: "trade_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trade_matches_user_b_listing_id_fkey"
+            columns: ["user_b_listing_id"]
+            isOneToOne: false
+            referencedRelation: "trade_listings"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      trade_messages: {
+        Row: {
+          id: string
+          trade_match_id: string
+          sender_id: string
+          message: string
+          is_read: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          trade_match_id: string
+          sender_id: string
+          message: string
+          is_read?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          trade_match_id?: string
+          sender_id?: string
+          message?: string
+          is_read?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_messages_trade_match_id_fkey"
+            columns: ["trade_match_id"]
+            isOneToOne: false
+            referencedRelation: "trade_matches"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      trade_offer_items: {
+        Row: {
+          id: string
+          trade_match_id: string
+          offered_by: string
+          listing_id: string | null
+          inventory_item_id: string | null
+          card_name: string
+          set_name: string | null
+          card_image_url: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          trade_match_id: string
+          offered_by: string
+          listing_id?: string | null
+          inventory_item_id?: string | null
+          card_name: string
+          set_name?: string | null
+          card_image_url?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          trade_match_id?: string
+          offered_by?: string
+          listing_id?: string | null
+          inventory_item_id?: string | null
+          card_name?: string
+          set_name?: string | null
+          card_image_url?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_offer_items_trade_match_id_fkey"
+            columns: ["trade_match_id"]
+            isOneToOne: false
+            referencedRelation: "trade_matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trade_offer_items_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "trade_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trade_offer_items_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -459,6 +1165,17 @@ export type Database = {
           subtypes: string[]
         }[]
       }
+      find_trade_matches: {
+        Args: {
+          p_user_id: string
+        }
+        Returns: {
+          other_user_id: string
+          match_score: number
+          they_have_ids: string[]
+          you_have_ids: string[]
+        }[]
+      }
     }
     Enums: {
       card_condition:
@@ -469,6 +1186,7 @@ export type Database = {
         | "heavily-played"
         | "damaged"
       grading_company: "raw" | "psa" | "bgs" | "cgc" | "ace" | "sgc" | "tag"
+      grading_status: "submitted" | "received" | "grading" | "shipped" | "complete"
       product_category: "raw" | "graded" | "sealed"
     }
     CompositeTypes: {
@@ -606,6 +1324,7 @@ export const Constants = {
         "damaged",
       ],
       grading_company: ["raw", "psa", "bgs", "cgc", "ace", "sgc", "tag"],
+      grading_status: ["submitted", "received", "grading", "shipped", "complete"],
       product_category: ["raw", "graded", "sealed"],
     },
   },

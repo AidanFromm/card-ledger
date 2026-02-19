@@ -1,73 +1,129 @@
-# Welcome to your Lovable project
+# CardLedger
 
-## Project info
+**Your Cards. One Ledger.**
 
-**URL**: https://lovable.dev/projects/c6b24c8b-88d9-447f-8fb9-c9bd4cae114d
+A professional portfolio tracker for collectible cards — Pokémon, sports cards, Yu-Gi-Oh!, Magic: The Gathering, One Piece, Lorcana, Flesh and Blood, Dragon Ball Super, and more.
 
-## How can I edit this code?
+<p align="center">
+  <img src="public/brand/marketing-hero.jpg" alt="CardLedger Dashboard" width="600">
+</p>
 
-There are several ways of editing your application.
+## 🎯 Features
 
-**Use Lovable**
+### Portfolio Management
+- 📊 **Real-time Dashboard** — Track total value, P&L, and performance over time
+- 📸 **Quick Add** — Scan barcodes, search, or use AI to add cards instantly
+- 🏷️ **Grading Tracker** — Track submissions to PSA, BGS, CGC, SGC with ROI calculations
+- 📁 **Folders & Tags** — Organize your collection your way
+- 🔄 **Import/Export** — CSV, Excel, PDF reports with full data portability
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c6b24c8b-88d9-447f-8fb9-c9bd4cae114d) and start prompting.
+### Pricing & Market Data
+- 💵 **JustTCG Integration** — Real-time prices across all conditions (NM, LP, MP, HP, DMG)
+- 📈 **180-Day Price Charts** — Historical price data with trends
+- 💰 **Price Alerts** — Get notified when cards hit your target price
+- 📊 **Market Trends** — See what's hot and biggest movers
 
-Changes made via Lovable will be committed automatically to this repo.
+### Engagement & Social
+- 🏆 **Leaderboards** — Compete with other collectors globally
+- 🎯 **Collection Goals** — Set and track portfolio targets
+- ⭐ **Achievements** — Unlock badges and collector tiers (Bronze → Diamond)
+- 🔥 **Daily Login Rewards** — Streaks, XP, and daily tips
+- 🔗 **Public Profiles** — Share your collection with custom links
+- 📱 **Social Sharing** — Share to Twitter, Discord, WhatsApp, Telegram
+- 🔲 **QR Codes** — Generate shareable collection QR codes
 
-**Use your preferred IDE**
+### Trading & Sales
+- 🔄 **Trading Hub** — Find trade matches with other collectors
+- 💹 **Sales Tracking** — Record sales with profit calculations
+- 📋 **Client Lists** — Create shareable lists for wholesale/dealers
+- 📄 **Tax Reports** — Capital gains calculator, FIFO/LIFO, CSV export for accountants
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Games Supported
+- 🟡 Pokémon TCG (250K+ cards via API)
+- ⚾ Sports Cards (MLB, NBA, NFL, NHL)
+- 🔮 Magic: The Gathering
+- 🎴 Yu-Gi-Oh!
+- 🏴‍☠️ One Piece Card Game
+- ✨ Disney Lorcana
+- ⚔️ Flesh and Blood
+- 🐉 Dragon Ball Super Fusion World
+- And more via JustTCG API (16+ TCGs)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🛠️ Tech Stack
 
-Follow these steps:
+- **Frontend**: React 19 + TypeScript + Vite
+- **Styling**: Tailwind CSS + shadcn/ui + Radix primitives
+- **Animations**: Framer Motion
+- **Backend**: Supabase (Auth, PostgreSQL, Edge Functions, Storage)
+- **APIs**: JustTCG, Pokémon TCG API, eBay Browse API
+- **Mobile**: Capacitor (iOS native coming soon)
+- **PWA**: Full offline support with service worker
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 📊 App Stats
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- **70+ Components**
+- **34 Pages**
+- **33 API Hooks**
+- **90,000+ Lines of TypeScript**
+- **250KB gzipped initial load**
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🚀 Quick Start
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-**Edit a file directly in GitHub**
+## 📁 Project Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+src/
+├── components/     # 70+ React components
+├── pages/          # 34 route pages
+├── hooks/          # 33 custom hooks
+├── lib/            # Utilities & API clients
+├── integrations/   # Supabase client & types
+└── assets/         # Static assets
+```
 
-**Use GitHub Codespaces**
+## 🔧 Environment Variables
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+```
 
-## What technologies are used for this project?
+## 🌐 Deployment
 
-This project is built with:
+Deployed on Vercel at [usecardledger.com](https://usecardledger.com)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```bash
+# Deploy to Vercel
+vercel --prod
+```
 
-## How can I deploy this project?
+## 📱 Mobile App (Coming Soon)
 
-Simply open [Lovable](https://lovable.dev/projects/c6b24c8b-88d9-447f-8fb9-c9bd4cae114d) and click on Share -> Publish.
+Native iOS app built with Swift for App Store release.
 
-## Can I connect a custom domain to my Lovable project?
+## 📫 Contact
 
-Yes, you can!
+- **Website**: [usecardledger.com](https://usecardledger.com)
+- **Email**: cardledger.llc@gmail.com
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 📄 License
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Proprietary — © 2026 CardLedger LLC. All rights reserved.
+
+---
+
+Built with ❤️ by the CardLedger team

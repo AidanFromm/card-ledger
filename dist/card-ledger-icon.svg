@@ -1,0 +1,35 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#0f0f1a"/>
+    </linearGradient>
+    <linearGradient id="card1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#a5b4fc" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="card2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#c7d2fe" stop-opacity="0.45"/>
+    </linearGradient>
+    <linearGradient id="card3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#e0e7ff" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- Back card -->
+  <rect x="100" y="70" width="220" height="310" rx="24" fill="url(#card1)"/>
+
+  <!-- Middle card -->
+  <rect x="146" y="105" width="220" height="310" rx="24" fill="url(#card2)"/>
+
+  <!-- Front card -->
+  <rect x="192" y="140" width="220" height="310" rx="24" fill="url(#card3)"/>
+
+  <!-- Dollar sign -->
+  <text x="302" y="325" text-anchor="middle" fill="#3b82f6" font-size="140" font-weight="bold" font-family="system-ui, -apple-system, SF Pro Display, sans-serif">$</text>
+</svg>

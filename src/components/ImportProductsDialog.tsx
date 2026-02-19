@@ -154,7 +154,7 @@ export function ImportProductsDialog({ open, onOpenChange }: ImportProductsDialo
           setProgress(100);
           saveState("productsImportState", { running: false, currentPage: 1, totalPages: 1, totals: { imported: 0, updated: 0 } });
           toast({
-            title: "Card import successful! 🎉",
+            title: "Card import successful!",
             description: `Imported ${accumulatedImported.toLocaleString()} new cards, updated ${accumulatedUpdated.toLocaleString()}`,
           });
           break;

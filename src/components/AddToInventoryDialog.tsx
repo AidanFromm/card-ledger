@@ -118,12 +118,16 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
     grading_company: Enums<"grading_company">;
     grade: string;
     purchase_price: string;
+    purchase_date: string;
+    purchase_location: string;
   }>({
     quantity: "",
     condition: "NM",
     grading_company: "raw",
     grade: "",
     purchase_price: "",
+    purchase_date: new Date().toISOString().split('T')[0],
+    purchase_location: "",
   });
 
   // Reset BGS subgrades when company changes
@@ -151,6 +155,8 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
         grading_company: (product.grading_company as Enums<"grading_company">) || "raw",
         grade: product.grade || "",
         purchase_price: "", // Always start empty
+        purchase_date: new Date().toISOString().split('T')[0],
+        purchase_location: "",
       });
       setGradedPrice(null);
       setBgsSubgrades({
@@ -318,6 +324,8 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
           grading_company: formData.grading_company,
           grade: formData.grade || null,
           purchase_price: purchasePrice,
+          purchase_date: formData.purchase_date || null,
+          purchase_location: formData.purchase_location || null,
           market_price: marketPriceToUse,
           lowest_listed: (product as any).lowest_listed || null,
           notes: null,
@@ -692,19 +700,52 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
               </>
             )}
 
-            {/* Purchase Price */}
-            <div className="space-y-2">
-              <Label htmlFor="purchase_price">Purchase Price</Label>
-              <Input
-                id="purchase_price"
-                type="number"
-                step="0.01"
-                min="0"
-                value={formData.purchase_price}
-                onChange={(e) => setFormData({ ...formData, purchase_price: e.target.value })}
-                placeholder="0.00"
-                required
-              />
+            {/* Purchase Details */}
+            <div className="space-y-3">
+              <Label className="text-muted-foreground text-xs uppercase tracking-wide">Purchase Details</Label>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {/* Purchase Price */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="purchase_price" className="text-xs">Price Paid</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                    <Input
+                      id="purchase_price"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.purchase_price}
+                      onChange={(e) => setFormData({ ...formData, purchase_price: e.target.value })}
+                      placeholder="0.00"
+                      className="pl-7"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                {/* Purchase Date */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="purchase_date" className="text-xs">Date</Label>
+                  <Input
+                    id="purchase_date"
+                    type="date"
+                    value={formData.purchase_date || ''}
+                    onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
+                  />
+                </div>
+              </div>
+              
+              {/* Purchase Location */}
+              <div className="space-y-1.5">
+                <Label htmlFor="purchase_location" className="text-xs">Where Purchased (optional)</Label>
+                <Input
+                  id="purchase_location"
+                  value={formData.purchase_location || ''}
+                  onChange={(e) => setFormData({ ...formData, purchase_location: e.target.value })}
+                  placeholder="e.g., eBay, TCGPlayer, Local Card Shop"
+                />
+              </div>
             </div>
 
             {/* Action Buttons */}

@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 350" fill="none">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="cardBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a5f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f1f33;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Card pattern -->
+    <pattern id="cardPattern" patternUnits="userSpaceOnUse" width="20" height="20">
+      <circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.03)" />
+    </pattern>
+    
+    <!-- Inner glow -->
+    <radialGradient id="innerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:rgba(255,255,255,0.08);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Main card background -->
+  <rect width="250" height="350" rx="12" ry="12" fill="url(#cardBg)" />
+  
+  <!-- Pattern overlay -->
+  <rect width="250" height="350" rx="12" ry="12" fill="url(#cardPattern)" />
+  
+  <!-- Inner glow -->
+  <rect width="250" height="350" rx="12" ry="12" fill="url(#innerGlow)" />
+  
+  <!-- Border -->
+  <rect x="4" y="4" width="242" height="342" rx="10" ry="10" 
+        stroke="rgba(255,255,255,0.1)" stroke-width="1" fill="none" />
+  
+  <!-- Inner frame -->
+  <rect x="15" y="15" width="220" height="320" rx="8" ry="8" 
+        stroke="rgba(255,255,255,0.05)" stroke-width="2" fill="none" />
+  
+  <!-- Decorative corner accents -->
+  <path d="M25 30 L25 50 M25 30 L45 30" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round" />
+  <path d="M225 30 L225 50 M225 30 L205 30" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round" />
+  <path d="M25 320 L25 300 M25 320 L45 320" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round" />
+  <path d="M225 320 L225 300 M225 320 L205 320" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-linecap="round" />
+  
+  <!-- Center card icon -->
+  <g transform="translate(125, 155)">
+    <!-- Card stack effect -->
+    <rect x="-35" y="-45" width="50" height="70" rx="4" ry="4" 
+          fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"
+          transform="rotate(-8)" />
+    <rect x="-30" y="-50" width="50" height="70" rx="4" ry="4" 
+          fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="1"
+          transform="rotate(5)" />
+    
+    <!-- Main card icon -->
+    <rect x="-25" y="-35" width="50" height="70" rx="4" ry="4" 
+          fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
+    
+    <!-- Card details -->
+    <rect x="-18" y="-28" width="36" height="25" rx="2" ry="2" fill="rgba(255,255,255,0.06)" />
+    <rect x="-18" y="5" width="20" height="3" rx="1" fill="rgba(255,255,255,0.1)" />
+    <rect x="-18" y="12" width="28" height="3" rx="1" fill="rgba(255,255,255,0.07)" />
+    <rect x="-18" y="19" width="15" height="3" rx="1" fill="rgba(255,255,255,0.05)" />
+  </g>
+  
+  <!-- "CL" Logo watermark -->
+  <g transform="translate(125, 255)">
+    <text x="0" y="0" 
+          font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" 
+          font-size="24" 
+          font-weight="700" 
+          fill="rgba(255,255,255,0.1)" 
+          text-anchor="middle"
+          letter-spacing="2">
+      CL
+    </text>
+  </g>
+  
+  <!-- Subtle shine effect -->
+  <ellipse cx="80" cy="80" rx="100" ry="60" fill="rgba(255,255,255,0.02)" 
+           transform="rotate(-30 80 80)" />
+</svg>

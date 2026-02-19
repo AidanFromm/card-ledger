@@ -10,6 +10,9 @@ const corsHeaders = {
 // Placeholder image for cards without images
 const PLACEHOLDER_IMAGE = 'https://placehold.co/200x280/1a1a2e/white?text=No+Image';
 
+// Price cache TTL in hours
+const PRICE_CACHE_TTL_HOURS = 24;
+
 // =============================================
 // ABBREVIATIONS & EXPANSIONS
 // =============================================
@@ -179,7 +182,15 @@ const ONE_PIECE_INDICATORS = [
 
 const OTHER_TCG_INDICATORS = {
   'yugioh': ['yu-gi-oh', 'yugioh', 'dark magician', 'blue eyes', 'exodia', 'konami'],
-  'magic': ['magic the gathering', 'mtg', 'planeswalker', 'mana', 'wizards of the coast'],
+  'magic': [
+    'magic the gathering', 'mtg', 'planeswalker', 'mana', 'wizards of the coast',
+    'commander', 'edh', 'modern', 'legacy', 'vintage', 'standard', 'pioneer',
+    'black lotus', 'jace', 'liliana', 'chandra', 'nissa', 'ajani', 'garruk',
+    'lightning bolt', 'counterspell', 'force of will', 'dark ritual',
+    'serra angel', 'shivan dragon', 'sol ring', 'mox', 'dual land',
+    'ravnica', 'innistrad', 'zendikar', 'dominaria', 'eldraine', 'ikoria',
+    'strixhaven', 'kaldheim', 'theros', 'amonkhet', 'kaladesh', 'ixalan',
+  ],
   'lorcana': ['disney lorcana', 'lorcana', 'illumineer'],
   'digimon': ['digimon', 'agumon', 'gabumon', 'bandai'],
   'weiss': ['weiss schwarz', 'weiss', 'schwarz'],
@@ -778,6 +789,106 @@ async function fetchOnePieceCards(query: string, normalizedQuery: any): Promise<
   }
 }
 
+// =============================================
+// SCRYFALL API (Magic: The Gathering)
+// =============================================
+
+async function fetchScryfallCards(query: string, normalizedQuery: any): Promise<any[]> {
+  const SCRYFALL_API = 'https://api.scryfall.com';
+  
+  try {
+    // Build Scryfall search query
+    const encodedQuery = encodeURIComponent(query);
+    const url = `${SCRYFALL_API}/cards/search?q=${encodedQuery}&order=released&dir=desc&unique=prints`;
+    
+    console.log(`Scryfall search: ${url}`);
+    
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'CardLedger/1.0',
+      },
+    });
+    
+    if (!response.ok) {
+      // Scryfall returns 404 for no results
+      if (response.status === 404) {
+        console.log('Scryfall: No results found');
+        return [];
+      }
+      console.error(`Scryfall error: ${response.status}`);
+      return [];
+    }
+    
+    const data = await response.json();
+    const cards = data.data || [];
+    
+    console.log(`Scryfall: Found ${data.total_cards || 0} cards`);
+    
+    // Transform Scryfall cards to our product schema
+    return cards.slice(0, 30).map((card: any) => {
+      // Get image URL (handle double-faced cards)
+      let imageUrl = PLACEHOLDER_IMAGE;
+      if (card.image_uris?.normal) {
+        imageUrl = card.image_uris.normal;
+      } else if (card.image_uris?.large) {
+        imageUrl = card.image_uris.large;
+      } else if (card.card_faces && card.card_faces[0]?.image_uris?.normal) {
+        imageUrl = card.card_faces[0].image_uris.normal;
+      }
+      
+      // Parse prices
+      const usdPrice = card.prices?.usd ? parseFloat(card.prices.usd) : null;
+      const foilPrice = card.prices?.usd_foil ? parseFloat(card.prices.usd_foil) : null;
+      const etchedPrice = card.prices?.usd_etched ? parseFloat(card.prices.usd_etched) : null;
+      
+      // Use cheapest available price
+      const availablePrices = [usdPrice, foilPrice, etchedPrice].filter((p): p is number => p !== null && !isNaN(p));
+      const marketPrice = availablePrices.length > 0 ? Math.min(...availablePrices) : null;
+      
+      // Extract subtypes from type_line
+      const subtypes: string[] = [];
+      if (card.type_line) {
+        const dashIndex = card.type_line.indexOf('—');
+        if (dashIndex !== -1) {
+          const subtypePart = card.type_line.substring(dashIndex + 1).trim();
+          subtypes.push(...subtypePart.split(/\s+/));
+        }
+      }
+      
+      const item = {
+        id: `scryfall-${card.id}`,
+        name: card.name,
+        set_name: card.set_name,
+        card_number: card.collector_number || null,
+        image_url: imageUrl,
+        market_price: marketPrice,
+        lowest_listed: usdPrice, // Regular price is typically lowest
+        foil_price: foilPrice,
+        rarity: card.rarity || null,
+        subtypes,
+        artist: card.artist || null,
+        pokemon_tcg_id: null,
+        category: 'raw',
+        price_source: marketPrice !== null ? 'scryfall' : null,
+        type_line: card.type_line,
+        mana_cost: card.mana_cost,
+        scryfall_uri: card.scryfall_uri,
+        tcgplayer_id: card.tcgplayer_id,
+        colors: card.colors,
+        relevance: 0,
+      };
+      
+      item.relevance = calculateRelevance(item, normalizedQuery);
+      return item;
+    });
+    
+  } catch (error) {
+    console.error('Scryfall search error:', error);
+    return [];
+  }
+}
+
 async function fetchTavilyFallback(query: string, normalizedQuery: any): Promise<any[]> {
   const TAVILY_API_KEY = Deno.env.get("TAVILY_API_KEY");
   if (!TAVILY_API_KEY) return [];
@@ -787,6 +898,7 @@ async function fetchTavilyFallback(query: string, normalizedQuery: any): Promise
 
   let searchQuery: string;
   let domains: string[] = [];
+  const isPokemon = /pokemon|pikachu|charizard|mewtwo|eevee|tcg/i.test(query);
 
   if (tcgDetection.tcgType === 'one_piece') {
     searchQuery = `One Piece TCG ${query} card price image`;
@@ -798,7 +910,6 @@ async function fetchTavilyFallback(query: string, normalizedQuery: any): Promise
     searchQuery = `Magic The Gathering MTG ${query} card price`;
     domains = ["tcgplayer.com", "cardmarket.com", "scryfall.com"];
   } else {
-    const isPokemon = /pokemon|pikachu|charizard|mewtwo|eevee|tcg/i.test(query);
     searchQuery = isPokemon
       ? `${query} pokemon card tcgplayer price`
       : `${query} trading card price value`;
@@ -997,6 +1108,125 @@ async function fetchGradedSlabImages(
 }
 
 // =============================================
+// PRICE ENRICHMENT FUNCTIONS
+// =============================================
+
+/**
+ * Enrich search results with cached prices from local DB
+ * For results missing prices, check if we have a cached price that's still valid
+ */
+async function enrichWithCachedPrices(supabase: any, results: any[]): Promise<any[]> {
+  if (results.length === 0) return results;
+
+  // Get items that need price enrichment
+  const needsPrice = results.filter(r => !r.market_price);
+  if (needsPrice.length === 0) return results;
+
+  try {
+    // Build lookup keys
+    const names = needsPrice.map(r => r.name?.toLowerCase()).filter(Boolean);
+    
+    if (names.length === 0) return results;
+
+    // Query products table for cached prices
+    const { data: cachedProducts, error } = await supabase
+      .from('products')
+      .select('name, set_name, card_number, market_price, lowest_listed, price_source, last_price_update')
+      .or(names.map(n => `name.ilike.%${n}%`).join(','))
+      .not('market_price', 'is', null)
+      .gte('last_price_update', new Date(Date.now() - PRICE_CACHE_TTL_HOURS * 60 * 60 * 1000).toISOString())
+      .limit(100);
+
+    if (error || !cachedProducts || cachedProducts.length === 0) {
+      return results;
+    }
+
+    // Build lookup map
+    const priceMap = new Map<string, any>();
+    for (const cp of cachedProducts) {
+      const key = `${cp.name?.toLowerCase()}|${cp.set_name?.toLowerCase() || ''}|${cp.card_number || ''}`;
+      priceMap.set(key, cp);
+      // Also store by name only as fallback
+      priceMap.set(cp.name?.toLowerCase() || '', cp);
+    }
+
+    // Enrich results
+    return results.map(r => {
+      if (r.market_price) return r; // Already has price
+
+      // Try exact match first
+      const exactKey = `${r.name?.toLowerCase()}|${r.set_name?.toLowerCase() || ''}|${r.card_number || ''}`;
+      let cached = priceMap.get(exactKey);
+
+      // Fallback to name-only match
+      if (!cached) {
+        cached = priceMap.get(r.name?.toLowerCase() || '');
+      }
+
+      if (cached) {
+        return {
+          ...r,
+          market_price: cached.market_price,
+          lowest_listed: cached.lowest_listed || r.lowest_listed,
+          price_source: cached.price_source || 'cached',
+          price_enriched: true,
+        };
+      }
+
+      return r;
+    });
+  } catch (e) {
+    console.warn('Price enrichment error:', e);
+    return results;
+  }
+}
+
+/**
+ * Store newly discovered prices in the products table
+ * This ensures every price we fetch gets cached for future use
+ */
+async function storeDiscoveredPrices(supabase: any, results: any[]): Promise<void> {
+  // Filter to items with prices that came from external sources (not already cached)
+  const toStore = results.filter(r => 
+    r.market_price && 
+    r.price_source && 
+    r.price_source !== 'cached' &&
+    !r.price_enriched
+  );
+
+  if (toStore.length === 0) return;
+
+  console.log(`Storing ${toStore.length} discovered prices...`);
+
+  // Batch upsert prices
+  const upsertPromises = toStore.slice(0, 20).map(async (item) => {
+    try {
+      const { error } = await supabase.rpc('upsert_product_with_price', {
+        p_name: item.name,
+        p_set_name: item.set_name || null,
+        p_card_number: item.card_number || null,
+        p_image_url: item.image_url && !item.image_url.includes('placehold') ? item.image_url : null,
+        p_market_price: item.market_price,
+        p_lowest_listed: item.lowest_listed || null,
+        p_price_source: item.price_source,
+        p_category: item.category === 'sealed' ? 'sealed' : 
+                    item.category === 'graded' ? 'graded' : 'raw',
+        p_pokemon_tcg_id: item.pokemon_tcg_id || null,
+        p_rarity: item.rarity || null,
+      });
+
+      if (error) {
+        console.warn(`Failed to store price for "${item.name}":`, error.message);
+      }
+    } catch (e) {
+      console.warn(`Error storing price for "${item.name}":`, e);
+    }
+  });
+
+  await Promise.allSettled(upsertPromises);
+}
+
+// =============================================
 // MAIN SEARCH HANDLER
 // =============================================
 
@@ -1158,12 +1388,18 @@ serve(async (req) => {
       searches.push(fetchWithTimeout(fetchOnePieceCards(query, normalizedQuery), 4000, []));
     }
 
-    // 5. Other non-Pokemon TCGs via Tavily fallback
-    if (!sportsDetection.isSports && (tcgDetection.tcgType === 'yugioh' || tcgDetection.tcgType === 'magic' || tcgDetection.tcgType === 'unknown')) {
+    // 5. Magic: The Gathering via Scryfall API (FREE, excellent data!)
+    if (!sportsDetection.isSports && tcgDetection.tcgType === 'magic') {
+      console.log('Using Scryfall API for Magic: The Gathering search');
+      searches.push(fetchWithTimeout(fetchScryfallCards(query, normalizedQuery), 5000, []));
+    }
+    
+    // 6. Other non-Pokemon TCGs via Tavily fallback (not Magic - we use Scryfall for that)
+    if (!sportsDetection.isSports && (tcgDetection.tcgType === 'yugioh' || tcgDetection.tcgType === 'unknown')) {
       searches.push(fetchWithTimeout(fetchTavilyFallback(query, normalizedQuery), 4000, []));
     }
 
-    // 6. Sports card search via Tavily AI
+    // 7. Sports card search via Tavily AI
     if (sportsDetection.isSports) {
       searches.push(fetchWithTimeout(fetchSportsCardsViaTavily(query, normalizedQuery), 4000, []));
     }
@@ -1238,9 +1474,21 @@ serve(async (req) => {
     });
 
     // Limit to 50 results
-    const finalResults = allResults.slice(0, 50);
+    let finalResults = allResults.slice(0, 50);
 
-    // Cache results
+    // =============================================
+    // PRICE ENRICHMENT: Enrich with cached prices & store new prices
+    // =============================================
+    
+    // Enrich results with cached prices from local DB
+    finalResults = await enrichWithCachedPrices(supabase, finalResults);
+    
+    // Store any new prices we discovered (fire and forget)
+    storeDiscoveredPrices(supabase, finalResults).catch(e => 
+      console.warn('Price storage error:', e)
+    );
+
+    // Cache search results
     if (finalResults.length > 0) {
       supabase
         .from('search_cache')
@@ -1256,7 +1504,8 @@ serve(async (req) => {
     }
 
     const timeMs = Date.now() - startTime;
-    console.log(`Search completed: ${finalResults.length} results in ${timeMs}ms`);
+    const pricesEnriched = finalResults.filter((p: any) => p.price_enriched).length;
+    console.log(`Search completed: ${finalResults.length} results, ${pricesEnriched} prices enriched, in ${timeMs}ms`);
 
     return new Response(JSON.stringify({
       products: finalResults,
@@ -1264,6 +1513,7 @@ serve(async (req) => {
         total: finalResults.length,
         with_prices: finalResults.filter((p: any) => p.market_price).length,
         with_images: finalResults.filter((p: any) => p.image_url && !p.image_url.includes('placehold')).length,
+        prices_enriched: pricesEnriched,
         sports_query: sportsDetection.isSports,
         sports_confidence: sportsDetection.confidence,
         cached: false,
