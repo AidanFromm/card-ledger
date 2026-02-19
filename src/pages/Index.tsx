@@ -72,6 +72,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Hero background image */}
+      <img
+        src="/assets/hero-bg.png"
+        alt=""
+        loading="lazy"
+        className="absolute inset-0 w-full h-full object-cover opacity-20"
+        style={{ pointerEvents: 'none' }}
+        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+      />
+      <div className="absolute inset-0 bg-background/60" />
       {/* Multi-layer ambient backgrounds */}
       <div className="absolute inset-0">
         <motion.div
@@ -176,6 +186,37 @@ const Index = () => {
           CardLedger
         </motion.p>
       </div>
+
+      {/* Feature Section */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={showContent ? { opacity: 1 } : {}}
+        transition={{ delay: 1.4, duration: 0.6 }}
+        className="relative z-10 px-6 pb-20 -mt-8"
+      >
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+          {[
+            { src: "/assets/feature-track.png", title: "Track Collection", desc: "Organize every card you own" },
+            { src: "/assets/feature-price.png", title: "Live Prices", desc: "Real-time market values" },
+            { src: "/assets/feature-scan.png", title: "Scan Cards", desc: "AI-powered card identification" },
+            { src: "/assets/feature-profit.png", title: "Track Profits", desc: "FIFO accounting built in" },
+          ].map((feat) => (
+            <div key={feat.title} className="text-center">
+              <div className="relative w-full aspect-square rounded-2xl overflow-hidden mb-3 bg-secondary/20">
+                <img
+                  src={feat.src}
+                  alt={feat.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              </div>
+              <h3 className="text-sm font-semibold text-foreground">{feat.title}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{feat.desc}</p>
+            </div>
+          ))}
+        </div>
+      </motion.div>
     </div>
   );
 };

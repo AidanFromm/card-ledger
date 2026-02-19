@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 
 interface EmptyStateProps {
   icon?: ReactNode;
+  image?: string;
+  imageAlt?: string;
   title: string;
   description: string;
   actionLabel?: string;
@@ -41,6 +43,8 @@ const FloatingDots = () => (
 
 export const EmptyState = ({
   icon,
+  image,
+  imageAlt,
   title,
   description,
   actionLabel,
@@ -56,20 +60,36 @@ export const EmptyState = ({
     >
       <FloatingDots />
 
-      <motion.div
-        initial={{ scale: 0.5, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 15 }}
-        className="w-20 h-20 rounded-3xl bg-primary/8 border border-primary/10 flex items-center justify-center mb-6 relative"
-      >
-        {icon || <Package className="h-9 w-9 text-primary/40" />}
-        {/* Subtle pulse ring */}
+      {image ? (
         <motion.div
-          className="absolute inset-0 rounded-3xl border border-primary/10"
-          animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0, 0.3] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </motion.div>
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 15 }}
+          className="mb-6 relative"
+        >
+          <img
+            src={image}
+            alt={imageAlt || title}
+            loading="lazy"
+            className="w-[200px] h-auto object-contain"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 15 }}
+          className="w-20 h-20 rounded-3xl bg-primary/8 border border-primary/10 flex items-center justify-center mb-6 relative"
+        >
+          {icon || <Package className="h-9 w-9 text-primary/40" />}
+          <motion.div
+            className="absolute inset-0 rounded-3xl border border-primary/10"
+            animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0, 0.3] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </motion.div>
+      )}
 
       <motion.h3
         initial={{ opacity: 0, y: 10 }}
@@ -117,6 +137,8 @@ export const EmptyState = ({
 // Pre-configured empty states
 export const EmptyInventory = () => (
   <EmptyState
+    image="/assets/empty-inventory.png"
+    imageAlt="Empty card inventory"
     icon={<Sparkles className="h-9 w-9 text-primary/50" />}
     title="Your collection starts here"
     description="Search for your first card and add it to start tracking your portfolio value and potential profits."
@@ -127,6 +149,8 @@ export const EmptyInventory = () => (
 
 export const EmptySales = () => (
   <EmptyState
+    image="/assets/empty-sales.png"
+    imageAlt="No sales recorded"
     icon={<TrendingUp className="h-9 w-9 text-emerald-500/50" />}
     title="Your first sale awaits"
     description="When you sell cards from your collection, your profits, performance metrics, and best sellers will appear here."
@@ -135,6 +159,8 @@ export const EmptySales = () => (
 
 export const EmptySearchResults = () => (
   <EmptyState
+    image="/assets/empty-search.png"
+    imageAlt="No search results"
     icon={<Search className="h-9 w-9 text-muted-foreground/40" />}
     title="No matches found"
     description="Try a different name or check the spelling. We search Pokemon, sports cards, Yu-Gi-Oh, Magic, and more."
@@ -143,6 +169,8 @@ export const EmptySearchResults = () => (
 
 export const EmptyWatchlist = () => (
   <EmptyState
+    image="/assets/empty-watchlist.png"
+    imageAlt="Empty watchlist"
     icon={<Heart className="h-9 w-9 text-pink-500/50" />}
     title="Your watchlist is empty"
     description="Add cards you're eyeing to your watchlist and track their prices before you buy."

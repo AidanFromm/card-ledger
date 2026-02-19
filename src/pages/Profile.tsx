@@ -134,14 +134,14 @@ const Profile = () => {
 
   // Achievement badges
   const achievements = [
-    { id: 'first', label: 'First Card', desc: 'Added your first card', unlocked: inventoryItems.length > 0, icon: '🎉' },
-    { id: '10cards', label: '10 Cards', desc: 'Collection of 10+', unlocked: totalCards >= 10, icon: '📦' },
-    { id: '100cards', label: '100 Club', desc: 'Collection of 100+', unlocked: totalCards >= 100, icon: '💯' },
-    { id: '1ksale', label: 'First Sale', desc: 'Recorded your first sale', unlocked: sales.length > 0, icon: '💰' },
-    { id: '1kvalue', label: '$1K Portfolio', desc: 'Portfolio worth $1,000+', unlocked: totalValue >= 1000, icon: '🏆' },
-    { id: '5kvalue', label: '$5K Portfolio', desc: 'Portfolio worth $5,000+', unlocked: totalValue >= 5000, icon: '👑' },
-    { id: '10sets', label: 'Set Collector', desc: 'Cards from 10+ sets', unlocked: uniqueSets >= 10, icon: '🗂️' },
-    { id: 'profit', label: 'In the Green', desc: 'Profitable sales total', unlocked: totalSalesProfit > 0, icon: '📈' },
+    { id: 'first', label: 'First Card', desc: 'Added your first card', unlocked: inventoryItems.length > 0, icon: '🎉', image: '/assets/achievement-first-card.png' },
+    { id: '10cards', label: '10 Cards', desc: 'Collection of 10+', unlocked: totalCards >= 10, icon: '📦', image: null },
+    { id: '100cards', label: '100 Club', desc: 'Collection of 100+', unlocked: totalCards >= 100, icon: '💯', image: '/assets/achievement-100-cards.png' },
+    { id: '1ksale', label: 'First Sale', desc: 'Recorded your first sale', unlocked: sales.length > 0, icon: '💰', image: null },
+    { id: '1kvalue', label: '$1K Portfolio', desc: 'Portfolio worth $1,000+', unlocked: totalValue >= 1000, icon: '🏆', image: '/assets/achievement-1k-portfolio.png' },
+    { id: '5kvalue', label: '$5K Portfolio', desc: 'Portfolio worth $5,000+', unlocked: totalValue >= 5000, icon: '👑', image: null },
+    { id: '10sets', label: 'Set Collector', desc: 'Cards from 10+ sets', unlocked: uniqueSets >= 10, icon: '🗂️', image: null },
+    { id: 'profit', label: 'In the Green', desc: 'Profitable sales total', unlocked: totalSalesProfit > 0, icon: '📈', image: null },
   ];
 
   const formatCurrency = (n: number) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -304,7 +304,10 @@ const Profile = () => {
                       : 'bg-muted/20 opacity-40 grayscale'
                   }`}
                 >
-                  <span className="text-xl">{a.icon}</span>
+                  {a.image ? (
+                    <img src={a.image} alt={a.label} loading="lazy" className="w-12 h-12 object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; const next = e.currentTarget.nextElementSibling as HTMLElement; if (next) next.style.display = 'block'; }} />
+                  ) : null}
+                  <span className={`text-xl${a.image ? ' hidden' : ''}`}>{a.icon}</span>
                   <p className="text-[9px] font-medium mt-1 leading-tight">{a.label}</p>
                 </div>
               ))}

@@ -434,26 +434,33 @@ const ScanCard = () => {
                     </div>
                   )}
 
-                  {/* Game Filter */}
-                  <div className="flex-shrink-0">
-                    <select
-                      value={gameFilter}
-                      onChange={(e) => setGameFilter(e.target.value)}
-                      className={`h-9 px-3 pr-8 rounded-xl text-sm font-medium border transition-all appearance-none bg-no-repeat bg-right cursor-pointer ${
-                        gameFilter !== "all"
+                  {/* Game Filter with category icons */}
+                  {[
+                    { value: "pokemon", label: "Pokémon", img: "/assets/category-pokemon.png" },
+                    { value: "sports", label: "Sports", img: "/assets/category-sports.png" },
+                    { value: "yugioh", label: "Yu-Gi-Oh", img: "/assets/category-yugioh.png" },
+                    { value: "mtg", label: "Magic", img: "/assets/category-magic.png" },
+                    { value: "onepiece", label: "One Piece", img: "/assets/category-onepiece.png" },
+                  ].map((g) => (
+                    <button
+                      key={g.value}
+                      onClick={() => setGameFilter(gameFilter === g.value ? "all" : g.value)}
+                      className={`flex-shrink-0 h-9 px-3 rounded-xl text-sm font-medium border transition-all flex items-center gap-1.5 ${
+                        gameFilter === g.value
                           ? "bg-primary text-primary-foreground border-primary"
                           : "bg-secondary/50 text-foreground border-border/50 hover:border-primary/50"
                       }`}
-                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='${gameFilter !== "all" ? "white" : "%236b7280"}' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundPosition: "right 8px center" }}
                     >
-                      <option value="all">All Games</option>
-                      <option value="pokemon">Pokémon</option>
-                      <option value="sports">Sports</option>
-                      <option value="yugioh">Yu-Gi-Oh</option>
-                      <option value="mtg">Magic</option>
-                      <option value="onepiece">One Piece</option>
-                    </select>
-                  </div>
+                      <img
+                        src={g.img}
+                        alt={g.label}
+                        loading="lazy"
+                        className="w-5 h-5 rounded-full object-cover"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                      {g.label}
+                    </button>
+                  ))}
 
                   {/* Price Range */}
                   <div className="flex-shrink-0">

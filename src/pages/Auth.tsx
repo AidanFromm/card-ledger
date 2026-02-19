@@ -105,6 +105,15 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* Splash screen background */}
+      <img
+        src="/assets/splash-screen.png"
+        alt=""
+        loading="lazy"
+        className="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none"
+        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+      />
+      <div className="absolute inset-0 bg-background/70 pointer-events-none" />
       {/* Animated gradient background */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div

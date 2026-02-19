@@ -14,6 +14,8 @@ interface OnboardingScreen {
   gradientTo: string;
   headline: string;
   description: string;
+  image: string;
+  imageAlt: string;
 }
 
 const screens: OnboardingScreen[] = [
@@ -26,6 +28,8 @@ const screens: OnboardingScreen[] = [
     headline: "Track Your Collection",
     description:
       "Add cards from any game — Pokemon, sports, Yu-Gi-Oh, Magic, and more. Import from CSV or search our database of thousands of cards.",
+    image: "/assets/onboard-track.png",
+    imageAlt: "Track your card collection",
   },
   {
     icon: TrendingUp,
@@ -36,6 +40,8 @@ const screens: OnboardingScreen[] = [
     headline: "Get Live Prices",
     description:
       "See real-time market values from TCGPlayer, eBay, and more. Know exactly what your collection is worth — updated every day.",
+    image: "/assets/onboard-price.png",
+    imageAlt: "Live card pricing",
   },
   {
     icon: PieChart,
@@ -46,6 +52,8 @@ const screens: OnboardingScreen[] = [
     headline: "Analyze Performance",
     description:
       "Track your wins, calculate FIFO profits, and see your portfolio over time. Understand which cards are making you money.",
+    image: "/assets/onboard-profit.png",
+    imageAlt: "Profit analytics",
   },
   {
     icon: Sparkles,
@@ -56,6 +64,8 @@ const screens: OnboardingScreen[] = [
     headline: "Start Collecting",
     description:
       "You're all set! Search for your first card, import a CSV, or add one manually. Your collection journey starts now.",
+    image: "/assets/onboard-scan.png",
+    imageAlt: "Start scanning cards",
   },
 ];
 
@@ -121,23 +131,33 @@ const OnboardingFlow = () => {
         <div className={`absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-radial ${screen.gradientFrom} ${screen.gradientTo} to-transparent rounded-full blur-[160px]`} />
       </motion.div>
 
-      {/* Welcome animation on first screen */}
+      {/* Welcome background image on first screen */}
       {currentScreen === 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="absolute top-12 text-center"
-        >
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.5 }}
-            transition={{ delay: 0.3 }}
-            className="text-xs font-medium text-muted-foreground tracking-widest uppercase"
+        <>
+          <img
+            src="/assets/onboard-welcome.png"
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+          <div className="absolute inset-0 bg-background/70 pointer-events-none" />
+          <motion.div
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="absolute top-12 text-center"
           >
-            Welcome to
-          </motion.p>
-        </motion.div>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              transition={{ delay: 0.3 }}
+              className="text-xs font-medium text-muted-foreground tracking-widest uppercase"
+            >
+              Welcome to
+            </motion.p>
+          </motion.div>
+        </>
       )}
 
       <div className="w-full max-w-sm relative z-10 flex flex-col items-center text-center flex-1 justify-center">
@@ -166,7 +186,7 @@ const OnboardingFlow = () => {
             transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
             className="flex flex-col items-center"
           >
-            {/* Glassmorphism card for icon */}
+            {/* Step image with icon fallback */}
             <motion.div
               initial={{ scale: 0.8, rotate: -5 }}
               animate={{ scale: 1, rotate: 0 }}
@@ -175,10 +195,17 @@ const OnboardingFlow = () => {
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 dark:from-white/10 dark:to-white/5 rounded-3xl blur-xl scale-110" />
               <div
-                className={`relative w-28 h-28 rounded-3xl ${screen.iconBg} flex items-center justify-center backdrop-blur-sm border border-white/10 dark:border-white/10`}
+                className={`relative w-40 h-40 rounded-3xl ${screen.iconBg} flex items-center justify-center backdrop-blur-sm border border-white/10 dark:border-white/10 overflow-hidden`}
                 style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)' }}
               >
-                <screen.icon className={`w-14 h-14 ${screen.iconColor}`} />
+                <img
+                  src={screen.image}
+                  alt={screen.imageAlt}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+                <screen.icon className={`w-14 h-14 ${screen.iconColor} absolute`} style={{ display: 'none' }} />
               </div>
             </motion.div>
 
