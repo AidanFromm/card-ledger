@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Search, Package, LayoutDashboard, DollarSign, User } from "lucide-react";
+import { Search, Package, LayoutDashboard, Receipt, UserCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
@@ -19,8 +19,8 @@ const Navbar = () => {
     { path: "/scan", label: "Search", icon: Search },
     { path: "/inventory", label: "Inventory", icon: Package },
     { path: "/dashboard", label: "Analytics", icon: LayoutDashboard },
-    { path: "/sales", label: "Sales", icon: DollarSign },
-    { path: "/profile", label: "Profile", icon: User },
+    { path: "/sales", label: "Sales", icon: Receipt },
+    { path: "/profile", label: "Profile", icon: UserCircle2 },
   ];
 
   return (
@@ -80,7 +80,7 @@ const Navbar = () => {
                             : "text-muted-foreground hover:text-foreground hover:bg-transparent"
                         }`}
                       >
-                        <Icon className="h-4 w-4" />
+                        <Icon className="h-[18px] w-[18px]" strokeWidth={isActive ? 2.2 : 1.75} />
                         {item.label}
                       </Button>
                     </motion.div>

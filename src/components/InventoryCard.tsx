@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2, Check, DollarSign, TrendingUp, TrendingDown } from "lucide-react";
+import { Trash2, Check, DollarSign, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
+// Icon sizing: 16px inline/buttons, 20px navigation, 24px empty states. strokeWidth: 1.75 standard.
 import { formatPrice } from "@/lib/priceFormat";
+import { isPriceStale } from "@/hooks/usePriceAggregator";
 import { motion } from "framer-motion";
 import {
   AlertDialog,
@@ -212,9 +214,17 @@ export const InventoryCard = ({
           </p>
 
           {/* Market Price — Hero Number */}
-          <p className="text-[15px] font-bold text-emerald-500 mt-1.5 font-mono" style={{ fontVariantNumeric: 'tabular-nums' }}>
-            ${formatPrice(item.market_price || item.purchase_price)}
-          </p>
+          <div className="flex items-center gap-1 mt-1.5">
+            <p className="text-[15px] font-bold text-emerald-500 font-mono" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              ${formatPrice(item.market_price || item.purchase_price)}
+            </p>
+            {item.updated_at && isPriceStale(item.updated_at) === 'outdated' && (
+              <AlertTriangle className="w-3 h-3 text-amber-500/70" />
+            )}
+            {item.updated_at && isPriceStale(item.updated_at) === 'stale' && (
+              <AlertTriangle className="w-2.5 h-2.5 text-muted-foreground/40" />
+            )}
+          </div>
 
           {/* Cost basis + Profit/Loss — more prominent */}
           {item.market_price && item.purchase_price > 0 && item.market_price !== item.purchase_price && (
@@ -230,7 +240,7 @@ export const InventoryCard = ({
                   <span className={`text-[10px] font-bold flex items-center gap-0.5 px-2 py-0.5 rounded-full ${
                     isUp ? 'bg-emerald-500/15 text-emerald-500' : 'bg-red-500/15 text-red-500'
                   }`}>
-                    {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                    {isUp ? <TrendingUp className="w-3 h-3" strokeWidth={1.75} /> : <TrendingDown className="w-3 h-3" strokeWidth={1.75} />}
                     {isUp ? '+' : ''}{plPct.toFixed(1)}%
                   </span>
                 );

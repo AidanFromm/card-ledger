@@ -514,6 +514,18 @@
     animation: shimmer 1.8s ease-in-out infinite;
   }
 
+  /* Skeleton with built-in shimmer overlay */
+  .skeleton-shimmer {
+    @apply relative overflow-hidden bg-muted/30 rounded-xl;
+  }
+  .skeleton-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, hsl(var(--muted) / 0.4) 50%, transparent 100%);
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+
   /* Glow on focus for premium inputs */
   .input-glow:focus {
     box-shadow: 0 0 0 3px hsl(212 100% 49% / 0.12), 0 0 20px hsl(212 100% 49% / 0.08);

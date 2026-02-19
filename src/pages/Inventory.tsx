@@ -17,7 +17,7 @@ type InventoryItem = Database["public"]["Tables"]["inventory_items"]["Row"];
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
-import { useScrydexPricing } from "@/hooks/useScrydexPricing";
+import { usePriceAggregator } from "@/hooks/usePriceAggregator";
 import { ItemDetailDialog } from "@/components/ItemDetailDialog";
 import RecordSaleDialog from "@/components/RecordSaleDialog";
 import { CreateClientListDialog } from "@/components/CreateClientListDialog";
@@ -44,7 +44,7 @@ const Inventory = () => {
   const { toast } = useToast();
   const { items, deleteItem, loading, refetch, updateItem } = useInventoryDb();
   const { createList } = useClientLists();
-  const { isRefreshing, progress, refreshAllPrices } = useScrydexPricing();
+  const { isRefreshing, progress, refreshAllPrices } = usePriceAggregator();
   const [searchTerm, setSearchTerm] = useState("");
   const [gradingFilter, setGradingFilter] = useState<"all" | "raw" | "graded" | "sealed">("all");
   const [sportFilter, setSportFilter] = useState<string>("all");

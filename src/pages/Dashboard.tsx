@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrendingUp, TrendingDown, RefreshCw, Target, BarChart3, Clock, Eye, Star, Crown, Info, Camera, FileUp, DollarSign, Share2 } from "lucide-react";
+import { TrendingUp, TrendingDown, RefreshCw, Target, BarChart3, Clock, Eye, Star, Crown, Info, ScanLine, FileUp, DollarSign, Share2 } from "lucide-react";
 import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
@@ -243,7 +243,7 @@ const Dashboard = () => {
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.05 }}
-              className="text-display text-gradient-hero mb-1.5"
+              className="text-display text-gradient-hero mb-1.5 font-mono"
             >
               <CountUpValue value={totalValue} formatCurrency={formatCurrency} />
             </motion.h2>
@@ -290,7 +290,7 @@ const Dashboard = () => {
             className="grid grid-cols-4 gap-2 mb-5"
           >
             {[
-              { icon: Camera, label: 'Scan Card', path: '/scan', color: 'bg-blue-500/10 text-blue-500' },
+              { icon: ScanLine, label: 'Scan Card', path: '/scan', color: 'bg-blue-500/10 text-blue-500' },
               { icon: FileUp, label: 'Import CSV', path: '/inventory', color: 'bg-emerald-500/10 text-emerald-500' },
               { icon: DollarSign, label: 'Record Sale', path: '/sales', color: 'bg-amber-500/10 text-amber-500' },
               { icon: Share2, label: 'Share List', path: '/inventory', color: 'bg-purple-500/10 text-purple-500' },
@@ -303,7 +303,7 @@ const Dashboard = () => {
                 className="flex flex-col items-center gap-1.5 p-3 rounded-2xl card-clean-elevated transition-colors"
               >
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-5 w-5" strokeWidth={1.75} />
                 </div>
                 <span className="text-[10px] font-semibold text-muted-foreground">{label}</span>
               </motion.button>
@@ -381,7 +381,7 @@ const Dashboard = () => {
               <div className="h-[220px] flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-12 h-12 rounded-2xl bg-secondary/30 flex items-center justify-center mx-auto mb-3">
-                    <BarChart3 className="h-5 w-5 text-muted-foreground/30" />
+                    <BarChart3 className="h-6 w-6 text-muted-foreground/30" strokeWidth={1.75} />
                   </div>
                   <p className="text-sm text-muted-foreground/50">Add items to see your chart</p>
                 </div>
@@ -689,7 +689,8 @@ const Dashboard = () => {
                   })()
                 ) : (
                   <div className="card-clean-elevated p-10 text-center rounded-2xl">
-                    <Target className="h-10 w-10 mx-auto mb-3 text-muted-foreground/20" />
+                    <Target className="h-12 w-12 mx-auto mb-3 text-muted-foreground/20" strokeWidth={1.75} />
+                    <p className="text-base font-semibold text-muted-foreground/40 mb-1">No Performance Data Yet</p>
                     <p className="text-sm text-muted-foreground/50">Record sales to see performance metrics</p>
                   </div>
                 )}
@@ -776,7 +777,8 @@ const Dashboard = () => {
 
                 {!hasPieData && !hasBarData && (
                   <div className="card-clean-elevated p-10 text-center rounded-2xl">
-                    <BarChart3 className="h-10 w-10 mx-auto mb-3 text-muted-foreground/20" />
+                    <BarChart3 className="h-12 w-12 mx-auto mb-3 text-muted-foreground/20" strokeWidth={1.75} />
+                    <p className="text-base font-semibold text-muted-foreground/40 mb-1">No Breakdown Data</p>
                     <p className="text-sm text-muted-foreground/50">Add items to see breakdown</p>
                   </div>
                 )}

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Pencil, Trash2, Check, X, ImageOff, Package, Loader2, Save, ExternalLink, ShoppingCart, Share2, ZoomIn } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, X, ImageOff, Package, Loader2, Save, ExternalLink, ShoppingCart, Share2, ZoomIn, Bell, BellOff } from "lucide-react";
 import { usePurchaseEntries } from "@/hooks/usePurchaseEntries";
 import { usePriceHistory } from "@/hooks/usePriceHistory";
 import { format } from "date-fns";
@@ -21,6 +21,11 @@ import { cleanCardName, getBaseName, cardNumbersMatch, getPlaceholderForItem } f
 import { getChartData, hasEnoughHistory, getFirstRecordedDate, formatSellingPrice } from "@/lib/priceHistory";
 import { recordItemPrice, getItemSparklineData } from "@/lib/localPriceHistory";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import { usePriceAggregator, type AggregatedPriceResult } from "@/hooks/usePriceAggregator";
+import { usePriceAlerts } from "@/hooks/usePriceAlerts";
+import { PriceBreakdown, StalePriceIndicator } from "@/components/PriceBreakdown";
+import { NetProceedsCalculator } from "@/components/NetProceedsCalculator";
+import { PriceSparkline } from "@/components/PriceSparkline";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -177,6 +182,7 @@ interface InventoryItem {
   grading_company: string;
   grade: string | null;
   category: string | null;
+  updated_at?: string | null;
 }
 
 interface ItemDetailDialogProps {
@@ -210,6 +216,16 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
   // Image zoom state
   const [isImageZoomed, setIsImageZoomed] = useState(false);
 
+  // Price aggregation
+  const { refreshSinglePrice, isRefreshing: isPriceRefreshing } = usePriceAggregator();
+  const [aggregatedPrice, setAggregatedPrice] = useState<AggregatedPriceResult | null>(null);
+
+  // Price alerts
+  const { hasAlert, getAlertForItem, addAlert, removeAlert } = usePriceAlerts();
+  const [alertTargetPrice, setAlertTargetPrice] = useState('');
+  const [alertType, setAlertType] = useState<'above' | 'below'>('above');
+  const [showAlertForm, setShowAlertForm] = useState(false);
+
   // Price display state (50-100%)
   const [valuePercent, setValuePercent] = useState<50 | 60 | 70 | 80 | 90 | 100>(100);
   const [priceChartRange, setPriceChartRange] = useState<'7D' | '30D' | '90D'>('30D');
@@ -240,6 +256,22 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
 
   // Get local sparkline data
   const localSparkline = item ? getItemSparklineData(item.id, priceChartRange === '7D' ? 7 : priceChartRange === '30D' ? 30 : 90) : [];
+
+  // Refresh handler for single card
+  const handleRefreshPrice = async () => {
+    if (!item || isPriceRefreshing) return;
+    const result = await refreshSinglePrice(item as any, true);
+    if (result) {
+      setAggregatedPrice(result);
+      if (result.bestPrice) {
+        setEditItemMarketPrice(result.bestPrice.toString());
+      }
+      toast({ title: 'Price refreshed', description: result.primarySource ? `via ${result.primarySource}` : 'Updated' });
+      await refetchInventory();
+    } else {
+      toast({ title: 'No price found', variant: 'destructive' });
+    }
+  };
 
   // Smart image fetch using products-search edge function (has caching & multiple sources)
   const fetchImageForItem = async () => {
@@ -839,6 +871,118 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
               marketPrice={item.market_price}
             />
           )}
+
+          {/* Price Breakdown — Multi-source */}
+          <PriceBreakdown
+            aggregated={aggregatedPrice}
+            updatedAt={item.updated_at ?? null}
+            onRefresh={handleRefreshPrice}
+            isRefreshing={isPriceRefreshing}
+          />
+
+          {/* Sparkline (local history) */}
+          {localSparkline.length >= 2 && (
+            <div className="p-4 rounded-2xl bg-secondary/30 border border-border/20">
+              <h4 className="font-semibold text-sm text-muted-foreground mb-2">30-Day Trend</h4>
+              <PriceSparkline data={localSparkline} width={320} height={48} className="w-full" />
+            </div>
+          )}
+
+          {/* Net Proceeds Calculator */}
+          {item.market_price && item.market_price > 0 && (
+            <NetProceedsCalculator
+              marketPrice={item.market_price}
+              purchasePrice={item.purchase_price}
+              quantity={item.quantity}
+            />
+          )}
+
+          {/* Price Alert */}
+          <div className="p-4 rounded-2xl bg-secondary/30 border border-border/20">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-semibold text-sm text-muted-foreground flex items-center gap-1.5">
+                <Bell className="w-3.5 h-3.5" />
+                Price Alert
+              </h4>
+              {hasAlert(item.id) ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 text-[10px] gap-1 text-destructive"
+                  onClick={() => {
+                    const a = getAlertForItem(item.id);
+                    if (a) removeAlert(a.id);
+                  }}
+                >
+                  <BellOff className="w-3 h-3" />
+                  Remove Alert
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 text-[10px] gap-1"
+                  onClick={() => setShowAlertForm(!showAlertForm)}
+                >
+                  <Bell className="w-3 h-3" />
+                  {showAlertForm ? 'Cancel' : 'Set Alert'}
+                </Button>
+              )}
+            </div>
+            {hasAlert(item.id) && (() => {
+              const a = getAlertForItem(item.id);
+              return a ? (
+                <p className="text-xs text-muted-foreground">
+                  Alert when price goes {a.type} ${a.targetPrice.toFixed(2)}
+                </p>
+              ) : null;
+            })()}
+            {showAlertForm && !hasAlert(item.id) && (
+              <div className="flex items-center gap-2 mt-2">
+                <select
+                  value={alertType}
+                  onChange={(e) => setAlertType(e.target.value as 'above' | 'below')}
+                  className="h-8 text-xs rounded-lg border border-border bg-card px-2"
+                >
+                  <option value="above">Goes above</option>
+                  <option value="below">Goes below</option>
+                </select>
+                <div className="relative flex-1">
+                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={alertTargetPrice}
+                    onChange={(e) => setAlertTargetPrice(e.target.value)}
+                    placeholder="0.00"
+                    className="h-8 text-xs pl-5"
+                  />
+                </div>
+                <Button
+                  size="sm"
+                  className="h-8 text-xs"
+                  onClick={() => {
+                    const target = parseFloat(alertTargetPrice);
+                    if (!isNaN(target) && target > 0) {
+                      addAlert({
+                        itemId: item.id,
+                        itemName: item.name,
+                        setName: item.set_name,
+                        imageUrl: localImageUrl || undefined,
+                        type: alertType,
+                        targetPrice: target,
+                        currentPrice: item.market_price ?? undefined,
+                      });
+                      setShowAlertForm(false);
+                      setAlertTargetPrice('');
+                    }
+                  }}
+                >
+                  Set
+                </Button>
+              </div>
+            )}
+          </div>
 
           {/* Price History Chart */}
           <div className="p-4 rounded-2xl bg-secondary/30 border border-border/20">

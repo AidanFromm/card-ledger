@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
-  Scan,
+  ScanLine,
   Plus,
   TrendingUp,
   TrendingDown,
@@ -538,7 +538,7 @@ const ScanCard = () => {
                     <div className="absolute top-0 right-0 w-24 h-24 bg-success/8 rounded-full blur-3xl" />
                     <div className="relative">
                       <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center mb-4">
-                        <Scan className="w-7 h-7 text-success" />
+                        <ScanLine className="w-7 h-7 text-success" />
                       </div>
                       <h3 className="font-semibold mb-1">Barcode</h3>
                       <p className="text-sm text-muted-foreground">Scan UPC or PSA cert</p>
@@ -724,9 +724,9 @@ const ScanCard = () => {
           {searchQuery && !hasResults && !isSearching && !showLoadingSkeletons && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12">
               <div className="w-16 h-16 mx-auto rounded-2xl bg-secondary/50 flex items-center justify-center mb-4">
-                <Search className="w-8 h-8 text-muted-foreground" />
+                <Search className="w-8 h-8 text-muted-foreground" strokeWidth={1.75} />
               </div>
-              <h3 className="font-semibold mb-1">
+              <h3 className="text-base font-semibold mb-1">
                 {hasActiveFilters && searchResults.length > 0 ? "No matches for these filters" : "No matches found"}
               </h3>
               <p className="text-sm text-muted-foreground mb-2">

@@ -17,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Search, DollarSign, User, ChevronDown, ChevronUp, Pencil, Trash2, TrendingUp, TrendingDown, Trophy, Image as ImageIcon, Package, BarChart3, Calendar } from "lucide-react";
+import { Search, DollarSign, UserCircle2, ChevronDown, ChevronUp, Pencil, Trash2, TrendingUp, TrendingDown, Trophy, Image as ImageIcon, Package, BarChart3, Calendar } from "lucide-react";
 import { format, subDays, subMonths, subYears, isAfter } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -620,7 +620,7 @@ const Sales = () => {
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Transactions</span>
               <div className="p-1.5 rounded-lg bg-purple-500/20">
-                <User className="h-3 w-3 text-purple-500" />
+                <UserCircle2 className="h-3 w-3 text-purple-500" />
               </div>
             </div>
             <div className="text-xl font-bold text-foreground">
@@ -931,7 +931,7 @@ const Sales = () => {
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-base font-semibold flex items-center gap-2">
-                <User className="h-4 w-4 text-primary" />
+                <UserCircle2 className="h-4 w-4 text-primary" />
                 Clients
               </h3>
               {searchTerm && (
@@ -960,12 +960,12 @@ const Sales = () => {
             {filteredSales.length === 0 ? (
               <div className="text-center py-12 border border-border/30 rounded-2xl bg-muted/5">
                 <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="h-7 w-7 text-emerald-500/40" />
+                  <TrendingUp className="h-7 w-7 text-emerald-500/40" strokeWidth={1.75} />
                 </div>
-                <p className="text-sm font-medium text-foreground mb-1">
-                  {sales.length === 0 ? "No sales yet" : "No matches"}
+                <p className="text-base font-semibold text-foreground mb-1">
+                  {sales.length === 0 ? "No Sales Yet" : "No Matches"}
                 </p>
-                <p className="text-xs text-muted-foreground/60 max-w-[200px] mx-auto">
+                <p className="text-sm text-muted-foreground/60 max-w-[220px] mx-auto">
                   {sales.length === 0
                     ? "Record your first sale from your inventory to start tracking profits."
                     : "Try a different search term."}
@@ -987,7 +987,7 @@ const Sales = () => {
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div className="p-1.5 rounded-lg bg-primary/10">
-                            <User className="h-4 w-4 text-primary" />
+                            <UserCircle2 className="h-4 w-4 text-primary" />
                           </div>
                           <div className="min-w-0">
                             <h3 className="font-bold text-sm truncate">{clientName}</h3>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, Package, LayoutDashboard, DollarSign, User, BarChart3, ChevronLeft, ChevronRight, TrendingUp, Globe } from "lucide-react";
+import { Search, Package, LayoutDashboard, Receipt, UserCircle2, BarChart3, ChevronLeft, ChevronRight, TrendingUp, Flame } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -9,9 +9,9 @@ const navItems = [
   { path: "/inventory", label: "Inventory", icon: Package },
   { path: "/dashboard", label: "Analytics", icon: LayoutDashboard },
   { path: "/stats", label: "Statistics", icon: BarChart3 },
-  { path: "/trends", label: "Trends", icon: TrendingUp },
-  { path: "/sales", label: "Sales", icon: DollarSign },
-  { path: "/profile", label: "Profile", icon: User },
+  { path: "/trends", label: "Trends", icon: Flame },
+  { path: "/sales", label: "Sales", icon: Receipt },
+  { path: "/profile", label: "Profile", icon: UserCircle2 },
 ];
 
 export const DesktopSidebar = () => {
@@ -49,7 +49,7 @@ export const DesktopSidebar = () => {
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
-                <Icon className="h-5 w-5 flex-shrink-0" strokeWidth={isActive ? 2.2 : 1.8} />
+                <Icon className="h-5 w-5 flex-shrink-0" strokeWidth={isActive ? 2.2 : 1.75} />
                 <AnimatePresence>
                   {!collapsed && (
                     <motion.span

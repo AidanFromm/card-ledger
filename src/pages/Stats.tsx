@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { BarChart3, TrendingUp, TrendingDown, Award, Package, Calendar, DollarSign, Crown, ChevronDown, ChevronUp, Target } from "lucide-react";
+import { BarChart3, TrendingUp, TrendingDown, Award, Package, Calendar, DollarSign, Crown, ChevronDown, ChevronUp, Target, Activity } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from "recharts";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
@@ -150,7 +150,7 @@ const Stats = () => {
               ].map(({ label, value, icon: Icon }) => (
                 <div key={label} className="card-clean-elevated p-4 rounded-2xl">
                   <div className="flex items-center gap-1.5 mb-2">
-                    <Icon className="h-3.5 w-3.5 text-muted-foreground/50" />
+                    <Icon className="h-3.5 w-3.5 text-muted-foreground/50" strokeWidth={1.75} />
                     <p className="label-metric">{label}</p>
                   </div>
                   <p className="text-lg font-bold">{value}</p>

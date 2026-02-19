@@ -1,4 +1,4 @@
-import { Search, Package, LayoutDashboard, DollarSign, User } from "lucide-react";
+import { Search, Package, LayoutDashboard, Receipt, UserCircle2 } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -14,8 +14,8 @@ const BottomNav = () => {
     { to: "/scan", icon: Search, label: "Search" },
     { to: "/inventory", icon: Package, label: "Inventory" },
     { to: "/dashboard", icon: LayoutDashboard, label: "Analytics" },
-    { to: "/sales", icon: DollarSign, label: "Sales" },
-    { to: "/profile", icon: User, label: "Profile" },
+    { to: "/sales", icon: Receipt, label: "Sales" },
+    { to: "/profile", icon: UserCircle2, label: "Profile" },
   ];
 
   const currentIndex = navItems.findIndex(item => item.to === location.pathname);
@@ -97,7 +97,7 @@ const BottomNav = () => {
                       className={`h-[22px] w-[22px] transition-colors duration-200 ${
                         isActive ? 'text-primary' : 'text-muted-foreground/60'
                       }`}
-                      strokeWidth={isActive ? 2.5 : 1.8}
+                      strokeWidth={isActive ? 2.25 : 1.75}
                     />
                   </motion.div>
 

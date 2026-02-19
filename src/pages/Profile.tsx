@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  User,
+  UserCircle2,
   Moon,
   Sun,
   Monitor,
@@ -235,8 +235,10 @@ const Profile = () => {
             className="card-clean-elevated p-5 rounded-3xl mb-6"
           >
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
-                <User className="w-7 h-7 text-primary" />
+              <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-br from-primary via-blue-400 to-violet-500 flex-shrink-0">
+                <div className="w-full h-full rounded-full bg-card flex items-center justify-center">
+                  <UserCircle2 className="w-8 h-8 text-primary" strokeWidth={1.75} />
+                </div>
               </div>
               <div className="flex-1 min-w-0">
                 <h2 className="text-base font-bold truncate">{user?.email || "Loading..."}</h2>
@@ -296,9 +298,9 @@ const Profile = () => {
               {achievements.map(a => (
                 <div
                   key={a.id}
-                  className={`text-center p-2 rounded-xl transition-all ${
+                  className={`text-center p-2.5 rounded-xl transition-all ${
                     a.unlocked 
-                      ? 'bg-primary/10 border border-primary/20' 
+                      ? 'bg-primary/10 border border-primary/20 shadow-[0_0_12px_hsl(212_100%_49%/0.15)]' 
                       : 'bg-muted/20 opacity-40 grayscale'
                   }`}
                 >
