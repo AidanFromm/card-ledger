@@ -153,7 +153,7 @@ const EXACT_HEADER_MAP: Record<string, ColumnType> = {
   'edition': 'set_name',
   'release': 'set_name',
   'subset': 'set_name',
-  'product line': 'set_name',
+  'product series': 'set_name',
   'brand/set': 'set_name',
 
   // ===== Card Number variations =====
