@@ -25,7 +25,7 @@ const Auth = lazy(() => import("./pages/Auth"));
 const Profile = lazy(() => import("./pages/Profile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ClientListView = lazy(() => import("./pages/ClientListView"));
-const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
+import ProtectedRoute from "./components/ProtectedRoute";
 const Stats = lazy(() => import("./pages/Stats"));
 const Trends = lazy(() => import("./pages/Trends"));
 const Help = lazy(() => import("./pages/Help"));
@@ -129,49 +129,21 @@ const App = () => (
                   <Routes>
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/" element={<Index />} />
-                    <Route path="/dashboard" element={
-                      <Suspense fallback={<PageLoader />}><ProtectedRoute><Dashboard /></ProtectedRoute></Suspense>
-                    } />
-                    <Route path="/inventory" element={
-                      <Suspense fallback={<PageLoader />}><ProtectedRoute><Inventory /></ProtectedRoute></Suspense>
-                    } />
-                    <Route path="/add" element={
-                      <Suspense fallback={<PageLoader />}><ProtectedRoute><AddItem /></ProtectedRoute></Suspense>
-                    } />
-                    <Route path="/scan" element={
-                      <Suspense fallback={<PageLoader />}><ProtectedRoute><ScanCard /></ProtectedRoute></Suspense>
-                    } />
-                    <Route path="/scan/barcode" element={
-                      <Suspense fallback={<PageLoader />}><ProtectedRoute><ScanBarcode /></ProtectedRoute></Suspense>
-                    } />
-                    <Route path="/scan/ai" element={
-                      <Suspense fallback={<PageLoader />}><ProtectedRoute><ScanAI /></ProtectedRoute></Suspense>
-                    } />
-                    <Route path="/sales" element={
-                      <Suspense fallback={<PageLoader />}><ProtectedRoute><Sales /></ProtectedRoute></Suspense>
-                    } />
-                    <Route path="/profile" element={
-                      <Suspense fallback={<PageLoader />}><ProtectedRoute><Profile /></ProtectedRoute></Suspense>
-                    } />
-                    <Route path="/stats" element={
-                      <Suspense fallback={<PageLoader />}><ProtectedRoute><Stats /></ProtectedRoute></Suspense>
-                    } />
-                    <Route path="/trends" element={
-                      <Suspense fallback={<PageLoader />}><ProtectedRoute><Trends /></ProtectedRoute></Suspense>
-                    } />
-                    <Route path="/grading-guide" element={
-                      <Suspense fallback={<PageLoader />}><GradingGuide /></Suspense>
-                    } />
+                    <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                    <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
+                    <Route path="/add" element={<ProtectedRoute><AddItem /></ProtectedRoute>} />
+                    <Route path="/scan" element={<ProtectedRoute><ScanCard /></ProtectedRoute>} />
+                    <Route path="/scan/barcode" element={<ProtectedRoute><ScanBarcode /></ProtectedRoute>} />
+                    <Route path="/scan/ai" element={<ProtectedRoute><ScanAI /></ProtectedRoute>} />
+                    <Route path="/sales" element={<ProtectedRoute><Sales /></ProtectedRoute>} />
+                    <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                    <Route path="/stats" element={<ProtectedRoute><Stats /></ProtectedRoute>} />
+                    <Route path="/trends" element={<ProtectedRoute><Trends /></ProtectedRoute>} />
+                    <Route path="/grading-guide" element={<GradingGuide />} />
                     <Route path="/client-list/:shareToken" element={<ClientListView />} />
-                    <Route path="/onboarding" element={
-                      <Suspense fallback={<PageLoader />}><OnboardingFlow /></Suspense>
-                    } />
-                    <Route path="/help" element={
-                      <Suspense fallback={<PageLoader />}><ProtectedRoute><Help /></ProtectedRoute></Suspense>
-                    } />
-                    <Route path="/legal" element={
-                      <Suspense fallback={<PageLoader />}><Legal /></Suspense>
-                    } />
+                    <Route path="/onboarding" element={<OnboardingFlow />} />
+                    <Route path="/help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
+                    <Route path="/legal" element={<Legal />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </ErrorBoundary>
