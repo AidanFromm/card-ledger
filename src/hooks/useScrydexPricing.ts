@@ -163,7 +163,7 @@ export const useScrydexPricing = () => {
       : `Updated ${success} items, ${failed} unavailable`;
 
     toast({
-      title: "Price refresh complete",
+      title: "Prices updated! 📊",
       description,
     });
 

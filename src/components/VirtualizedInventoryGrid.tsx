@@ -15,17 +15,15 @@ interface VirtualizedInventoryGridProps {
   onDelete: (id: string) => void;
 }
 
-// Responsive breakpoints for column count
 const getColumnCount = (width: number): number => {
-  if (width >= 1280) return 6; // xl
-  if (width >= 1024) return 5; // lg
-  if (width >= 768) return 4;  // md
-  return 2; // default (mobile)
+  if (width >= 1280) return 5;
+  if (width >= 1024) return 4;
+  if (width >= 768) return 3;
+  return 2;
 };
 
-// Row height must be consistent - card height + gap
-const ROW_HEIGHT = 340;
-const GAP = 12;
+const ROW_HEIGHT = 380;
+const GAP = 16;
 
 export const VirtualizedInventoryGrid = ({
   items,
@@ -40,7 +38,6 @@ export const VirtualizedInventoryGrid = ({
   const [columnCount, setColumnCount] = useState(2);
   const [scrollMargin, setScrollMargin] = useState(0);
 
-  // Update column count and scroll margin on resize
   useEffect(() => {
     const updateLayout = () => {
       if (listRef.current) {
@@ -51,7 +48,6 @@ export const VirtualizedInventoryGrid = ({
 
     updateLayout();
     window.addEventListener('resize', updateLayout);
-    // Also update after a short delay to catch late layout changes
     const timer = setTimeout(updateLayout, 100);
 
     return () => {
@@ -60,21 +56,19 @@ export const VirtualizedInventoryGrid = ({
     };
   }, []);
 
-  // Calculate rows
   const rowCount = Math.ceil(items.length / columnCount);
 
-  // Use window virtualizer so the entire page scrolls together
   const rowVirtualizer = useWindowVirtualizer({
     count: rowCount,
     estimateSize: () => ROW_HEIGHT,
-    overscan: 5,
+    overscan: 4,
     scrollMargin,
   });
 
   const virtualRows = rowVirtualizer.getVirtualItems();
 
   return (
-    <div ref={listRef}>
+    <div ref={listRef} className="px-4 md:px-0">
       <div
         style={{
           height: `${rowVirtualizer.getTotalSize()}px`,
@@ -107,7 +101,7 @@ export const VirtualizedInventoryGrid = ({
                   gap: GAP,
                 }}
               >
-                {rowItems.map((item) => (
+                {rowItems.map((item, i) => (
                   <InventoryCard
                     key={item.id}
                     item={item}

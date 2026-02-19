@@ -8,8 +8,18 @@ import { Switch } from "@/components/ui/switch";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { useSalesDb } from "@/hooks/useSalesDb";
 import { useToast } from "@/hooks/use-toast";
-import { DollarSign, TrendingUp } from "lucide-react";
+import { DollarSign, TrendingUp, Calculator } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+
+// Platform fee rates
+const PLATFORMS = [
+  { id: 'none', label: 'No Platform', fee: 0 },
+  { id: 'ebay', label: 'eBay', fee: 0.13 },
+  { id: 'mercari', label: 'Mercari', fee: 0.10 },
+  { id: 'whatnot', label: 'Whatnot', fee: 0.089 },
+  { id: 'tcgplayer', label: 'TCGPlayer', fee: 0.1089 },
+  { id: 'facebook', label: 'FB Market', fee: 0.05 },
+] as const;
 
 interface RecordSaleDialogProps {
   open: boolean;
@@ -77,9 +87,17 @@ const RecordSaleDialog = ({ open, onOpenChange, preselectedItems = [], onSaleCom
 
   const selectedItem = availableItems.length === 1 ? availableItems[0] : null;
   
+  const [platformFee, setPlatformFee] = useState('none');
+
   const purchasePrice = selectedItem?.purchase_price || 0;
   const quantityNum = parseInt(quantity) || 0;
+  const selectedPlatform = PLATFORMS.find(p => p.id === platformFee) || PLATFORMS[0];
+  const feeRate = selectedPlatform.fee;
+  const salePriceNum = parseFloat(salePrice) || 0;
+  const feeAmount = salePriceNum * feeRate * quantityNum;
+  const netRevenue = (salePriceNum * quantityNum) - feeAmount;
   const profit = salePrice ? parseFloat(salePrice) - purchasePrice : 0;
+  const netProfit = netRevenue - (purchasePrice * quantityNum);
 
   // FIFO: Deduct sold quantity from purchase entries
   const deductFromPurchaseEntries = async (inventoryItemId: string, soldQuantity: number) => {
@@ -788,23 +806,57 @@ const RecordSaleDialog = ({ open, onOpenChange, preselectedItems = [], onSaleCom
                   />
                 </div>
 
-                {/* Profit Summary */}
+                {/* Platform Fee Calculator */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold flex items-center gap-1.5">
+                    <Calculator className="h-3.5 w-3.5" />
+                    Platform Fees
+                  </Label>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {PLATFORMS.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setPlatformFee(p.id)}
+                        className={`h-8 px-2.5 text-xs font-semibold rounded-lg border transition-all ${
+                          platformFee === p.id
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-secondary/50 border-border/50 hover:border-primary/50'
+                        }`}
+                      >
+                        {p.label}{p.fee > 0 ? ` ${(p.fee * 100).toFixed(0)}%` : ''}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Net Profit Summary */}
                 {salePrice && (
-                  <div className="p-3 bg-gradient-to-br from-muted/40 to-muted/20 border border-primary/30 rounded-lg">
+                  <div className="p-3 bg-gradient-to-br from-muted/40 to-muted/20 border border-primary/30 rounded-lg space-y-2">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-xs text-muted-foreground">Total Sale</span>
-                        <p className="text-lg font-bold">${formatCurrency(parseFloat(salePrice) * quantityNum)}</p>
+                      <span className="text-xs text-muted-foreground">Total Sale</span>
+                      <span className="text-sm font-bold">${formatCurrency(salePriceNum * quantityNum)}</span>
+                    </div>
+                    {feeRate > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">{selectedPlatform.label} Fee ({(feeRate * 100).toFixed(0)}%)</span>
+                        <span className="text-sm font-semibold text-destructive">-${formatCurrency(feeAmount)}</span>
                       </div>
-                      <div className="text-right">
-                        <span className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
-                          <TrendingUp className="h-3 w-3" />
-                          Profit
-                        </span>
-                        <p className={`text-lg font-bold ${profit * quantityNum >= 0 ? "text-success" : "text-destructive"}`}>
-                          {profit * quantityNum >= 0 ? "+" : ""}${formatCurrency(Math.abs(profit * quantityNum))}
-                        </p>
+                    )}
+                    {feeRate > 0 && (
+                      <div className="flex items-center justify-between border-t border-border/30 pt-2">
+                        <span className="text-xs text-muted-foreground">Net Revenue</span>
+                        <span className="text-sm font-bold">${formatCurrency(netRevenue)}</span>
                       </div>
+                    )}
+                    <div className="flex items-center justify-between border-t border-border/30 pt-2">
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <TrendingUp className="h-3 w-3" />
+                        Net Profit
+                      </span>
+                      <span className={`text-lg font-bold ${netProfit >= 0 ? "text-success" : "text-destructive"}`}>
+                        {netProfit >= 0 ? "+" : ""}${formatCurrency(Math.abs(netProfit))}
+                      </span>
                     </div>
                   </div>
                 )}

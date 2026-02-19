@@ -272,16 +272,16 @@ const Sales = () => {
     try {
       await deleteSale(saleToDelete);
       toast({
-        title: "Sale deleted",
-        description: "The sale record has been removed successfully",
+        title: "Sale removed",
+        description: "That sale record has been deleted.",
       });
       setDeleteDialogOpen(false);
       setSaleToDelete(null);
     } catch (error) {
       console.error("Error deleting sale:", error);
       toast({
-        title: "Error",
-        description: "Failed to delete sale",
+        title: "Couldn't delete sale",
+        description: "Check your connection and try again.",
         variant: "destructive",
       });
     }
@@ -307,8 +307,8 @@ const Sales = () => {
     } catch (error) {
       console.error("Error deleting bulk sale:", error);
       toast({
-        title: "Error",
-        description: "Failed to delete bulk sale",
+        title: "Couldn't delete bulk sale",
+        description: "Check your connection and try again.",
         variant: "destructive",
       });
     }
@@ -332,8 +332,8 @@ const Sales = () => {
 
     if (isNaN(quantityNum) || quantityNum <= 0) {
       toast({
-        title: "Error",
-        description: "Please enter a valid quantity",
+        title: "Invalid quantity",
+        description: "Enter a number greater than zero.",
         variant: "destructive",
       });
       return;
@@ -341,8 +341,8 @@ const Sales = () => {
 
     if (isNaN(salePriceNum) || salePriceNum < 0) {
       toast({
-        title: "Error",
-        description: "Please enter a valid sale price",
+        title: "Invalid price",
+        description: "Enter a valid sale price.",
         variant: "destructive",
       });
       return;
@@ -357,8 +357,8 @@ const Sales = () => {
       });
       
       toast({
-        title: "Sale updated",
-        description: "The sale record has been updated successfully",
+        title: "Sale updated ✓",
+        description: "Your changes have been saved.",
       });
       
       setEditDialogOpen(false);
@@ -366,8 +366,8 @@ const Sales = () => {
     } catch (error) {
       console.error("Error updating sale:", error);
       toast({
-        title: "Error",
-        description: "Failed to update sale",
+        title: "Couldn't update sale",
+        description: "Check your connection and try again.",
         variant: "destructive",
       });
     }
@@ -386,8 +386,8 @@ const Sales = () => {
 
     if (!trimmedNewTag && tagToRename !== "Untagged") {
       toast({
-        title: "Error",
-        description: "Tag name cannot be empty",
+        title: "Tag name required",
+        description: "Enter a name for this tag.",
         variant: "destructive",
       });
       return;
@@ -410,8 +410,8 @@ const Sales = () => {
       );
 
       toast({
-        title: "Tag renamed",
-        description: `Successfully renamed "${tagToRename}" to "${trimmedNewTag || 'Untagged'}" for ${salesToUpdate.length} sale(s)`,
+        title: "Tag updated ✓",
+        description: `Renamed to "${trimmedNewTag || 'Untagged'}" across ${salesToUpdate.length} sale(s).`,
       });
 
       setRenameTagDialogOpen(false);
@@ -420,8 +420,8 @@ const Sales = () => {
     } catch (error) {
       console.error("Error renaming tag:", error);
       toast({
-        title: "Error",
-        description: "Failed to rename tag",
+        title: "Couldn't rename tag",
+        description: "Check your connection and try again.",
         variant: "destructive",
       });
     }
@@ -431,7 +431,7 @@ const Sales = () => {
     return (
       <div className="min-h-screen bg-background pb-safe pt-safe">
         <Navbar />
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
+        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <div className="h-8 w-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
             <p className="text-sm text-muted-foreground">Loading sales...</p>
@@ -445,7 +445,7 @@ const Sales = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
-      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
+      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
         {/* Compact Stats Grid - Robinhood Style */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -455,7 +455,7 @@ const Sales = () => {
           {/* Profit Card - Primary */}
           <motion.div
             whileTap={{ scale: 0.98 }}
-            className="glass-card p-4 rounded-2xl col-span-2"
+            className="card-clean-elevated p-5 rounded-3xl col-span-2"
           >
             <div className="flex items-center justify-between">
               <div>
@@ -476,7 +476,7 @@ const Sales = () => {
           {/* Revenue */}
           <motion.div
             whileTap={{ scale: 0.98 }}
-            className="glass-card p-3.5 rounded-2xl"
+            className="card-clean-elevated p-4 rounded-2xl"
           >
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Revenue</span>
@@ -492,7 +492,7 @@ const Sales = () => {
           {/* Margin */}
           <motion.div
             whileTap={{ scale: 0.98 }}
-            className="glass-card p-3.5 rounded-2xl"
+            className="card-clean-elevated p-4 rounded-2xl"
           >
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Margin</span>
@@ -508,7 +508,7 @@ const Sales = () => {
           {/* Items Sold */}
           <motion.div
             whileTap={{ scale: 0.98 }}
-            className="glass-card p-3.5 rounded-2xl"
+            className="card-clean-elevated p-4 rounded-2xl"
           >
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Sold</span>
@@ -524,7 +524,7 @@ const Sales = () => {
           {/* Transactions */}
           <motion.div
             whileTap={{ scale: 0.98 }}
-            className="glass-card p-3.5 rounded-2xl"
+            className="card-clean-elevated p-4 rounded-2xl"
           >
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Transactions</span>
@@ -635,10 +635,10 @@ const Sales = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="glass-card rounded-2xl p-4 mb-6"
+          className="card-clean-elevated rounded-3xl p-5 mb-6"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-semibold flex items-center gap-2">
+            <h3 className="text-base font-bold flex items-center gap-2">
               <Trophy className="h-4 w-4 text-amber-500" />
               Top Performers
             </h3>
@@ -710,7 +710,7 @@ const Sales = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="glass-card rounded-2xl overflow-hidden"
+          className="card-clean-elevated rounded-3xl overflow-hidden"
         >
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
@@ -733,7 +733,7 @@ const Sales = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search clients or items..."
+                placeholder="Search sales, clients, or cards..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9 h-10 text-sm rounded-xl bg-secondary/30 border-border/50"
@@ -1211,3 +1211,4 @@ const Sales = () => {
 };
 
 export default Sales;
+

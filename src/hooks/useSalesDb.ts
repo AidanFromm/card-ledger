@@ -57,8 +57,8 @@ export const useSalesDb = () => {
     } catch (error: any) {
       console.error("Error fetching sales:", error);
       toast({
-        title: "Error loading sales",
-        description: error.message,
+        title: "Couldn't load sales",
+        description: error.message || "Check your connection and try again.",
         variant: "destructive",
       });
     } finally {
@@ -102,14 +102,14 @@ export const useSalesDb = () => {
       if (error) throw error;
 
       toast({
-        title: "Sale recorded",
-        description: "Sale has been added successfully",
+        title: "Sale recorded! 💰",
+        description: "Nice move — your profit is updated.",
       });
     } catch (error: any) {
       console.error("Error adding sale:", error);
       toast({
-        title: "Error adding sale",
-        description: error.message,
+        title: "Couldn't record sale",
+        description: error.message || "Check your connection and try again.",
         variant: "destructive",
       });
       throw error;
@@ -126,14 +126,14 @@ export const useSalesDb = () => {
       if (error) throw error;
 
       toast({
-        title: "Sale updated",
-        description: "Sale has been updated successfully",
+        title: "Sale updated ✓",
+        description: "Your changes have been saved.",
       });
     } catch (error: any) {
       console.error("Error updating sale:", error);
       toast({
-        title: "Error updating sale",
-        description: error.message,
+        title: "Couldn't update sale",
+        description: error.message || "Check your connection and try again.",
         variant: "destructive",
       });
       throw error;
@@ -147,14 +147,14 @@ export const useSalesDb = () => {
       if (error) throw error;
 
       toast({
-        title: "Sale deleted",
-        description: "Sale has been removed successfully",
+        title: "Sale removed",
+        description: "The sale record has been deleted.",
       });
     } catch (error: any) {
       console.error("Error deleting sale:", error);
       toast({
-        title: "Error deleting sale",
-        description: error.message,
+        title: "Couldn't delete sale",
+        description: error.message || "Check your connection and try again.",
         variant: "destructive",
       });
       throw error;
@@ -176,14 +176,14 @@ export const useSalesDb = () => {
       if (error) throw error;
 
       toast({
-        title: "Bulk sale deleted",
-        description: "All items in the bulk sale have been removed successfully",
+        title: "Bulk sale removed",
+        description: "All items in that sale have been deleted.",
       });
     } catch (error: any) {
       console.error("Error deleting bulk sale:", error);
       toast({
-        title: "Error deleting bulk sale",
-        description: error.message,
+        title: "Couldn't delete bulk sale",
+        description: error.message || "Check your connection and try again.",
         variant: "destructive",
       });
       throw error;

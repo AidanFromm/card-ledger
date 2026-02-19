@@ -416,18 +416,18 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Add to Inventory</DialogTitle>
-          <DialogDescription>
-            Review and adjust the details before adding to your inventory
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto rounded-3xl p-0 gap-0">
+        <DialogHeader className="px-6 pt-6 pb-2">
+          <DialogTitle className="text-lg font-bold tracking-tight">Add to Collection</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground/70">
+            Set quantity, grading, and purchase price
           </DialogDescription>
         </DialogHeader>
 
         {product && (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 px-6 pb-6">
             {/* Product Preview */}
-            <div className="flex gap-4 p-4 border rounded-lg bg-muted/50">
+            <div className="flex gap-4 p-4 rounded-2xl bg-secondary/30 border border-border/20">
               {product.image_url ? (
                 <img
                   src={product.image_url}
@@ -708,12 +708,12 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-2 pt-4">
+            <div className="flex gap-2 pt-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                className="flex-1"
+                className="flex-1 h-12 rounded-2xl font-semibold"
                 disabled={isSubmitting || isAddingToWatchlist}
               >
                 Cancel
@@ -722,16 +722,16 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
                 type="button"
                 variant="secondary"
                 onClick={handleWatchlist}
-                className="flex-1"
+                className="flex-1 h-12 rounded-2xl font-semibold"
                 disabled={isSubmitting || isAddingToWatchlist || alreadyWatched}
                 title={alreadyWatched ? "Already in watchlist" : "Add to watchlist"}
               >
                 <Eye className="w-4 h-4 mr-1.5" />
-                {isAddingToWatchlist ? "Adding..." : alreadyWatched ? "Watched" : "Watchlist"}
+                {isAddingToWatchlist ? "Adding..." : alreadyWatched ? "Watched" : "Watch"}
               </Button>
               <Button
                 type="submit"
-                className="flex-1"
+                className="flex-1 h-12 rounded-2xl font-semibold shadow-[0_4px_14px_rgba(0,116,251,0.25)]"
                 disabled={isSubmitting || isAddingToWatchlist}
               >
                 {isSubmitting ? "Adding..." : "Add"}

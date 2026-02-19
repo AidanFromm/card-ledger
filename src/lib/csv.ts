@@ -1,6 +1,6 @@
 import Papa from "papaparse";
 import type { Database } from "@/integrations/supabase/types";
-import { analyzeCSV, transformRow, ColumnMapping, NormalizedCard } from "./csvIntelligence";
+import { analyzeCSV, transformRow, detectDelimiter, ColumnMapping, NormalizedCard } from "./csvIntelligence";
 
 type InventoryItem = Database["public"]["Tables"]["inventory_items"]["Row"];
 type InventoryInsert = Database["public"]["Tables"]["inventory_items"]["Insert"];
@@ -403,12 +403,18 @@ export const parseAndValidateCSV = (
   invalid: ValidationResult[];
   totalRows: number;
   detectedFormat: string;
+  detectedDelimiter: string;
   columnMappings?: ColumnMapping[];
 }> => {
   return new Promise((resolve, reject) => {
+    // Auto-detect delimiter
+    const delimiter = detectDelimiter(csvContent);
+    console.log(`🔍 Auto-detected delimiter: "${delimiter === '\t' ? 'TAB' : delimiter === ',' ? 'COMMA' : delimiter === ';' ? 'SEMICOLON' : delimiter}"`);
+
     Papa.parse(csvContent, {
       header: true,
       skipEmptyLines: true,
+      delimiter: delimiter,
       complete: (results) => {
         const valid: ValidationResult[] = [];
         const invalid: ValidationResult[] = [];
@@ -511,6 +517,7 @@ export const parseAndValidateCSV = (
           invalid,
           totalRows: results.data.length,
           detectedFormat: analysis.detectedFormat,
+          detectedDelimiter: delimiter,
           columnMappings: analysis.columns,
         });
       },

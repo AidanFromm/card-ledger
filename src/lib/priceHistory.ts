@@ -151,7 +151,7 @@ export function getChartData(
  */
 export function calculateSellingPrice(
   marketPrice: number,
-  percent: 80 | 90 | 100
+  percent: number
 ): number {
   return marketPrice * (percent / 100);
 }
@@ -161,7 +161,7 @@ export function calculateSellingPrice(
  */
 export function formatSellingPrice(
   marketPrice: number,
-  percent: 80 | 90 | 100
+  percent: number
 ): string {
   const price = calculateSellingPrice(marketPrice, percent);
   return `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

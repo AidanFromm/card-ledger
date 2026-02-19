@@ -2,38 +2,62 @@
 const DB_NAME = 'cardledger-cache';
 const DB_VERSION = 1;
 
-interface CacheStore {
-  inventory: any[];
-  sales: any[];
-  lastSync: number;
-}
-
 let db: IDBDatabase | null = null;
+let dbOpenPromise: Promise<IDBDatabase> | null = null;
+
+const isIndexedDBAvailable = (): boolean => {
+  try {
+    return typeof indexedDB !== 'undefined' && indexedDB !== null;
+  } catch {
+    return false;
+  }
+};
 
 const openDB = (): Promise<IDBDatabase> => {
-  return new Promise((resolve, reject) => {
-    if (db) {
-      resolve(db);
-      return;
+  if (db) return Promise.resolve(db);
+  if (dbOpenPromise) return dbOpenPromise;
+
+  if (!isIndexedDBAvailable()) {
+    return Promise.reject(new Error('IndexedDB not available'));
+  }
+
+  dbOpenPromise = new Promise<IDBDatabase>((resolve, reject) => {
+    try {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+      request.onerror = () => {
+        dbOpenPromise = null;
+        reject(request.error);
+      };
+
+      request.onsuccess = () => {
+        db = request.result;
+        // Handle unexpected close (e.g. storage cleared)
+        db.onclose = () => {
+          db = null;
+          dbOpenPromise = null;
+        };
+        resolve(db);
+      };
+
+      request.onupgradeneeded = (event) => {
+        const database = (event.target as IDBOpenDBRequest).result;
+        if (!database.objectStoreNames.contains('cache')) {
+          database.createObjectStore('cache', { keyPath: 'key' });
+        }
+      };
+
+      request.onblocked = () => {
+        dbOpenPromise = null;
+        reject(new Error('IndexedDB blocked'));
+      };
+    } catch (err) {
+      dbOpenPromise = null;
+      reject(err);
     }
-
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => {
-      db = request.result;
-      resolve(db);
-    };
-
-    request.onupgradeneeded = (event) => {
-      const database = (event.target as IDBOpenDBRequest).result;
-
-      // Create stores if they don't exist
-      if (!database.objectStoreNames.contains('cache')) {
-        database.createObjectStore('cache', { keyPath: 'key' });
-      }
-    };
   });
+
+  return dbOpenPromise;
 };
 
 export const cacheSet = async <T>(key: string, data: T): Promise<void> => {
@@ -44,12 +68,13 @@ export const cacheSet = async <T>(key: string, data: T): Promise<void> => {
 
     store.put({ key, data, timestamp: Date.now() });
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error);
     });
   } catch (error) {
-    console.error('Cache set error:', error);
+    console.warn('Cache set failed (graceful):', error);
+    // Graceful degradation — don't throw
   }
 };
 
@@ -60,7 +85,7 @@ export const cacheGet = async <T>(key: string): Promise<T | null> => {
     const store = transaction.objectStore('cache');
     const request = store.get(key);
 
-    return new Promise((resolve, reject) => {
+    return new Promise<T | null>((resolve, reject) => {
       request.onsuccess = () => {
         const result = request.result;
         resolve(result ? result.data : null);
@@ -68,7 +93,7 @@ export const cacheGet = async <T>(key: string): Promise<T | null> => {
       request.onerror = () => reject(request.error);
     });
   } catch (error) {
-    console.error('Cache get error:', error);
+    console.warn('Cache get failed (graceful):', error);
     return null;
   }
 };
@@ -80,7 +105,7 @@ export const cacheGetWithTimestamp = async <T>(key: string): Promise<{ data: T; 
     const store = transaction.objectStore('cache');
     const request = store.get(key);
 
-    return new Promise((resolve, reject) => {
+    return new Promise<{ data: T; timestamp: number } | null>((resolve, reject) => {
       request.onsuccess = () => {
         const result = request.result;
         resolve(result ? { data: result.data, timestamp: result.timestamp } : null);
@@ -88,7 +113,7 @@ export const cacheGetWithTimestamp = async <T>(key: string): Promise<{ data: T; 
       request.onerror = () => reject(request.error);
     });
   } catch (error) {
-    console.error('Cache get error:', error);
+    console.warn('Cache getWithTimestamp failed (graceful):', error);
     return null;
   }
 };
@@ -100,12 +125,12 @@ export const cacheClear = async (): Promise<void> => {
     const store = transaction.objectStore('cache');
     store.clear();
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error);
     });
   } catch (error) {
-    console.error('Cache clear error:', error);
+    console.warn('Cache clear failed (graceful):', error);
   }
 };
 
@@ -122,7 +147,6 @@ export const onConnectivityChange = (callback: (online: boolean) => void): (() =
   window.addEventListener('online', handleOnline);
   window.addEventListener('offline', handleOffline);
 
-  // Return cleanup function
   return () => {
     window.removeEventListener('online', handleOnline);
     window.removeEventListener('offline', handleOffline);

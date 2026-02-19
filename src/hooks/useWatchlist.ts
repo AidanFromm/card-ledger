@@ -81,8 +81,8 @@ export const useWatchlist = () => {
       if (!user) {
         toast({
           variant: 'destructive',
-          title: 'Not authenticated',
-          description: 'Please sign in to use the watchlist.',
+          title: 'Sign in required',
+          description: 'Log in to start watching cards.',
         });
         return false;
       }
@@ -91,8 +91,8 @@ export const useWatchlist = () => {
       if (items.length >= WATCHLIST_LIMIT) {
         toast({
           variant: 'destructive',
-          title: 'Watchlist full',
-          description: `You can only watch up to ${WATCHLIST_LIMIT} items. Remove some to add more.`,
+          title: 'Watchlist is full',
+          description: `Max ${WATCHLIST_LIMIT} items — remove one to make room.`,
         });
         return false;
       }
@@ -107,8 +107,8 @@ export const useWatchlist = () => {
 
       if (existing) {
         toast({
-          title: 'Already watching',
-          description: 'This item is already in your watchlist.',
+          title: 'Already on your watchlist',
+          description: 'You\'re already tracking this one.',
         });
         return false;
       }
@@ -145,8 +145,8 @@ export const useWatchlist = () => {
       }
 
       toast({
-        title: 'Added to watchlist',
-        description: `${params.product_name} is now being watched.`,
+        title: 'Watching this card 👀',
+        description: `${params.product_name} added to your watchlist.`,
       });
 
       await fetchWatchlist();
@@ -174,7 +174,7 @@ export const useWatchlist = () => {
 
       toast({
         title: 'Removed from watchlist',
-        description: 'Item is no longer being watched.',
+        description: 'No longer tracking that card.',
       });
 
       await fetchWatchlist();

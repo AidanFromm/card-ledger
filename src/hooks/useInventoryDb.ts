@@ -61,8 +61,8 @@ export const useInventoryDb = () => {
       if (items.length === 0) {
         toast({
           variant: "destructive",
-          title: "Error fetching inventory",
-          description: error.message,
+          title: "Couldn't load your collection",
+          description: error.message || "Check your connection and try again.",
         });
       }
     } finally {
@@ -117,14 +117,14 @@ export const useInventoryDb = () => {
       if (error) throw error;
 
       toast({
-        title: "Item added",
-        description: "Your card has been added to inventory.",
+        title: "Added to your collection! 🎉",
+        description: `${item.name || "Card"} is now in your inventory.`,
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error adding item",
-        description: error.message,
+        title: "Couldn't add that card",
+        description: error.message || "Check your connection and try again.",
       });
       throw error;
     }
@@ -146,15 +146,15 @@ export const useInventoryDb = () => {
       // Only show toast if not silent
       if (!options?.silent) {
         toast({
-          title: "Item updated",
-          description: "Your changes have been saved.",
+          title: "Changes saved ✓",
+          description: "Your card details have been updated.",
         });
       }
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error updating item",
-        description: error.message,
+        title: "Couldn't save changes",
+        description: error.message || "Check your connection and try again.",
       });
       throw error;
     }
@@ -170,14 +170,14 @@ export const useInventoryDb = () => {
       if (error) throw error;
 
       toast({
-        title: "Item deleted",
-        description: "The item has been removed from your inventory.",
+        title: "Card removed",
+        description: "Removed from your collection.",
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error deleting item",
-        description: error.message,
+        title: "Couldn't remove card",
+        description: error.message || "Check your connection and try again.",
       });
       throw error;
     }
@@ -249,8 +249,8 @@ export const useInventoryDb = () => {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error uploading image",
-        description: error.message,
+        title: "Image upload failed",
+        description: error.message || "Try a smaller image or check your connection.",
       });
       throw error;
     }

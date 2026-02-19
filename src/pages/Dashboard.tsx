@@ -1,11 +1,15 @@
-import { useState } from "react";
-import { DollarSign, TrendingUp, TrendingDown, Percent, Award, Target, RefreshCw, PieChart as PieChartIcon, BarChart3, Clock } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { TrendingUp, TrendingDown, RefreshCw, Target, BarChart3, Clock, Eye, Star, Crown, Info, Camera, FileUp, DollarSign, Share2 } from "lucide-react";
+import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { useSalesDb } from "@/hooks/useSalesDb";
 import { usePurchaseEntries } from "@/hooks/usePurchaseEntries";
 import { useTodayChange } from "@/hooks/usePriceHistory";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,37 +19,60 @@ import { calculatePerformanceMetrics, calculateROI } from "@/lib/analytics";
 
 type TabType = 'overview' | 'performance' | 'breakdown';
 
+// Count-up animation hook
+const useCountUp = (end: number, duration: number = 1200) => {
+  const [value, setValue] = useState(0);
+  const prevEnd = useRef(0);
+
+  useEffect(() => {
+    if (end === prevEnd.current) return;
+    const start = prevEnd.current;
+    prevEnd.current = end;
+    const startTime = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      setValue(start + (end - start) * eased);
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }, [end, duration]);
+
+  return value;
+};
+
+const CountUpValue = ({ value, formatCurrency }: { value: number; formatCurrency: (n: number) => string }) => {
+  const animated = useCountUp(value);
+  return <>${formatCurrency(animated)}</>;
+};
+
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { items, loading, refetch, isSyncing } = useInventoryDb();
   const { sales, loading: salesLoading } = useSalesDb();
   const { entries: purchaseEntries, loading: purchaseLoading } = usePurchaseEntries();
+  const { items: watchlistItems } = useWatchlist();
   const [timeRange, setTimeRange] = useState<'7D' | '1M' | '3M' | '6M' | '1Y' | 'ALL'>('ALL');
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 
-  const formatCurrency = (amount: number) => {
-    return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  };
+  const formatCurrency = (amount: number) =>
+    amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  // Separate sold and unsold items
   const unsoldItems = items.filter(item => !item.sale_price);
 
-  // Calculate stats
   const totalValue = unsoldItems.reduce((sum, item) => {
     const marketPrice = item.market_price || item.purchase_price;
     return sum + marketPrice * item.quantity;
   }, 0);
 
-  const totalPaid = unsoldItems.reduce((sum, item) => {
-    return sum + item.purchase_price * item.quantity;
-  }, 0);
-
+  const totalPaid = unsoldItems.reduce((sum, item) => sum + item.purchase_price * item.quantity, 0);
   const unrealizedProfit = totalValue - totalPaid;
   const unrealizedProfitPercent = totalPaid > 0 ? ((unrealizedProfit / totalPaid) * 100) : 0;
 
-  // Today's change from price history
   const { todayChange, todayChangePercent, hasHistoricalData, loading: todayChangeLoading } = useTodayChange(totalValue);
 
-  // All supported grading companies with their colors
   const GRADING_COMPANIES = [
     { name: 'RAW', color: 'hsl(212, 100%, 49%)' },
     { name: 'PSA', color: 'hsl(142, 76%, 45%)' },
@@ -56,23 +83,18 @@ const Dashboard = () => {
     { name: 'TAG', color: 'hsl(320, 70%, 50%)' },
   ];
 
-  const COLORS = GRADING_COMPANIES.map(g => g.color);
-
-  // Grading company distribution for pie chart
   const gradingDistribution = unsoldItems.reduce((acc, item) => {
     const company = item.grading_company?.toUpperCase() || 'RAW';
     acc[company] = (acc[company] || 0) + item.quantity;
     return acc;
   }, {} as Record<string, number>);
 
-  // Create pieData with all grading companies (show 0 for empty ones)
   const pieData = GRADING_COMPANIES.map(company => ({
     name: company.name,
     value: gradingDistribution[company.name] || 0,
     color: company.color,
   }));
 
-  // Grade distribution for bar chart
   const gradeDistribution = unsoldItems
     .filter(item => item.grading_company !== 'raw' && item.grade)
     .reduce((acc, item) => {
@@ -83,13 +105,8 @@ const Dashboard = () => {
 
   const barData = Object.entries(gradeDistribution)
     .map(([grade, count]) => ({ grade, count }))
-    .sort((a, b) => {
-      const gradeA = parseFloat(a.grade) || 0;
-      const gradeB = parseFloat(b.grade) || 0;
-      return gradeB - gradeA;
-    });
+    .sort((a, b) => (parseFloat(b.grade) || 0) - (parseFloat(a.grade) || 0));
 
-  // Filter purchase entries based on time range
   const getFilteredPurchases = () => {
     if (timeRange === 'ALL') return purchaseEntries;
     const now = new Date();
@@ -101,7 +118,6 @@ const Dashboard = () => {
 
   const filteredPurchases = getFilteredPurchases();
 
-  // Create chart data
   const chartData = filteredPurchases
     .sort((a, b) => new Date(a.purchase_date).getTime() - new Date(b.purchase_date).getTime())
     .reduce((acc, entry) => {
@@ -110,7 +126,6 @@ const Dashboard = () => {
       const inventoryItem = items.find(item => item.name === entry.item_name && item.set_name === entry.set_name);
       const marketPrice = inventoryItem?.market_price || entry.purchase_price;
       const marketValue = marketPrice * entry.quantity;
-      const costBasis = entry.purchase_price * entry.quantity;
       const existing = acc.find(item => item.date === dateStr);
       if (existing) {
         existing.value += marketValue;
@@ -120,7 +135,6 @@ const Dashboard = () => {
       return acc;
     }, [] as Array<{ date: string; value: number; displayDate: Date }>);
 
-  // Calculate cumulative values
   let cumulativeValue = 0;
   const cumulativeChartData = chartData.map(item => {
     cumulativeValue += item.value;
@@ -137,20 +151,21 @@ const Dashboard = () => {
 
   const timeRanges = ['7D', '1M', '3M', '6M', '1Y', 'ALL'] as const;
   const isLoading = loading || salesLoading || purchaseLoading;
-
-  // Check if we have data for each section
   const hasPerformanceData = sales.length > 0;
   const hasPieData = pieData.some(d => d.value > 0);
   const hasBarData = barData.length > 0;
+  const isPositive = unrealizedProfit >= 0;
+  const chartColor = isPositive ? "rgb(16, 185, 129)" : "rgb(239, 68, 68)";
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background pb-safe pt-safe">
         <Navbar />
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
+        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
           <div className="mb-8">
-            <div className="h-10 w-48 bg-muted/40 rounded-lg animate-pulse mb-2" />
-            <div className="h-5 w-64 bg-muted/30 rounded animate-pulse" />
+            <div className="h-6 w-24 bg-muted/30 rounded-lg animate-pulse mb-3" />
+            <div className="h-12 w-56 bg-muted/40 rounded-xl animate-pulse mb-2" />
+            <div className="h-5 w-40 bg-muted/25 rounded animate-pulse" />
           </div>
           <SkeletonChart className="mb-6" />
         </main>
@@ -163,53 +178,52 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
       <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
-          {/* Robinhood-style Hero */}
+        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
+          {/* Hero Portfolio Value */}
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-2"
+            className="mb-1"
           >
             <div className="flex items-center justify-between mb-4">
-              <h1 className="text-lg font-semibold text-muted-foreground">Portfolio</h1>
+              <p className="text-sm font-medium text-muted-foreground/70">Portfolio</p>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => refetch()}
                 disabled={isSyncing}
-                className="gap-1.5 h-8 px-2 text-xs"
+                className="gap-1.5 h-8 px-2 text-xs rounded-xl text-muted-foreground/60"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
               </Button>
             </div>
 
-            {/* Large Portfolio Value */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+            {/* Big Number — count-up animated */}
+            <motion.h2
+              initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 }}
-              className="mb-1"
+              transition={{ delay: 0.05 }}
+              className="text-display mb-1.5"
             >
-              <h2 className="text-display">
-                ${formatCurrency(totalValue)}
-              </h2>
-            </motion.div>
+              <CountUpValue value={totalValue} formatCurrency={formatCurrency} />
+            </motion.h2>
 
-            {/* Profit/Loss Badge */}
+            {/* P&L Line */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="flex items-center gap-2"
+              transition={{ delay: 0.15 }}
+              className="flex items-center gap-2.5"
             >
-              <span className={`text-lg ${unrealizedProfit >= 0 ? 'change-positive' : 'change-negative'}`}>
-                {unrealizedProfit >= 0 ? '+' : ''}${formatCurrency(Math.abs(unrealizedProfit))} ({unrealizedProfitPercent >= 0 ? '+' : ''}{unrealizedProfitPercent.toFixed(2)}%)
+              <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-semibold ${
+                isPositive ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'
+              }`}>
+                {isPositive ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+                {isPositive ? '+' : ''}${formatCurrency(Math.abs(unrealizedProfit))}
+              </div>
+              <span className={`text-sm font-medium ${isPositive ? 'text-success/70' : 'text-destructive/70'}`}>
+                ({isPositive ? '+' : ''}{unrealizedProfitPercent.toFixed(2)}%)
               </span>
-              {unrealizedProfit >= 0 ? (
-                <TrendingUp className="h-4 w-4 text-success" />
-              ) : (
-                <TrendingDown className="h-4 w-4 text-destructive" />
-              )}
             </motion.div>
 
             {/* Today's Change */}
@@ -217,50 +231,80 @@ const Dashboard = () => {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.25 }}
-                className="flex items-center gap-2 mt-1"
+                transition={{ delay: 0.2 }}
+                className="flex items-center gap-2 mt-2"
               >
-                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className={`text-sm ${todayChange >= 0 ? 'change-positive' : 'change-negative'}`}>
+                <Clock className="h-3 w-3 text-muted-foreground/40" />
+                <span className={`text-xs font-medium ${todayChange >= 0 ? 'text-success/70' : 'text-destructive/70'}`}>
                   {todayChange >= 0 ? '+' : ''}${formatCurrency(Math.abs(todayChange))} ({todayChangePercent >= 0 ? '+' : ''}{todayChangePercent.toFixed(2)}%) today
                 </span>
               </motion.div>
             )}
           </motion.div>
 
-          {/* Full-width Chart */}
+          {/* Quick Actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.18 }}
+            className="grid grid-cols-4 gap-2 mb-5"
+          >
+            {[
+              { icon: Camera, label: 'Scan Card', path: '/scan', color: 'bg-blue-500/10 text-blue-500' },
+              { icon: FileUp, label: 'Import CSV', path: '/inventory', color: 'bg-emerald-500/10 text-emerald-500' },
+              { icon: DollarSign, label: 'Record Sale', path: '/sales', color: 'bg-amber-500/10 text-amber-500' },
+              { icon: Share2, label: 'Share List', path: '/inventory', color: 'bg-purple-500/10 text-purple-500' },
+            ].map(({ icon: Icon, label, path, color }) => (
+              <motion.button
+                key={label}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate(path)}
+                className="flex flex-col items-center gap-1.5 p-3 rounded-2xl card-clean-elevated transition-colors"
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
+                  <Icon className="h-5 w-5" />
+                </div>
+                <span className="text-[10px] font-semibold text-muted-foreground">{label}</span>
+              </motion.button>
+            ))}
+          </motion.div>
+
+          {/* Chart — Full Width, Robinhood Style */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.2 }}
             className="-mx-4 mb-6"
           >
             {/* Time Range Pills */}
-            <div className="flex justify-center gap-1 mb-4 px-4">
-              {timeRanges.map((range) => (
-                <button
-                  key={range}
-                  onClick={() => setTimeRange(range)}
-                  className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${
-                    timeRange === range
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {range}
-                </button>
-              ))}
+            <div className="flex justify-center gap-0.5 mb-3 px-4">
+              <div className="flex bg-secondary/30 rounded-full p-0.5">
+                {timeRanges.map((range) => (
+                  <button
+                    key={range}
+                    onClick={() => setTimeRange(range)}
+                    className={`text-[11px] px-3.5 py-1.5 rounded-full font-semibold transition-all ${
+                      timeRange === range
+                        ? 'bg-primary text-primary-foreground shadow-sm'
+                        : 'text-muted-foreground/60 hover:text-foreground'
+                    }`}
+                  >
+                    {range}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Chart */}
             {cumulativeChartData.length > 0 ? (
-              <div className="h-[200px] w-full">
+              <div className="h-[220px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={cumulativeChartData} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="valueGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={unrealizedProfit >= 0 ? "rgb(16, 185, 129)" : "rgb(239, 68, 68)"} stopOpacity={0.3} />
-                        <stop offset="100%" stopColor={unrealizedProfit >= 0 ? "rgb(16, 185, 129)" : "rgb(239, 68, 68)"} stopOpacity={0} />
+                        <stop offset="0%" stopColor={chartColor} stopOpacity={0.35} />
+                        <stop offset="40%" stopColor={chartColor} stopOpacity={0.15} />
+                        <stop offset="100%" stopColor={chartColor} stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <XAxis
@@ -268,16 +312,17 @@ const Dashboard = () => {
                       tickFormatter={formatDate}
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                      tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))', opacity: 0.5 }}
                       interval="preserveStartEnd"
                     />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: 'hsl(var(--card))',
-                        border: 'none',
-                        borderRadius: '12px',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '16px',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
                         fontSize: '13px',
+                        padding: '10px 14px',
                       }}
                       labelFormatter={formatDate}
                       formatter={(value: number) => [`$${formatCurrency(value)}`, 'Value']}
@@ -285,28 +330,33 @@ const Dashboard = () => {
                     <Area
                       type="monotone"
                       dataKey="value"
-                      stroke={unrealizedProfit >= 0 ? "rgb(16, 185, 129)" : "rgb(239, 68, 68)"}
-                      strokeWidth={2}
+                      stroke={chartColor}
+                      strokeWidth={2.5}
                       fill="url(#valueGradient)"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
             ) : (
-              <div className="h-[200px] flex items-center justify-center text-muted-foreground text-sm">
-                Add items to see chart
+              <div className="h-[220px] flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-2xl bg-secondary/30 flex items-center justify-center mx-auto mb-3">
+                    <BarChart3 className="h-5 w-5 text-muted-foreground/30" />
+                  </div>
+                  <p className="text-sm text-muted-foreground/50">Add items to see your chart</p>
+                </div>
               </div>
             )}
           </motion.div>
 
-          {/* Tabs */}
+          {/* Section Tabs */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.3 }}
             className="mb-5"
           >
-            <div className="flex gap-1 bg-secondary/30 rounded-xl p-1">
+            <div className="ios-segment">
               {[
                 { key: 'overview', label: 'Overview' },
                 { key: 'performance', label: 'Performance' },
@@ -315,11 +365,8 @@ const Dashboard = () => {
                 <button
                   key={key}
                   onClick={() => setActiveTab(key as TabType)}
-                  className={`flex-1 text-sm py-2.5 rounded-lg font-medium transition-all ${
-                    activeTab === key
-                      ? 'bg-card text-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                  data-active={activeTab === key}
+                  className="ios-segment-item"
                 >
                   {label}
                 </button>
@@ -332,101 +379,201 @@ const Dashboard = () => {
             {activeTab === 'overview' && (
               <motion.div
                 key="overview"
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="space-y-4"
+                exit={{ opacity: 0, y: -12 }}
+                className="space-y-3"
               >
-                {/* Quick Stats */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="card-clean p-4">
-                    <p className="label-metric mb-2">Invested</p>
+                  <div className="card-clean-elevated p-4 rounded-2xl">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <p className="label-metric">Invested</p>
+                      <UITooltip><TooltipTrigger asChild><Info className="w-3 h-3 text-muted-foreground/40 cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Total amount you paid for all cards in your collection</TooltipContent></UITooltip>
+                    </div>
                     <p className="text-display-xs">${formatCurrency(totalPaid)}</p>
                   </div>
-
-                  <div className="card-clean p-4">
-                    <p className="label-metric mb-2">Potential Profit</p>
-                    <p className={`text-display-xs ${unrealizedProfit >= 0 ? 'change-positive' : 'change-negative'}`}>
-                      {unrealizedProfit >= 0 ? '+' : ''}${formatCurrency(Math.abs(unrealizedProfit))}
+                  <div className="card-clean-elevated p-4 rounded-2xl">
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <p className="label-metric">Unrealized P&L</p>
+                      <UITooltip><TooltipTrigger asChild><Info className="w-3 h-3 text-muted-foreground/40 cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[220px] text-xs">Paper profit or loss — the difference between current market value and what you paid. "Unrealized" because you haven't sold yet.</TooltipContent></UITooltip>
+                    </div>
+                    <p className={`text-display-xs ${isPositive ? 'change-positive' : 'change-negative'}`}>
+                      {isPositive ? '+' : ''}${formatCurrency(Math.abs(unrealizedProfit))}
                     </p>
                   </div>
                 </div>
 
-                {/* Item Counts - All Grading Companies */}
-                <div className="card-clean p-4">
-                  <p className="label-metric mb-3">Collection Breakdown</p>
-                  <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
+                {/* Collection Breakdown */}
+                <div className="card-clean-elevated p-4 rounded-2xl">
+                  <p className="label-metric mb-4">Collection Breakdown</p>
+                  <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
                     {pieData.map((item) => (
-                      <div key={item.name} className="stat-compact text-center flex-shrink-0 min-w-[42px]">
+                      <div key={item.name} className="stat-compact text-center flex-shrink-0 min-w-[48px]">
                         <div
-                          className="w-3 h-3 rounded-full mx-auto mb-1"
-                          style={{ backgroundColor: item.color }}
+                          className="w-3.5 h-3.5 rounded-full mx-auto mb-1.5"
+                          style={{ backgroundColor: item.value > 0 ? item.color : 'hsl(var(--muted))' }}
                         />
-                        <p className={`stat-compact-value ${item.value === 0 ? 'text-muted-foreground/50' : ''}`}>
+                        <p className={`stat-compact-value text-lg ${item.value === 0 ? 'text-muted-foreground/30' : ''}`}>
                           {item.value}
                         </p>
-                        <p className={`stat-compact-label ${item.value === 0 ? 'opacity-50' : ''}`}>
+                        <p className={`stat-compact-label text-[10px] ${item.value === 0 ? 'opacity-30' : ''}`}>
                           {item.name}
                         </p>
                       </div>
                     ))}
                   </div>
                 </div>
+
+                {/* Analytics Summary Widget (Task 10) */}
+                <div className="card-clean p-4">
+                  <p className="label-metric mb-3 flex items-center gap-1.5">
+                    <Crown className="h-3.5 w-3.5" />
+                    Top 5 Most Valuable
+                  </p>
+                  {unsoldItems.length > 0 ? (
+                    <div className="space-y-2">
+                      {[...unsoldItems]
+                        .sort((a, b) => ((b.market_price || b.purchase_price) * b.quantity) - ((a.market_price || a.purchase_price) * a.quantity))
+                        .slice(0, 5)
+                        .map((item, i) => {
+                          const val = (item.market_price || item.purchase_price) * item.quantity;
+                          return (
+                            <div key={item.id} className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="text-xs font-bold text-muted-foreground w-4">{i + 1}</span>
+                                <span className="text-sm truncate">{item.name}</span>
+                              </div>
+                              <span className="text-sm font-bold text-success flex-shrink-0">${formatCurrency(val)}</span>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground text-center py-4">Add items to see rankings</p>
+                  )}
+                </div>
+
+                {/* Cards by Category */}
+                {unsoldItems.length > 0 && (
+                  <div className="card-clean p-4">
+                    <p className="label-metric mb-3">Cards by Category</p>
+                    <div className="space-y-2">
+                      {(() => {
+                        const cats: Record<string, number> = {};
+                        unsoldItems.forEach(item => {
+                          const cat = item.category === 'sealed' ? 'Sealed' : item.grading_company !== 'raw' ? 'Graded' : 'Raw';
+                          cats[cat] = (cats[cat] || 0) + item.quantity;
+                        });
+                        const total = Object.values(cats).reduce((a, b) => a + b, 0);
+                        const colors: Record<string, string> = { Raw: 'bg-blue-500', Graded: 'bg-emerald-500', Sealed: 'bg-purple-500' };
+                        return Object.entries(cats).map(([cat, count]) => (
+                          <div key={cat}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs font-medium">{cat}</span>
+                              <span className="text-xs text-muted-foreground">{count} ({total > 0 ? ((count/total)*100).toFixed(0) : 0}%)</span>
+                            </div>
+                            <div className="h-2 bg-secondary/30 rounded-full overflow-hidden">
+                              <div className={`h-full ${colors[cat] || 'bg-primary'} rounded-full`} style={{ width: `${total > 0 ? (count/total)*100 : 0}%` }} />
+                            </div>
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                  </div>
+                )}
+
+                {/* Watchlist Section (Task 6) */}
+                {watchlistItems.length > 0 && (
+                  <div className="card-clean p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="label-metric flex items-center gap-1.5">
+                        <Eye className="h-3.5 w-3.5" />
+                        Watchlist
+                        <span className="text-[10px] text-muted-foreground/60">({watchlistItems.length}/25)</span>
+                      </p>
+                      <button onClick={() => navigate('/scan')} className="text-xs text-primary font-medium">View All</button>
+                    </div>
+                    <div className="space-y-2">
+                      {watchlistItems.slice(0, 5).map((item) => (
+                        <div key={item.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-secondary/30 transition-colors">
+                          {item.image_url ? (
+                            <img src={item.image_url} alt={item.product_name} className="w-10 h-14 object-contain rounded-lg bg-secondary/20 flex-shrink-0" />
+                          ) : (
+                            <div className="w-10 h-14 rounded-lg bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                              <Eye className="w-4 h-4 text-muted-foreground/30" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{item.product_name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{item.set_name}</p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            {item.current_price ? (
+                              <>
+                                <p className="text-sm font-bold text-success">${item.current_price.toFixed(2)}</p>
+                                {item.price_change_percent !== null && item.price_change_percent !== 0 && (
+                                  <p className={`text-[10px] font-semibold ${item.price_change_percent > 0 ? 'text-success' : 'text-destructive'}`}>
+                                    {item.price_change_percent > 0 ? '+' : ''}{item.price_change_percent.toFixed(1)}%
+                                  </p>
+                                )}
+                              </>
+                            ) : (
+                              <p className="text-xs text-muted-foreground">—</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
 
             {activeTab === 'performance' && (
               <motion.div
                 key="performance"
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="space-y-4"
+                exit={{ opacity: 0, y: -12 }}
+                className="space-y-3"
               >
                 {hasPerformanceData ? (
-                  <>
-                    {(() => {
-                      const metrics = calculatePerformanceMetrics(sales);
-                      const roi = calculateROI(items, sales);
-                      return (
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="card-clean p-4">
-                            <p className="label-metric mb-2">Win Rate</p>
-                            <p className="text-display-xs">{metrics.winRate.toFixed(1)}%</p>
-                            <p className="text-xs text-muted-foreground mt-1">{metrics.profitableTrades}/{metrics.totalTrades} trades</p>
-                          </div>
-
-                          <div className="card-clean p-4">
-                            <p className="label-metric mb-2">Avg Profit</p>
-                            <p className={`text-display-xs ${metrics.avgProfitPerSale >= 0 ? 'change-positive' : 'change-negative'}`}>
-                              ${formatCurrency(Math.abs(metrics.avgProfitPerSale))}
+                  (() => {
+                    const metrics = calculatePerformanceMetrics(sales);
+                    const roi = calculateROI(items, sales);
+                    return (
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { label: 'Win Rate', tip: 'Percentage of your sales that made a profit', value: `${metrics.winRate.toFixed(1)}%`, sub: `${metrics.profitableTrades}/${metrics.totalTrades} trades` },
+                          { label: 'Avg Profit', tip: 'Average dollar profit per individual sale', value: `$${formatCurrency(Math.abs(metrics.avgProfitPerSale))}`, sub: 'per trade', positive: metrics.avgProfitPerSale >= 0 },
+                          { label: 'Avg Margin', tip: 'Average profit as a percentage of sale price', value: `${metrics.avgMargin.toFixed(1)}%`, sub: 'profit margin', positive: metrics.avgMargin >= 0 },
+                          { label: 'Total ROI', tip: 'Return on investment across all sales and current holdings', value: `${roi.totalROI >= 0 ? '+' : ''}${roi.totalROI.toFixed(1)}%`, sub: 'all-time', positive: roi.totalROI >= 0 },
+                        ].map((m) => (
+                          <div key={m.label} className="card-clean-elevated p-4 rounded-2xl">
+                            <div className="flex items-center gap-1.5 mb-2">
+                              <p className="label-metric">{m.label}</p>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Info className="w-3 h-3 text-muted-foreground/40 cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-[200px] text-xs">
+                                  {m.tip}
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <p className={`text-display-xs ${m.positive !== undefined ? (m.positive ? 'change-positive' : 'change-negative') : ''}`}>
+                              {m.value}
                             </p>
-                            <p className="text-xs text-muted-foreground mt-1">per trade</p>
+                            <p className="text-[11px] text-muted-foreground/50 mt-1">{m.sub}</p>
                           </div>
-
-                          <div className="card-clean p-4">
-                            <p className="label-metric mb-2">Avg Margin</p>
-                            <p className={`text-display-xs ${metrics.avgMargin >= 0 ? 'change-positive' : 'change-negative'}`}>
-                              {metrics.avgMargin.toFixed(1)}%
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-1">profit margin</p>
-                          </div>
-
-                          <div className="card-clean p-4">
-                            <p className="label-metric mb-2">Total ROI</p>
-                            <p className={`text-display-xs ${roi.totalROI >= 0 ? 'change-positive' : 'change-negative'}`}>
-                              {roi.totalROI >= 0 ? '+' : ''}{roi.totalROI.toFixed(1)}%
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-1">all-time</p>
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </>
+                        ))}
+                      </div>
+                    );
+                  })()
                 ) : (
-                  <div className="card-clean p-8 text-center">
-                    <Target className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
-                    <p className="text-sm text-muted-foreground">Record sales to see performance metrics</p>
+                  <div className="card-clean-elevated p-10 text-center rounded-2xl">
+                    <Target className="h-10 w-10 mx-auto mb-3 text-muted-foreground/20" />
+                    <p className="text-sm text-muted-foreground/50">Record sales to see performance metrics</p>
                   </div>
                 )}
               </motion.div>
@@ -435,14 +582,13 @@ const Dashboard = () => {
             {activeTab === 'breakdown' && (
               <motion.div
                 key="breakdown"
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="space-y-4"
+                exit={{ opacity: 0, y: -12 }}
+                className="space-y-3"
               >
-                {/* Pie Chart - Collection by Grading Company */}
                 {hasPieData && (
-                  <div className="card-clean p-4">
+                  <div className="card-clean-elevated p-4 rounded-2xl">
                     <p className="label-metric mb-4">By Grading Company</p>
                     <div className="flex items-center gap-6">
                       <div className="w-28 h-28 flex-shrink-0">
@@ -452,10 +598,11 @@ const Dashboard = () => {
                               data={pieData.filter(d => d.value > 0)}
                               cx="50%"
                               cy="50%"
-                              innerRadius={28}
-                              outerRadius={48}
-                              paddingAngle={3}
+                              innerRadius={30}
+                              outerRadius={50}
+                              paddingAngle={4}
                               dataKey="value"
+                              strokeWidth={0}
                             >
                               {pieData.filter(d => d.value > 0).map((item) => (
                                 <Cell key={`cell-${item.name}`} fill={item.color} />
@@ -468,11 +615,8 @@ const Dashboard = () => {
                         {pieData.filter(d => d.value > 0).map((entry) => (
                           <div key={entry.name} className="flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
-                              <div
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: entry.color }}
-                              />
-                              <span className="text-sm text-foreground">{entry.name}</span>
+                              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }} />
+                              <span className="text-sm">{entry.name}</span>
                             </div>
                             <span className="text-sm value-financial">{entry.value}</span>
                           </div>
@@ -482,41 +626,31 @@ const Dashboard = () => {
                   </div>
                 )}
 
-                {/* Bar Chart - Grade Distribution */}
                 {hasBarData && (
-                  <div className="card-clean p-4">
+                  <div className="card-clean-elevated p-4 rounded-2xl">
                     <p className="label-metric mb-4">By Grade Level</p>
                     <div className="h-[160px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={barData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                           <defs>
-                            <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                            <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="0%" stopColor="hsl(212, 100%, 49%)" stopOpacity={1} />
-                              <stop offset="100%" stopColor="hsl(212, 100%, 49%)" stopOpacity={0.6} />
+                              <stop offset="100%" stopColor="hsl(212, 100%, 49%)" stopOpacity={0.5} />
                             </linearGradient>
                           </defs>
-                          <XAxis
-                            dataKey="grade"
-                            axisLine={false}
-                            tickLine={false}
-                            tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                          />
-                          <YAxis
-                            axisLine={false}
-                            tickLine={false}
-                            tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                          />
+                          <XAxis dataKey="grade" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))', opacity: 0.6 }} />
+                          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))', opacity: 0.6 }} />
                           <Tooltip
                             contentStyle={{
                               backgroundColor: 'hsl(var(--card))',
-                              border: 'none',
-                              borderRadius: '12px',
-                              boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '14px',
+                              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
                               fontSize: '13px',
                             }}
                             formatter={(value: number) => [`${value} cards`, 'Count']}
                           />
-                          <Bar dataKey="count" fill="url(#barGradient)" radius={[6, 6, 0, 0]} />
+                          <Bar dataKey="count" fill="url(#barGrad)" radius={[8, 8, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -524,9 +658,9 @@ const Dashboard = () => {
                 )}
 
                 {!hasPieData && !hasBarData && (
-                  <div className="card-clean p-8 text-center">
-                    <BarChart3 className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
-                    <p className="text-sm text-muted-foreground">Add items to see breakdown</p>
+                  <div className="card-clean-elevated p-10 text-center rounded-2xl">
+                    <BarChart3 className="h-10 w-10 mx-auto mb-3 text-muted-foreground/20" />
+                    <p className="text-sm text-muted-foreground/50">Add items to see breakdown</p>
                   </div>
                 )}
               </motion.div>
@@ -540,3 +674,5 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+

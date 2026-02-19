@@ -156,6 +156,38 @@ const ScanBarcode = () => {
                   >
                     Start Scanning
                   </Button>
+
+                  {/* Manual UPC input for web fallback */}
+                  <div className="relative mt-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-border/30" />
+                    </div>
+                    <div className="relative flex justify-center text-xs">
+                      <span className="bg-card px-3 text-muted-foreground">or enter manually</span>
+                    </div>
+                  </div>
+                  <form
+                    className="flex gap-2 mt-4"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const input = (e.target as HTMLFormElement).elements.namedItem('upc') as HTMLInputElement;
+                      if (input.value.trim()) {
+                        handleScanSuccess(input.value.trim(), 'manual');
+                      }
+                    }}
+                  >
+                    <input
+                      name="upc"
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="Enter UPC code..."
+                      className="flex-1 h-12 rounded-xl border border-border/50 bg-secondary/30 px-4 text-sm"
+                    />
+                    <Button type="submit" variant="outline" className="h-12 rounded-xl px-6">
+                      <Search className="h-4 w-4 mr-2" />
+                      Look Up
+                    </Button>
+                  </form>
                 </div>
 
                 {/* Supported formats */}

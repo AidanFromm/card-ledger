@@ -108,7 +108,7 @@ const QuickSellSlider = ({ value, onChange, marketPrice }: QuickSellSliderProps)
   const ballPosition = (selectedIndex / (PERCENT_OPTIONS.length - 1)) * 100;
 
   return (
-    <div className="p-3 border rounded-lg bg-muted/50">
+    <div className="p-4 rounded-2xl bg-secondary/30 border border-border/20">
       <div className="flex items-center justify-between mb-2">
         <h4 className="font-semibold text-sm text-muted-foreground">Quick Sell</h4>
         <p className="text-xl font-bold text-success" style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -596,7 +596,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
   return (
     <>
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="max-h-[92vh] px-0">
+        <DrawerContent className="max-h-[92vh] px-0 rounded-t-[28px]">
           {/* iOS-style grab handle is built into DrawerContent */}
           <DrawerHeader className="px-5 pb-1 pt-1">
             <div className="flex items-center justify-between">
@@ -617,7 +617,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
           <div className="overflow-y-auto px-5 pb-safe">
             <div className="space-y-3 pb-6">
           {/* Item Info */}
-          <div className="flex gap-3 p-3 border rounded-lg bg-muted/50">
+          <div className="flex gap-3 p-4 rounded-2xl bg-secondary/30 border border-border/20">
             <div className="w-20 h-28 flex-shrink-0 rounded border border-border/30 overflow-hidden relative group">
               {isFetchingImage && (
                 <div className="absolute inset-0 flex items-center justify-center bg-muted/80 z-10">
@@ -672,7 +672,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
           </div>
 
           {/* Summary - with edit toggle */}
-          <div className="p-3 border rounded-lg bg-muted/50">
+          <div className="p-4 rounded-2xl bg-secondary/30 border border-border/20">
             <div className="flex items-center justify-between mb-2">
               <h4 className="font-semibold text-sm text-muted-foreground">Item Details</h4>
               {!isEditingItem ? (
@@ -754,26 +754,40 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
                 </div>
               </div>
             ) : (
-              // View Mode - Compact
+              // View Mode - Compact with consistent pricing
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <p className="text-xs text-muted-foreground">Quantity</p>
-                  <p className="text-lg font-bold">{currentQuantity}</p>
+                  <p className="text-lg font-bold font-mono" style={{ fontVariantNumeric: 'tabular-nums' }}>{currentQuantity}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Avg. Paid</p>
-                  <p className="text-lg font-bold">${formatNumber(avgPrice)}</p>
+                  <p className="text-xs text-muted-foreground">Cost Basis</p>
+                  <p className="text-lg font-bold text-muted-foreground/70 font-mono" style={{ fontVariantNumeric: 'tabular-nums' }}>${formatNumber(avgPrice)}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Total Paid</p>
-                  <p className="text-lg font-bold">${formatNumber(totalPaid)}</p>
+                  <p className="text-lg font-bold text-muted-foreground/70 font-mono" style={{ fontVariantNumeric: 'tabular-nums' }}>${formatNumber(totalPaid)}</p>
                 </div>
-                <div className="col-span-3 pt-2 border-t border-border/50">
+                <div className="col-span-2 pt-2 border-t border-border/50">
                   <p className="text-xs text-muted-foreground">Market Price</p>
-                  <p className={`text-xl font-bold ${item.grading_company !== 'raw' && localCategory !== 'sealed' ? 'text-gold' : 'text-primary'}`}>
+                  <p className="text-2xl font-bold text-emerald-500 font-mono" style={{ fontVariantNumeric: 'tabular-nums' }}>
                     {item.market_price ? `$${formatNumber(item.market_price)}` : 'Not available'}
                   </p>
                 </div>
+                {item.market_price && item.purchase_price > 0 && (
+                  <div className="pt-2 border-t border-border/50">
+                    <p className="text-xs text-muted-foreground">P&L</p>
+                    {(() => {
+                      const pl = (item.market_price - avgPrice) * currentQuantity;
+                      const isUp = pl >= 0;
+                      return (
+                        <p className={`text-lg font-bold font-mono ${isUp ? 'text-emerald-500' : 'text-red-500'}`} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                          {isUp ? '+' : ''}${formatNumber(pl)}
+                        </p>
+                      );
+                    })()}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -788,7 +802,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
           )}
 
           {/* Price History Chart */}
-          <div className="p-3 border rounded-lg bg-muted/50">
+          <div className="p-4 rounded-2xl bg-secondary/30 border border-border/20">
             <div className="flex items-center justify-between mb-2">
               <h4 className="font-semibold text-sm text-muted-foreground">Price History</h4>
               <div className="flex gap-1">
@@ -841,7 +855,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
           </div>
 
           {/* Where to Buy Links */}
-          <div className="p-3 border rounded-lg bg-muted/50">
+          <div className="p-4 rounded-2xl bg-secondary/30 border border-border/20">
             <h4 className="font-semibold text-sm text-muted-foreground mb-2">Where to Buy</h4>
             <div className="flex flex-wrap gap-1.5">
               <a

@@ -2,10 +2,17 @@ import { Link, useLocation } from "react-router-dom";
 import { Search, Package, LayoutDashboard, DollarSign, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
-import { motion } from "framer-motion";
+import { motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { useState } from "react";
 
 const Navbar = () => {
   const location = useLocation();
+  const { scrollY } = useScroll();
+  const [scrolled, setScrolled] = useState(false);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setScrolled(latest > 20);
+  });
 
   const navItems = [
     { path: "/scan", label: "Search", icon: Search },
@@ -19,14 +26,30 @@ const Navbar = () => {
     <motion.nav
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-      className="hidden md:block sticky top-0 z-50 glass-nav border-b border-border/30"
+      transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+      className="hidden md:block sticky top-0 z-50 transition-all duration-300"
+      style={{
+        background: scrolled
+          ? 'hsl(var(--glass-bg))'
+          : 'transparent',
+        backdropFilter: scrolled ? 'blur(28px) saturate(180%)' : 'none',
+        WebkitBackdropFilter: scrolled ? 'blur(28px) saturate(180%)' : 'none',
+        borderBottom: scrolled
+          ? '0.5px solid hsl(var(--glass-border))'
+          : '0.5px solid transparent',
+      }}
     >
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-6">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-8">
             <Link to="/scan" className="flex items-center">
-              <Logo size={28} showText={true} />
+              <motion.div
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              >
+                <Logo size={28} showText={true} />
+              </motion.div>
             </Link>
 
             <div className="hidden md:flex gap-1 bg-secondary/30 p-1.5 rounded-2xl">
@@ -38,13 +61,14 @@ const Navbar = () => {
                     <motion.div
                       className="relative"
                       whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileTap={{ scale: 0.97 }}
                     >
                       {isActive && (
                         <motion.div
                           layoutId="activeNavTab"
-                          className="absolute inset-0 bg-card rounded-xl shadow-sm"
-                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                          className="absolute inset-0 bg-card rounded-xl"
+                          style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
+                          transition={{ type: "spring", stiffness: 450, damping: 30 }}
                         />
                       )}
                       <Button

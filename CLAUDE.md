@@ -826,6 +826,20 @@ curl -X POST https://vbedydaozlvujkpcojct.supabase.co/functions/v1/record-price-
    - ItemDetailDialog compactness: ✅ Fixed
    - Quick Sell slider: ✅ Draggable with track/ball
 
+8. **CSV Import v3 Overhaul** (Feb 19, 2026):
+   - CSV Intelligence v3 with 150+ header variations: ✅
+   - Format detection: TCGPlayer, eBay, PSA, BGS, COMC, CardMarket: ✅
+   - Smart delimiter detection (comma, semicolon, tab, pipe): ✅
+   - Column mapping editor with manual reassignment: ✅
+   - Confidence indicators (High/Med/Low) per mapping: ✅
+   - Table preview of first 10 rows: ✅
+   - Validation warnings (duplicates, missing fields, suspicious prices): ✅
+   - Bulk import progress ("Importing card X of Y"): ✅
+   - Import history with undo (delete all items from a batch): ✅
+   - Premium client list public view with value summary: ✅
+   - Social media share card generation (canvas-based PNG): ✅
+   - Collection export utilities: ✅
+
 ---
 
 ## Coding Patterns

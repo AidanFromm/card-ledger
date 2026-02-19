@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Clock, AlertTriangle } from "lucide-react";
+import { Loader2, Clock, AlertTriangle, Copy, Share2, Package, ImageOff } from "lucide-react";
 import { ClientList, ClientListItem } from "@/hooks/useClientLists";
 import { Logo } from "@/components/Logo";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ClientListView() {
   const { shareToken } = useParams<{ shareToken: string }>();
@@ -17,13 +19,12 @@ export default function ClientListView() {
   const [loading, setLoading] = useState(true);
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [isExpired, setIsExpired] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchList = async () => {
       if (!shareToken) return;
-
       try {
-        // Fetch list
         const { data: listData, error: listError } = await supabase
           .from("client_lists")
           .select("*")
@@ -32,7 +33,6 @@ export default function ClientListView() {
 
         if (listError) throw listError;
 
-        // Check if list is expired
         if (listData.expires_at && new Date(listData.expires_at) < new Date()) {
           setIsExpired(true);
           setLoading(false);
@@ -41,14 +41,10 @@ export default function ClientListView() {
 
         setList(listData);
 
-        // Increment view count
         try {
           await supabase.rpc('increment_list_view_count', { p_share_token: shareToken });
-        } catch (viewErr) {
-          console.warn("Could not increment view count:", viewErr);
-        }
+        } catch {}
 
-        // Fetch items
         const { data: itemsData, error: itemsError } = await supabase
           .from("client_list_items")
           .select("*")
@@ -63,49 +59,45 @@ export default function ClientListView() {
         setLoading(false);
       }
     };
-
     fetchList();
   }, [shareToken]);
 
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(num);
-  };
+  const formatNumber = (num: number) =>
+    new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
 
   const formatGrading = (company: string, grade: string | null) => {
     if (company === "raw") return "Raw";
     return grade ? `${company.toUpperCase()} ${grade}` : company.toUpperCase();
   };
 
-  const calculateOfferPrice = (marketPrice: number) => {
-    if (discountPercent === 0) return marketPrice;
-    return marketPrice * (discountPercent / 100);
+  const calculateOfferPrice = (marketPrice: number) =>
+    discountPercent === 0 ? marketPrice : marketPrice * (discountPercent / 100);
+
+  const totalMarketValue = items.reduce((sum, item) => sum + item.market_price * item.quantity, 0);
+  const totalOfferValue = items.reduce((sum, item) => sum + calculateOfferPrice(item.market_price) * item.quantity, 0);
+  const totalCards = items.reduce((sum, item) => sum + item.quantity, 0);
+  const uniqueCards = items.length;
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast({ title: "Link copied! 📋", description: "Share this link with anyone." });
   };
-
-  const totalMarketValue = items.reduce(
-    (sum, item) => sum + (item.market_price * item.quantity),
-    0
-  );
-
-  const totalOfferValue = items.reduce(
-    (sum, item) => sum + (calculateOfferPrice(item.market_price) * item.quantity),
-    0
-  );
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Loading catalog...</p>
+        </div>
       </div>
     );
   }
 
   if (isExpired) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="p-8 text-center max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="p-8 text-center max-w-md rounded-3xl">
           <div className="flex justify-center mb-4">
             <div className="p-4 rounded-full bg-amber-500/20">
               <Clock className="h-8 w-8 text-amber-500" />
@@ -122,8 +114,8 @@ export default function ClientListView() {
 
   if (!list) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="p-8 text-center max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="p-8 text-center max-w-md rounded-3xl">
           <div className="flex justify-center mb-4">
             <div className="p-4 rounded-full bg-destructive/20">
               <AlertTriangle className="h-8 w-8 text-destructive" />
@@ -139,45 +131,59 @@ export default function ClientListView() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        <Card className="p-8 border-primary/20 bg-gradient-to-br from-background via-background to-primary/5">
-          <div className="space-y-4">
-            <div className="flex justify-center mb-4">
-              <Logo size={40} showText={true} />
-            </div>
-            <div className="text-center space-y-2">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-                {list.list_name}
-              </h1>
-              {list.notes && (
-                <p className="text-muted-foreground text-lg">{list.notes}</p>
-              )}
-              <p className="text-sm text-muted-foreground">
-                {items.length} {items.length === 1 ? "item" : "items"} • Total Market Value: ${formatNumber(totalMarketValue)}
-              </p>
-            </div>
-          </div>
-        </Card>
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5">
+      {/* Premium Header */}
+      <div className="border-b border-border/30 bg-card/50 backdrop-blur-xl sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+          <Logo size={32} showText={true} />
+          <Button variant="outline" size="sm" onClick={copyLink} className="rounded-xl gap-2">
+            <Copy className="h-3.5 w-3.5" />
+            Copy Link
+          </Button>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+        {/* Hero Header */}
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground via-foreground to-primary bg-clip-text text-transparent">
+            {list.list_name}
+          </h1>
+          {list.notes && (
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto">{list.notes}</p>
+          )}
+        </div>
+
+        {/* Value Summary Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="p-5 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 text-center">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Total Value</p>
+            <p className="text-2xl md:text-3xl font-bold text-primary">${formatNumber(totalMarketValue)}</p>
+          </Card>
+          <Card className="p-5 rounded-2xl text-center">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Unique Cards</p>
+            <p className="text-2xl md:text-3xl font-bold">{uniqueCards}</p>
+          </Card>
+          <Card className="p-5 rounded-2xl text-center">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Total Qty</p>
+            <p className="text-2xl md:text-3xl font-bold">{totalCards}</p>
+          </Card>
+          <Card className="p-5 rounded-2xl text-center">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Avg / Card</p>
+            <p className="text-2xl md:text-3xl font-bold">${totalCards > 0 ? formatNumber(totalMarketValue / totalCards) : '0.00'}</p>
+          </Card>
+        </div>
 
         {/* Offer Calculator */}
-        <Card className="p-6 border-primary/20 bg-primary/5">
+        <Card className="p-6 rounded-2xl border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="discount" className="text-lg font-semibold">
-                Calculate Your Offer
-              </Label>
-              <p className="text-sm text-muted-foreground mt-1">
-                Enter the percentage of market value you'd like to offer
-              </p>
+              <Label htmlFor="discount" className="text-lg font-semibold">Calculate Your Offer</Label>
+              <p className="text-sm text-muted-foreground mt-1">Enter the percentage of market value you'd like to offer</p>
             </div>
-
-            <div className="flex gap-4 items-end">
-              <div className="flex-1">
-                <Label htmlFor="discount" className="text-sm">
-                  Offer Percentage
-                </Label>
+            <div className="flex gap-4 items-end flex-wrap">
+              <div className="flex-1 min-w-[150px]">
+                <Label htmlFor="discount" className="text-sm">Offer Percentage</Label>
                 <div className="relative mt-1">
                   <Input
                     id="discount"
@@ -187,87 +193,95 @@ export default function ClientListView() {
                     value={discountPercent || ""}
                     onChange={(e) => setDiscountPercent(Number(e.target.value))}
                     placeholder="0"
-                    className="pr-8 text-lg"
+                    className="pr-8 text-lg rounded-xl"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                    %
-                  </span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">%</span>
                 </div>
               </div>
-
-              <div className="flex-1">
+              <div className="flex-1 min-w-[150px]">
                 <Label className="text-sm">Your Total Offer</Label>
-                <div className="text-3xl font-bold text-primary mt-1">
-                  ${formatNumber(totalOfferValue)}
-                </div>
+                <div className="text-3xl font-bold text-primary mt-1">${formatNumber(totalOfferValue)}</div>
               </div>
             </div>
-
             {discountPercent > 0 && (
-              <div className="text-sm text-muted-foreground">
-                You're offering {discountPercent}% of the total market value (${formatNumber(totalMarketValue)})
-              </div>
+              <p className="text-sm text-muted-foreground">
+                Offering {discountPercent}% of ${formatNumber(totalMarketValue)} market value
+              </p>
             )}
           </div>
         </Card>
 
-        {/* Items List */}
-        <Card className="p-6 border-primary/20">
-          <h2 className="text-xl font-bold mb-4">Items in This List</h2>
-          <ScrollArea className="h-[600px]">
-            <div className="space-y-4 pr-4">
-              {items.map((item) => {
-                const itemMarketTotal = item.market_price * item.quantity;
-                const itemOfferTotal = calculateOfferPrice(item.market_price) * item.quantity;
+        {/* Card Grid */}
+        <div>
+          <h2 className="text-xl font-bold mb-4">{items.length} {items.length === 1 ? 'Item' : 'Items'}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {items.map((item) => {
+              const itemMarketTotal = item.market_price * item.quantity;
+              const itemOfferTotal = calculateOfferPrice(item.market_price) * item.quantity;
 
-                return (
-                  <div
-                    key={item.id}
-                    className="flex gap-6 p-5 bg-card border border-border/50 rounded-lg hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/10"
-                  >
-                    {item.card_image_url && (
-                      <div className="flex-shrink-0">
-                        <img
-                          src={item.card_image_url}
-                          alt={item.item_name}
-                          className="w-28 h-auto object-contain p-3 rounded-lg border border-border/30 shadow-md"
-                        />
-                      </div>
+              return (
+                <Card
+                  key={item.id}
+                  className="flex gap-4 p-4 rounded-2xl hover:border-primary/30 transition-all hover:shadow-lg hover:shadow-primary/5 overflow-hidden"
+                >
+                  {/* Image */}
+                  <div className="w-24 h-32 rounded-xl overflow-hidden bg-secondary/30 flex-shrink-0 flex items-center justify-center">
+                    {item.card_image_url ? (
+                      <img
+                        src={item.card_image_url}
+                        alt={item.item_name}
+                        className="w-full h-full object-contain p-1"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <ImageOff className="h-8 w-8 text-muted-foreground/30" />
                     )}
-                    <div className="flex-1 min-w-0 space-y-3">
-                      <div>
-                        <h3 className="font-bold text-lg leading-tight">{item.item_name}</h3>
-                        <p className="text-sm text-muted-foreground mt-1">{item.set_name}</p>
-                      </div>
-                      <div className="flex gap-2 flex-wrap">
-                        <Badge variant="secondary" className="font-semibold">
+                  </div>
+
+                  {/* Details */}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    <div>
+                      <h3 className="font-bold text-sm leading-tight truncate">{item.item_name}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{item.set_name}</p>
+                      <div className="flex gap-1.5 mt-2 flex-wrap">
+                        <Badge variant="secondary" className="text-[10px] font-semibold">
                           {formatGrading(item.grading_company, item.grade)}
                         </Badge>
-                        <Badge variant="outline">Qty: {item.quantity}</Badge>
+                        {item.quantity > 1 && (
+                          <Badge variant="outline" className="text-[10px]">×{item.quantity}</Badge>
+                        )}
                       </div>
                     </div>
-                    <div className="text-right space-y-3 flex-shrink-0">
+
+                    <div className="flex items-end justify-between mt-3">
                       <div>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Market Price</p>
-                        <p className="text-xl font-bold text-primary">
-                          ${formatNumber(itemMarketTotal)}
-                        </p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Market</p>
+                        <p className="text-lg font-bold text-primary">${formatNumber(itemMarketTotal)}</p>
                       </div>
                       {discountPercent > 0 && (
-                        <div className="pt-3 border-t border-border/50">
-                          <p className="text-xs text-muted-foreground uppercase tracking-wide">Your Offer</p>
-                          <p className="text-xl font-bold text-green-500">
-                            ${formatNumber(itemOfferTotal)}
-                          </p>
+                        <div className="text-right">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Offer</p>
+                          <p className="text-lg font-bold text-emerald-500">${formatNumber(itemOfferTotal)}</p>
                         </div>
                       )}
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </ScrollArea>
-        </Card>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center py-8 border-t border-border/30">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Logo size={24} showText={false} />
+            <span className="text-sm font-semibold text-muted-foreground">CardLedger</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Track, manage & share your card collection
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
-import { Package, TrendingUp, Search, Plus, Sparkles } from "lucide-react";
+import { Package, TrendingUp, Search, Plus, Sparkles, BarChart3, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
@@ -12,6 +12,32 @@ interface EmptyStateProps {
   actionHref?: string;
   onAction?: () => void;
 }
+
+// Animated floating dots background for empty states
+const FloatingDots = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    {[...Array(5)].map((_, i) => (
+      <motion.div
+        key={i}
+        className="absolute w-1 h-1 rounded-full bg-primary/20"
+        style={{
+          left: `${20 + i * 15}%`,
+          top: `${30 + (i % 3) * 20}%`,
+        }}
+        animate={{
+          y: [0, -12, 0],
+          opacity: [0.2, 0.5, 0.2],
+        }}
+        transition={{
+          duration: 2.5 + i * 0.3,
+          repeat: Infinity,
+          delay: i * 0.4,
+          ease: "easeInOut",
+        }}
+      />
+    ))}
+  </div>
+);
 
 export const EmptyState = ({
   icon,
@@ -26,15 +52,23 @@ export const EmptyState = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-      className="flex flex-col items-center justify-center py-16 px-6 text-center"
+      className="relative flex flex-col items-center justify-center py-16 px-6 text-center"
     >
+      <FloatingDots />
+
       <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
+        initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.1, duration: 0.3 }}
-        className="w-20 h-20 rounded-2xl bg-muted/30 border border-border/50 flex items-center justify-center mb-6"
+        transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 15 }}
+        className="w-20 h-20 rounded-3xl bg-primary/8 border border-primary/10 flex items-center justify-center mb-6 relative"
       >
-        {icon || <Package className="h-10 w-10 text-muted-foreground/50" />}
+        {icon || <Package className="h-9 w-9 text-primary/40" />}
+        {/* Subtle pulse ring */}
+        <motion.div
+          className="absolute inset-0 rounded-3xl border border-primary/10"
+          animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0, 0.3] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        />
       </motion.div>
 
       <motion.h3
@@ -50,7 +84,7 @@ export const EmptyState = ({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25, duration: 0.3 }}
-        className="text-muted-foreground max-w-sm mb-6"
+        className="text-muted-foreground text-sm max-w-xs mb-6 leading-relaxed"
       >
         {description}
       </motion.p>
@@ -63,13 +97,13 @@ export const EmptyState = ({
         >
           {actionHref ? (
             <Link to={actionHref}>
-              <Button className="gap-2 h-11 px-6 rounded-xl">
+              <Button className="gap-2 h-11 px-6 rounded-2xl active:scale-[0.97] transition-all">
                 <Plus className="h-4 w-4" />
                 {actionLabel}
               </Button>
             </Link>
           ) : (
-            <Button onClick={onAction} className="gap-2 h-11 px-6 rounded-xl">
+            <Button onClick={onAction} className="gap-2 h-11 px-6 rounded-2xl active:scale-[0.97] transition-all">
               <Plus className="h-4 w-4" />
               {actionLabel}
             </Button>
@@ -80,29 +114,49 @@ export const EmptyState = ({
   );
 };
 
-// Pre-configured empty states with encouraging tone
+// Pre-configured empty states
 export const EmptyInventory = () => (
   <EmptyState
-    icon={<Sparkles className="h-10 w-10 text-primary/60" />}
-    title="Ready to start your collection!"
-    description="Add your first card to begin tracking your portfolio value and potential profits."
-    actionLabel="Add Your First Card"
+    icon={<Sparkles className="h-9 w-9 text-primary/50" />}
+    title="Your collection starts here"
+    description="Search for your first card and add it to start tracking your portfolio value and potential profits."
+    actionLabel="Find Your First Card"
     actionHref="/scan"
   />
 );
 
 export const EmptySales = () => (
   <EmptyState
-    icon={<TrendingUp className="h-10 w-10 text-emerald-500/60" />}
-    title="Ready to track your first sale!"
-    description="When you sell cards from your collection, your profits and performance will appear here."
+    icon={<TrendingUp className="h-9 w-9 text-emerald-500/50" />}
+    title="Your first sale awaits"
+    description="When you sell cards from your collection, your profits, performance metrics, and best sellers will appear here."
   />
 );
 
 export const EmptySearchResults = () => (
   <EmptyState
-    icon={<Search className="h-10 w-10 text-muted-foreground/50" />}
+    icon={<Search className="h-9 w-9 text-muted-foreground/40" />}
     title="No matches found"
-    description="Try a different search term or adjust your filters to find what you're looking for."
+    description="Try a different name or check the spelling. We search Pokemon, sports cards, Yu-Gi-Oh, Magic, and more."
+  />
+);
+
+export const EmptyWatchlist = () => (
+  <EmptyState
+    icon={<Heart className="h-9 w-9 text-pink-500/50" />}
+    title="Your watchlist is empty"
+    description="Add cards you're eyeing to your watchlist and track their prices before you buy."
+    actionLabel="Browse Cards"
+    actionHref="/scan"
+  />
+);
+
+export const EmptyAnalytics = () => (
+  <EmptyState
+    icon={<BarChart3 className="h-9 w-9 text-primary/40" />}
+    title="Analytics unlock with data"
+    description="Add cards and record sales to see detailed performance metrics, charts, and breakdowns."
+    actionLabel="Add Your First Card"
+    actionHref="/scan"
   />
 );

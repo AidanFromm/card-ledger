@@ -17,6 +17,7 @@ const pageVariants = {
     transition: {
       duration: 0.3,
       ease: [0.25, 0.1, 0.25, 1],
+      staggerChildren: 0.05,
     },
   },
   exit: {
@@ -47,13 +48,13 @@ export const PageTransition = ({ children, className = "" }: PageTransitionProps
 export const staggerContainer = {
   animate: {
     transition: {
-      staggerChildren: 0.05,
+      staggerChildren: 0.04,
     },
   },
 };
 
 export const staggerItem = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0, y: 16 },
   animate: {
     opacity: 1,
     y: 0,
@@ -81,9 +82,36 @@ export const cardHover = {
   },
 };
 
+// Premium tap/press — scale down slightly
 export const cardTap = {
-  scale: 0.98,
+  scale: 0.97,
   transition: {
     duration: 0.1,
+  },
+};
+
+// Spring pop for adding items
+export const springPop = {
+  initial: { scale: 0.8, opacity: 0 },
+  animate: {
+    scale: 1,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 15,
+    },
+  },
+};
+
+// Success celebration scale
+export const celebrationPop = {
+  initial: { scale: 0 },
+  animate: {
+    scale: [0, 1.15, 1],
+    transition: {
+      duration: 0.4,
+      ease: [0.25, 0.1, 0.25, 1],
+    },
   },
 };

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 const STORAGE_KEY = "cardledger_recent_searches";
-const MAX_SEARCHES = 4;
+const MAX_SEARCHES = 5;
 
 export interface RecentSearch {
   query: string;
