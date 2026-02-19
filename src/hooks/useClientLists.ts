@@ -752,16 +752,6 @@ export const usePublicClientList = (shareToken: string | null) => {
     // Since we don't have an inquiries table, we'll store inquiry in list metadata
     // In production, this would send an email or store in a separate table
     try {
-      console.log("Inquiry submitted:", {
-        listId: list.id,
-        listName: list.list_name,
-        contactEmail: list.contact_email,
-        inquirer: data.name,
-        inquirerEmail: data.email,
-        phone: data.phone,
-        message: data.message,
-        offer: data.offerAmount,
-      });
       
       // Simulate successful submission
       // In production: send email to list.contact_email or store in DB

@@ -238,7 +238,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
     if (!item) return;
 
     setIsFetchingImage(true);
-    console.log(`🔍 Fetching image for: "${item.name}" | Set: "${item.set_name}" | #${item.card_number || 'N/A'}`);
+    // debug log removed
 
     try {
       let imageUrl: string | null = null;
@@ -266,7 +266,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
         } else if (/booster box/i.test(item.name)) {
           searchVariations.push(`${item.set_name} Booster Box Pokemon`);
         }
-        console.log(`  📦 Sealed product detected, cleaned name: "${cleanedName}"`);
+        // debug log removed
       } else {
         // For cards: build smarter search variations
 
@@ -303,7 +303,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
           searchVariations.push(item.name);
         }
 
-        console.log(`  🃏 Card detected, cleaned: "${cleanedName}", base: "${baseName}"`);
+        // debug log removed
       }
 
       // Remove duplicates and empty strings
@@ -313,7 +313,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
       for (const searchQuery of uniqueQueries) {
         if (imageUrl) break;
 
-        console.log(`  📡 Searching: "${searchQuery}"`);
+        // debug log removed
 
         const { data, error } = await supabase.functions.invoke('products-search', {
           body: { query: searchQuery }
@@ -325,11 +325,11 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
         }
 
         if (!data?.products || data.products.length === 0) {
-          console.log('  ❌ No results found');
+          // debug log removed
           continue;
         }
 
-        console.log(`  📊 Found ${data.products.length} results`);
+        // debug log removed
 
         // Filter to products with real images
         const withImages = data.products.filter((p: any) =>
@@ -337,7 +337,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
         );
 
         if (withImages.length === 0) {
-          console.log('  ⚠️ Results found but none have images');
+          // debug log removed
           continue;
         }
 
@@ -349,7 +349,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
           );
           if (numberMatches.length > 0) {
             candidates = numberMatches;
-            console.log(`  🎯 Found ${numberMatches.length} card number matches`);
+            // debug log removed
           }
         }
 
@@ -396,18 +396,17 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
         const best = scored[0];
         if (best && best.product.image_url) {
           imageUrl = best.product.image_url;
-          console.log(`  ✅ Best match: "${best.product.name}" | ${best.product.set_name} | #${best.product.card_number || 'N/A'} (score: ${best.score.toFixed(1)})`);
         }
       }
 
       if (imageUrl) {
-        console.log(`  💾 Saving image to database for item ${item.id}...`);
+        // debug log removed
         setLocalImageUrl(imageUrl);
 
         // Save to database
         try {
           await updateItem(item.id, { card_image_url: imageUrl }, { silent: true });
-          console.log(`  ✅ Database update successful!`);
+          // debug log removed
         } catch (updateErr) {
           console.error(`  ❌ Database update FAILED:`, updateErr);
           toast({ title: "Failed to save image", description: String(updateErr), variant: "destructive" });
@@ -415,9 +414,9 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
         }
 
         // Refresh inventory list so the grid shows the new image
-        console.log(`  🔄 Refreshing inventory...`);
+        // debug log removed
         await refetchInventory();
-        console.log(`  ✅ Inventory refreshed!`);
+        // debug log removed
 
         // Verify the save worked by checking the database directly
         const { data: verifyData } = await supabase
@@ -425,11 +424,11 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
           .select('card_image_url')
           .eq('id', item.id)
           .single();
-        console.log(`  🔍 Verification - DB has card_image_url:`, verifyData?.card_image_url ? 'YES ✅' : 'NO ❌');
+        // debug log removed
 
         toast({ title: "Image saved!", description: verifyData?.card_image_url ? "Image is now in your inventory." : "Image displayed but may not have saved." });
       } else {
-        console.log('  ❌ No image found after all attempts');
+        // debug log removed
         toast({ title: "No image found", description: "Try searching manually in the Search tab.", variant: "destructive" });
       }
     } catch (error) {

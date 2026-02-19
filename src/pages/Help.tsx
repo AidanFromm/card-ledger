@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp, ArrowLeft, Mail, Search, Keyboard, BookOpen, He
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import { PageTransition } from "@/components/PageTransition";
 
@@ -146,6 +147,7 @@ const Help = () => {
 
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
+      <Navbar />
       <PageTransition>
         <main className="container mx-auto px-4 py-6 pb-28">
           {/* Header */}

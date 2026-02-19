@@ -560,8 +560,7 @@ export function analyzeCSV(headers: string[], rows: Record<string, any>[]): CSVA
   const warnings: string[] = [];
   const usedTypes = new Set<ColumnType>();
 
-  console.log('\n=== CSV INTELLIGENCE v3 ===');
-  console.log(`Headers: ${headers.join(', ')}`);
+  // debug log removed
 
   // Detect format
   const detectedFormat = detectFormat(headers);
@@ -579,20 +578,17 @@ export function analyzeCSV(headers: string[], rows: Record<string, any>[]): CSVA
       detectedType = EXACT_HEADER_MAP[lowerHeader];
       confidence = 1.0;
       method = 'exact';
-      console.log(`  [${index}] "${trimmedHeader}" → ${detectedType} (exact match)`);
     }
     // Step 2: Check prefix patterns (handles "Market Price (As of 2026-02-03)")
     else if (MARKET_PRICE_PREFIXES.some(prefix => lowerHeader.startsWith(prefix))) {
       detectedType = 'market_price';
       confidence = 0.95;
       method = 'pattern';
-      console.log(`  [${index}] "${trimmedHeader}" → market_price (prefix match)`);
     }
     else if (PURCHASE_PRICE_PREFIXES.some(prefix => lowerHeader.startsWith(prefix))) {
       detectedType = 'purchase_price';
       confidence = 0.95;
       method = 'pattern';
-      console.log(`  [${index}] "${trimmedHeader}" → purchase_price (prefix match)`);
     }
     // Step 3: Fuzzy header matching — catch misspellings and close variants
     else {
@@ -601,7 +597,6 @@ export function analyzeCSV(headers: string[], rows: Record<string, any>[]): CSVA
         detectedType = fuzzyMatch.type;
         confidence = fuzzyMatch.confidence;
         method = 'pattern';
-        console.log(`  [${index}] "${trimmedHeader}" → ${detectedType} (fuzzy header match, ${(confidence * 100).toFixed(0)}%)`);
       }
     }
 
@@ -654,7 +649,6 @@ export function analyzeCSV(headers: string[], rows: Record<string, any>[]): CSVA
         }
 
         if (detectedType !== 'unknown') {
-          console.log(`  [${index}] "${trimmedHeader}" → ${detectedType} (data pattern)`);
         }
       }
     }
@@ -663,7 +657,6 @@ export function analyzeCSV(headers: string[], rows: Record<string, any>[]): CSVA
     if (detectedType !== 'unknown' && usedTypes.has(detectedType)) {
       const existing = columns.find(c => c.detectedType === detectedType);
       if (existing && existing.confidence >= confidence) {
-        console.log(`  [${index}] "${trimmedHeader}" → unknown (${detectedType} already used with higher confidence)`);
         detectedType = 'unknown';
         confidence = 0;
         method = 'none';
@@ -693,9 +686,8 @@ export function analyzeCSV(headers: string[], rows: Record<string, any>[]): CSVA
     warnings.push('Could not detect card name column — please map it manually');
   }
 
-  console.log(`\nDetected format: ${detectedFormat}`);
-  console.log(`Warnings: ${warnings.length > 0 ? warnings.join(', ') : 'none'}`);
-  console.log('=== END CSV INTELLIGENCE ===\n');
+  // debug log removed
+  // debug log removed
 
   return {
     columns,

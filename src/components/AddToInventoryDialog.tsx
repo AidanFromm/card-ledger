@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,6 +50,7 @@ interface BgsSubgrades {
 }
 
 export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInventoryDialogProps) => {
+  const navigate = useNavigate();
   const { addItem, updateItem } = useInventoryDb();
   const { addToWatchlist, isWatched } = useWatchlist();
   const { celebrate } = useCelebration();
@@ -77,8 +79,6 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
     setAiPriceSummary(null);
 
     try {
-      console.log('Fetching AI price for:', product.name, product.set_name);
-
       const { data, error } = await supabase.functions.invoke('ai-price-search', {
         body: {
           cardName: product.name,
@@ -87,25 +87,17 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
         }
       });
 
-      console.log('AI price response:', { data, error });
-
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       if (data?.price) {
-        console.log('Setting price:', data.price);
         setUngradedPrice(Math.round(data.price * 100));
         setAiPriceSummary(data.summary || 'AI-estimated price');
       } else if (data?.summary) {
         setAiPriceSummary(data.summary);
       } else {
-        console.log('No price in response:', data);
         setAiPriceSummary('No price found');
       }
     } catch (error: any) {
-      console.error('Failed to fetch AI price:', error);
       setAiPriceSummary(error?.message || 'Could not find price');
     } finally {
       setIsFetchingAiPrice(false);
@@ -254,7 +246,11 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
     setIsSubmitting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
+      if (!user) {
+        onOpenChange(false);
+        navigate("/auth");
+        return;
+      }
 
       // Determine the market price to use (graded or ungraded)
       const marketPriceToUse = (formData.grading_company !== "raw" && formData.grade && gradedPrice)
@@ -311,8 +307,6 @@ export const AddToInventoryDialog = ({ open, onOpenChange, product }: AddToInven
           'DMG': 'damaged',
         };
         const conditionToSave = isGraded ? "near-mint" : (conditionMap[formData.condition] || "near-mint");
-
-        console.log('Adding item - product.image_url:', product.image_url);
 
         await addItem({
           name: product.name,

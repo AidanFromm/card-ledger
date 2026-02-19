@@ -33,6 +33,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useTheme } from "@/components/ThemeProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import { PageTransition } from "@/components/PageTransition";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
@@ -212,6 +213,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
+      <Navbar />
       <PageTransition>
         <main className="container mx-auto px-4 py-6 pb-28">
           {/* Header */}

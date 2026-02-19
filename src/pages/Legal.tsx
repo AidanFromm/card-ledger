@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import { PageTransition } from "@/components/PageTransition";
 
@@ -14,6 +15,7 @@ const Legal = () => {
 
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
+      <Navbar />
       <PageTransition>
         <main className="container mx-auto px-4 py-6 pb-28">
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>

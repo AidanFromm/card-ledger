@@ -106,9 +106,6 @@ export const useInventoryDb = () => {
       } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      console.log(' useInventoryDb.addItem - received item:', item);
-      console.log(' useInventoryDb.addItem - card_image_url:', item.card_image_url);
-
       const { error } = await supabase.from("inventory_items").insert({
         ...item,
         user_id: user.id,
@@ -131,15 +128,12 @@ export const useInventoryDb = () => {
   };
 
   const updateItem = async (id: string, updates: Partial<InventoryItem>, options?: { silent?: boolean }) => {
-    console.log(` updateItem called for id=${id}`, updates);
     try {
       const { error, data } = await supabase
         .from("inventory_items")
         .update(updates)
         .eq("id", id)
         .select();
-
-      console.log(` updateItem response:`, { error, data });
 
       if (error) throw error;
 
@@ -267,9 +261,7 @@ export const useInventoryDb = () => {
     uploadCardImage,
     checkForDuplicates,
     refetch: async () => {
-      console.log(' useInventoryDb.refetch() called');
       await fetchItems(false);
-      console.log(' useInventoryDb.refetch() complete');
     },
   };
 };

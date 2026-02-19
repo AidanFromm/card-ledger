@@ -1151,7 +1151,6 @@ const Analytics = () => {
               view={allocationView}
               onSegmentClick={(segment) => {
                 // Could navigate to inventory filtered by segment
-                console.log('Clicked segment:', segment);
               }}
             />
           </GlassCard>

@@ -34,6 +34,7 @@ import {
   Camera as CameraIcon
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import BottomNav from "@/components/BottomNav";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { useFolders } from "@/hooks/useFolders";
 import { toast } from "sonner";
@@ -501,7 +502,6 @@ const AddItem = () => {
                     <BarcodeScanPanel
                       onScanComplete={(barcode, type) => {
                         // In production, look up the barcode in a database
-                        console.log('Scanned:', barcode, type);
                         toast.info(`Scanned: ${barcode}. Looking up card...`);
                         // For now, switch to search mode
                         setAddMethod('search');
@@ -1076,6 +1076,7 @@ const AddItem = () => {
         onViewInventory={() => navigate('/inventory')}
         onClose={() => setShowSuccess(false)}
       />
+      <BottomNav />
     </div>
   );
 };

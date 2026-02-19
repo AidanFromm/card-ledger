@@ -409,7 +409,7 @@ export const parseAndValidateCSV = (
   return new Promise((resolve, reject) => {
     // Auto-detect delimiter
     const delimiter = detectDelimiter(csvContent);
-    console.log(`🔍 Auto-detected delimiter: "${delimiter === '\t' ? 'TAB' : delimiter === ',' ? 'COMMA' : delimiter === ';' ? 'SEMICOLON' : delimiter}"`);
+    // debug log removed
 
     Papa.parse(csvContent, {
       header: true,
@@ -424,21 +424,16 @@ export const parseAndValidateCSV = (
 
         // Use intelligent CSV analysis
         const analysis = analyzeCSV(columns, rows);
-        console.log(`\n${'='.repeat(50)}`);
-        console.log(` CSV ANALYSIS`);
-        console.log(`${'='.repeat(50)}`);
-        console.log(`Detected format: ${analysis.detectedFormat}`);
-        console.log(`Columns found: ${columns.length}`);
-        console.log(`\nColumn mappings:`);
+        // debug log removed
+        // debug log removed
+        // debug log removed
+        // debug log removed
         analysis.columns.forEach(col => {
           const confidence = (col.confidence * 100).toFixed(0);
-          console.log(`  "${col.originalHeader}" → ${col.detectedType} (${confidence}% via ${col.detectionMethod})`);
         });
         if (analysis.warnings.length > 0) {
-          console.log(`\nWarnings:`);
-          analysis.warnings.forEach(w => console.log(`   ${w}`));
+          // debug log removed
         }
-        console.log(`${'='.repeat(50)}\n`);
 
         // Check if we have required fields
         const hasName = analysis.columns.some(c => c.detectedType === 'card_name' && c.confidence > 0.5);

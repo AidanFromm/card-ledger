@@ -102,7 +102,6 @@ export const registerServiceWorker = async (): Promise<ServiceWorkerRegistration
 
   try {
     const registration = await navigator.serviceWorker.register("/sw.js");
-    console.log("Service Worker registered:", registration.scope);
     return registration;
   } catch (error) {
     console.error("Service Worker registration failed:", error);
