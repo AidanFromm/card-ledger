@@ -400,32 +400,7 @@ const Inventory = () => {
               </div>
             )}
 
-            {/* Bulk Actions */}
-            {selectionMode && selectedItems.size > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex flex-wrap gap-2"
-              >
-                <Button onClick={handleBulkSale} className="gap-2 bg-success/10 border border-success/25 text-success hover:bg-success/15 rounded-xl" variant="outline">
-                  <DollarSign className="h-4 w-4" /> Record Sale
-                </Button>
-                <Button onClick={handleCreateList} className="gap-2 rounded-xl" variant="outline">
-                  <Share2 className="h-4 w-4" /> Create List
-                </Button>
-                {selectedItems.size >= 2 && selectedItems.size <= 3 && (
-                  <Button onClick={() => setIsCompareOpen(true)} className="gap-2 rounded-xl" variant="outline">
-                    <GitCompareArrows className="h-4 w-4" /> Compare
-                  </Button>
-                )}
-                <Button onClick={() => setIsBulkEditOpen(true)} className="gap-2 rounded-xl" variant="outline">
-                  <Edit3 className="h-4 w-4" /> Bulk Edit
-                </Button>
-                <Button onClick={() => setIsDeleteDialogOpen(true)} className="gap-2 bg-destructive/10 border border-destructive/25 text-destructive hover:bg-destructive/15 rounded-xl" variant="outline">
-                  <Trash2 className="h-4 w-4" /> Delete
-                </Button>
-              </motion.div>
-            )}
+            {/* Inline bulk actions hidden - replaced by floating bar */}
 
             {/* Sort Control — Task 7 */}
             <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-1">
@@ -627,6 +602,40 @@ const Inventory = () => {
           </AlertDialog>
         </main>
       </PageTransition>
+
+      {/* Floating Action Bar for Selected Items */}
+      <AnimatePresence>
+        {selectionMode && selectedItems.size > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 60 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 60 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed bottom-20 md:bottom-4 left-4 right-4 z-50 max-w-lg mx-auto"
+          >
+            <div className="bg-card/95 backdrop-blur-xl border border-border/40 rounded-2xl shadow-2xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-muted-foreground">{selectedItems.size} selected</span>
+                <button onClick={handleClearSelection} className="text-xs text-muted-foreground hover:text-foreground">Cancel</button>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={() => setIsDeleteDialogOpen(true)} size="sm" variant="outline" className="flex-1 gap-1.5 rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 text-xs h-9">
+                  <Trash2 className="h-3.5 w-3.5" /> Delete
+                </Button>
+                <Button onClick={handleBulkSale} size="sm" variant="outline" className="flex-1 gap-1.5 rounded-xl border-success/30 text-success hover:bg-success/10 text-xs h-9">
+                  <DollarSign className="h-3.5 w-3.5" /> Sell
+                </Button>
+                <Button onClick={() => setIsBulkEditOpen(true)} size="sm" variant="outline" className="flex-1 gap-1.5 rounded-xl text-xs h-9">
+                  <Edit3 className="h-3.5 w-3.5" /> Grade
+                </Button>
+                <Button onClick={() => setIsImportExportOpen(true)} size="sm" variant="outline" className="flex-1 gap-1.5 rounded-xl text-xs h-9">
+                  <FileDown className="h-3.5 w-3.5" /> Export
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* FAB */}
       <motion.button

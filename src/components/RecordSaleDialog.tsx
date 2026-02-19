@@ -11,14 +11,15 @@ import { useToast } from "@/hooks/use-toast";
 import { DollarSign, TrendingUp, Calculator } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-// Platform fee rates
+// Platform fee rates (accurate as of 2024)
 const PLATFORMS = [
   { id: 'none', label: 'No Platform', fee: 0 },
-  { id: 'ebay', label: 'eBay', fee: 0.13 },
+  { id: 'ebay', label: 'eBay', fee: 0.1325 },
+  { id: 'tcgplayer', label: 'TCGPlayer', fee: 0.1025 },
   { id: 'mercari', label: 'Mercari', fee: 0.10 },
   { id: 'whatnot', label: 'Whatnot', fee: 0.089 },
-  { id: 'tcgplayer', label: 'TCGPlayer', fee: 0.1089 },
   { id: 'facebook', label: 'FB Market', fee: 0.05 },
+  { id: 'local', label: 'Local/Cash', fee: 0 },
 ] as const;
 
 interface RecordSaleDialogProps {
@@ -55,6 +56,7 @@ const RecordSaleDialog = ({ open, onOpenChange, preselectedItems = [], onSaleCom
   const [loading, setLoading] = useState(false);
   const [useBulkTotal, setUseBulkTotal] = useState(false);
   const [bulkTotalPrice, setBulkTotalPrice] = useState("");
+  const [shippingCost, setShippingCost] = useState("");
 
   // Format currency with commas
   const formatCurrency = (amount: number) => {
@@ -94,8 +96,9 @@ const RecordSaleDialog = ({ open, onOpenChange, preselectedItems = [], onSaleCom
   const selectedPlatform = PLATFORMS.find(p => p.id === platformFee) || PLATFORMS[0];
   const feeRate = selectedPlatform.fee;
   const salePriceNum = parseFloat(salePrice) || 0;
+  const shippingCostNum = parseFloat(shippingCost) || 0;
   const feeAmount = salePriceNum * feeRate * quantityNum;
-  const netRevenue = (salePriceNum * quantityNum) - feeAmount;
+  const netRevenue = (salePriceNum * quantityNum) - feeAmount - shippingCostNum;
   const profit = salePrice ? parseFloat(salePrice) - purchasePrice : 0;
   const netProfit = netRevenue - (purchasePrice * quantityNum);
 
@@ -355,6 +358,7 @@ const RecordSaleDialog = ({ open, onOpenChange, preselectedItems = [], onSaleCom
     setBulkSaleData({});
     setUseBulkTotal(false);
     setBulkTotalPrice("");
+    setShippingCost("");
   };
 
   // Quick quantity button helper
@@ -824,9 +828,27 @@ const RecordSaleDialog = ({ open, onOpenChange, preselectedItems = [], onSaleCom
                             : 'bg-secondary/50 border-border/50 hover:border-primary/50'
                         }`}
                       >
-                        {p.label}{p.fee > 0 ? ` ${(p.fee * 100).toFixed(0)}%` : ''}
+                        {p.label}{p.fee > 0 ? ` ${(p.fee * 100).toFixed(p.fee * 100 % 1 === 0 ? 0 : 2)}%` : ''}
                       </button>
                     ))}
+                  </div>
+                </div>
+
+                {/* Shipping Cost */}
+                <div className="space-y-2">
+                  <Label htmlFor="shippingCost" className="text-sm font-semibold">Shipping Cost</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                    <Input
+                      id="shippingCost"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={shippingCost}
+                      onChange={(e) => setShippingCost(e.target.value)}
+                      placeholder="0.00"
+                      className="h-10 pl-7"
+                    />
                   </div>
                 </div>
 
@@ -839,11 +861,17 @@ const RecordSaleDialog = ({ open, onOpenChange, preselectedItems = [], onSaleCom
                     </div>
                     {feeRate > 0 && (
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">{selectedPlatform.label} Fee ({(feeRate * 100).toFixed(0)}%)</span>
+                        <span className="text-xs text-muted-foreground">{selectedPlatform.label} Fee ({(feeRate * 100).toFixed(feeRate * 100 % 1 === 0 ? 0 : 2)}%)</span>
                         <span className="text-sm font-semibold text-destructive">-${formatCurrency(feeAmount)}</span>
                       </div>
                     )}
-                    {feeRate > 0 && (
+                    {shippingCostNum > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">Shipping</span>
+                        <span className="text-sm font-semibold text-destructive">-${formatCurrency(shippingCostNum)}</span>
+                      </div>
+                    )}
+                    {(feeRate > 0 || shippingCostNum > 0) && (
                       <div className="flex items-center justify-between border-t border-border/30 pt-2">
                         <span className="text-xs text-muted-foreground">Net Revenue</span>
                         <span className="text-sm font-bold">${formatCurrency(netRevenue)}</span>

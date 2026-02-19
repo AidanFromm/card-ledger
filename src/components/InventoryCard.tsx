@@ -71,14 +71,15 @@ export const InventoryCard = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+      initial={{ opacity: 0, y: 12, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+      whileHover={{ y: -4, transition: { duration: 0.25 } }}
       whileTap={{ scale: 0.97 }}
       className="group"
     >
       <div
-        className={`relative overflow-hidden rounded-[20px] bg-card cursor-pointer transition-all duration-300
+        className={`relative overflow-hidden rounded-[20px] bg-card cursor-pointer transition-shadow duration-300
           ${selectionMode && isSelected
             ? 'ring-2 ring-primary ring-offset-2 ring-offset-background'
             : ''
@@ -90,11 +91,9 @@ export const InventoryCard = ({
         onClick={() => selectionMode ? onSelect() : onOpenDetail()}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-card-hover)';
-          (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
         }}
         onMouseLeave={(e) => {
           (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-card)';
-          (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
         }}
       >
         {/* Selection checkbox */}
@@ -217,9 +216,9 @@ export const InventoryCard = ({
             ${formatPrice(item.market_price || item.purchase_price)}
           </p>
 
-          {/* Cost basis + Profit/Loss */}
+          {/* Cost basis + Profit/Loss — more prominent */}
           {item.market_price && item.purchase_price > 0 && item.market_price !== item.purchase_price && (
-            <div className="flex items-center gap-1.5 mt-0.5">
+            <div className="flex items-center gap-1.5 mt-1">
               <span className="text-[10px] text-muted-foreground/50 font-mono" style={{ fontVariantNumeric: 'tabular-nums' }}>
                 Cost: ${formatPrice(item.purchase_price)}
               </span>
@@ -228,10 +227,10 @@ export const InventoryCard = ({
                 const plPct = ((item.market_price - item.purchase_price) / item.purchase_price) * 100;
                 const isUp = pl >= 0;
                 return (
-                  <span className={`text-[10px] font-semibold flex items-center gap-0.5 px-1.5 py-0.5 rounded-full ${
-                    isUp ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'
+                  <span className={`text-[10px] font-bold flex items-center gap-0.5 px-2 py-0.5 rounded-full ${
+                    isUp ? 'bg-emerald-500/15 text-emerald-500' : 'bg-red-500/15 text-red-500'
                   }`}>
-                    {isUp ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
+                    {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                     {isUp ? '+' : ''}{plPct.toFixed(1)}%
                   </span>
                 );

@@ -17,6 +17,7 @@ import { SkeletonDashboardCard, SkeletonChart } from "@/components/ui/skeleton-c
 import { MiniSparkline } from "@/components/dashboard/Sparkline";
 import { PageTransition } from "@/components/PageTransition";
 import { calculatePerformanceMetrics, calculateROI } from "@/lib/analytics";
+import { recordPortfolioValue, getPortfolioChartData } from "@/lib/localPriceHistory";
 
 type TabType = 'overview' | 'performance' | 'breakdown';
 
@@ -57,6 +58,7 @@ const Dashboard = () => {
   const { items: watchlistItems } = useWatchlist();
   const [timeRange, setTimeRange] = useState<'7D' | '1M' | '3M' | '6M' | '1Y' | 'ALL'>('ALL');
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [portfolioTimelineRange, setPortfolioTimelineRange] = useState<'7D' | '30D' | '90D'>('30D');
 
   const formatCurrency = (amount: number) =>
     amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -73,6 +75,15 @@ const Dashboard = () => {
   const unrealizedProfitPercent = totalPaid > 0 ? ((unrealizedProfit / totalPaid) * 100) : 0;
 
   const { todayChange, todayChangePercent, hasHistoricalData, loading: todayChangeLoading } = useTodayChange(totalValue);
+
+  // Record portfolio value to localStorage for timeline
+  useEffect(() => {
+    if (totalValue > 0 && !loading) {
+      recordPortfolioValue(totalValue);
+    }
+  }, [totalValue, loading]);
+
+  const portfolioTimeline = getPortfolioChartData(portfolioTimelineRange);
 
   const GRADING_COMPANIES = [
     { name: 'RAW', color: 'hsl(212, 100%, 49%)' },
@@ -180,11 +191,11 @@ const Dashboard = () => {
       <Navbar />
       <PageTransition>
         <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
-          {/* Hero Portfolio Value */}
+          {/* Hero Portfolio Value — Premium gradient card */}
           <motion.div
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-1"
+            className="mb-1 relative"
           >
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground/70">Portfolio</p>
@@ -199,21 +210,21 @@ const Dashboard = () => {
               </Button>
             </div>
 
-            {/* Big Number — count-up animated */}
+            {/* Big Number — gradient text, count-up animated */}
             <motion.h2
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.05 }}
-              className="text-display mb-1.5"
+              className="text-display text-gradient-hero mb-1.5"
             >
               <CountUpValue value={totalValue} formatCurrency={formatCurrency} />
             </motion.h2>
 
             {/* P&L Line */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.15 }}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15, type: "spring", stiffness: 200 }}
               className="flex items-center gap-2.5"
             >
               <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-semibold ${
@@ -424,6 +435,62 @@ const Dashboard = () => {
                     ))}
                   </div>
                 </div>
+
+                {/* Portfolio Value Timeline */}
+                {portfolioTimeline.length >= 2 && (
+                  <div className="card-clean p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="label-metric">Collection Value Timeline</p>
+                      <div className="flex gap-0.5 bg-secondary/30 rounded-full p-0.5">
+                        {(['7D', '30D', '90D'] as const).map((range) => (
+                          <button
+                            key={range}
+                            onClick={() => setPortfolioTimelineRange(range)}
+                            className={`text-[10px] px-2.5 py-1 rounded-full font-semibold transition-all ${
+                              portfolioTimelineRange === range
+                                ? 'bg-primary text-primary-foreground shadow-sm'
+                                : 'text-muted-foreground/60 hover:text-foreground'
+                            }`}
+                          >
+                            {range}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="h-[140px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={portfolioTimeline} margin={{ top: 5, right: 5, left: 5, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="portfolioGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="hsl(212, 100%, 49%)" stopOpacity={0.3} />
+                              <stop offset="100%" stopColor="hsl(212, 100%, 49%)" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <XAxis
+                            dataKey="date"
+                            tickFormatter={(d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))', opacity: 0.5 }}
+                            interval="preserveStartEnd"
+                          />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '12px',
+                              fontSize: '12px',
+                              padding: '8px 12px',
+                            }}
+                            labelFormatter={(d) => new Date(d).toLocaleDateString()}
+                            formatter={(v: number) => [`$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'Value']}
+                          />
+                          <Area type="monotone" dataKey="value" stroke="hsl(212, 100%, 49%)" strokeWidth={2} fill="url(#portfolioGrad)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
 
                 {/* Analytics Summary Widget (Task 10) */}
                 <div className="card-clean p-4">

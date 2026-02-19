@@ -105,13 +105,19 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Ambient background */}
+      {/* Animated gradient background */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full"
-          style={{ background: 'radial-gradient(circle, hsl(212 100% 49% / 0.08) 0%, transparent 70%)' }}
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full"
+          style={{ background: 'radial-gradient(circle, hsl(212 100% 49% / 0.1) 0%, transparent 65%)' }}
+          animate={{ scale: [1, 1.15, 1], x: [0, 30, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full"
+          style={{ background: 'radial-gradient(circle, hsl(260 80% 60% / 0.06) 0%, transparent 60%)' }}
+          animate={{ scale: [1.1, 0.9, 1.1], y: [0, -30, 0] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
         />
         <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-primary/3 to-transparent" />
       </div>

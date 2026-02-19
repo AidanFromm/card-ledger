@@ -64,8 +64,11 @@ const ScanCard = () => {
   // Filter states
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
   const [setFilter, setSetFilter] = useState<string>("all");
+  const [gameFilter, setGameFilter] = useState<string>("all");
+  const [priceRange, setPriceRange] = useState<string>("all");
+  const [rarityFilter, setRarityFilter] = useState<string>("all");
 
-  // Get unique sets from search results for dynamic filter
+  // Get unique sets and rarities from search results for dynamic filter
   const availableSets = useMemo(() => {
     const sets = new Set<string>();
     searchResults.forEach(product => {
@@ -73,6 +76,25 @@ const ScanCard = () => {
     });
     return Array.from(sets).sort();
   }, [searchResults]);
+
+  const availableRarities = useMemo(() => {
+    const rarities = new Set<string>();
+    searchResults.forEach(product => {
+      if (product.rarity) rarities.add(product.rarity);
+    });
+    return Array.from(rarities).sort();
+  }, [searchResults]);
+
+  // Detect game type for a product
+  const detectGame = (product: any): string => {
+    const combined = `${product.name || ''} ${product.set_name || ''}`.toLowerCase();
+    if (/pokemon|pikachu|charizard|pok[eé]mon|vmax|vstar/i.test(combined)) return 'pokemon';
+    if (/yu-?gi-?oh|dark magician|blue[- ]eyes|exodia/i.test(combined)) return 'yugioh';
+    if (/topps|panini|prizm|donruss|bowman|rc\b|rookie|upper deck|fleer/i.test(combined) || product.sport) return 'sports';
+    if (/\b(mtg|magic)\b|planeswalker/i.test(combined)) return 'mtg';
+    if (/one piece|luffy|op-?\d{2}/i.test(combined)) return 'onepiece';
+    return 'other';
+  };
 
   // Filter search results
   const filteredResults = useMemo(() => {
@@ -83,12 +105,25 @@ const ScanCard = () => {
         if (categoryFilter === "raw" && productCategory === "sealed") return false;
       }
       if (setFilter !== "all" && product.set_name !== setFilter) return false;
+      // Game filter
+      if (gameFilter !== "all" && detectGame(product) !== gameFilter) return false;
+      // Price range filter
+      if (priceRange !== "all" && product.market_price) {
+        const price = product.market_price;
+        if (priceRange === "under5" && price >= 5) return false;
+        if (priceRange === "5to25" && (price < 5 || price > 25)) return false;
+        if (priceRange === "25to100" && (price < 25 || price > 100)) return false;
+        if (priceRange === "over100" && price < 100) return false;
+      }
+      if (priceRange !== "all" && !product.market_price) return false;
+      // Rarity filter
+      if (rarityFilter !== "all" && product.rarity !== rarityFilter) return false;
       return true;
     });
-  }, [searchResults, categoryFilter, setFilter]);
+  }, [searchResults, categoryFilter, setFilter, gameFilter, priceRange, rarityFilter]);
 
-  const clearFilters = () => { setCategoryFilter("all"); setSetFilter("all"); };
-  const hasActiveFilters = categoryFilter !== "all" || setFilter !== "all";
+  const clearFilters = () => { setCategoryFilter("all"); setSetFilter("all"); setGameFilter("all"); setPriceRange("all"); setRarityFilter("all"); };
+  const hasActiveFilters = categoryFilter !== "all" || setFilter !== "all" || gameFilter !== "all" || priceRange !== "all" || rarityFilter !== "all";
 
   // Handle scroll
   useEffect(() => {
@@ -268,8 +303,8 @@ const ScanCard = () => {
               </div>
             </div>
 
-            {/* Hero Search Bar */}
-            <div className="search-hero">
+            {/* Hero Search Bar — premium glass with glow */}
+            <div className="search-hero transition-shadow duration-300 focus-within:shadow-[0_0_0_3px_hsl(212_100%_49%/0.12),0_0_24px_hsl(212_100%_49%/0.08)]">
               <div className="relative flex items-center">
                 <Search className="absolute left-5 h-5 w-5 text-muted-foreground pointer-events-none" />
                 <input
@@ -395,6 +430,66 @@ const ScanCard = () => {
                       >
                         <option value="all">All Sets</option>
                         {availableSets.map(set => (<option key={set} value={set}>{set}</option>))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Game Filter */}
+                  <div className="flex-shrink-0">
+                    <select
+                      value={gameFilter}
+                      onChange={(e) => setGameFilter(e.target.value)}
+                      className={`h-9 px-3 pr-8 rounded-xl text-sm font-medium border transition-all appearance-none bg-no-repeat bg-right cursor-pointer ${
+                        gameFilter !== "all"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-secondary/50 text-foreground border-border/50 hover:border-primary/50"
+                      }`}
+                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='${gameFilter !== "all" ? "white" : "%236b7280"}' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundPosition: "right 8px center" }}
+                    >
+                      <option value="all">All Games</option>
+                      <option value="pokemon">Pokémon</option>
+                      <option value="sports">Sports</option>
+                      <option value="yugioh">Yu-Gi-Oh</option>
+                      <option value="mtg">Magic</option>
+                      <option value="onepiece">One Piece</option>
+                    </select>
+                  </div>
+
+                  {/* Price Range */}
+                  <div className="flex-shrink-0">
+                    <select
+                      value={priceRange}
+                      onChange={(e) => setPriceRange(e.target.value)}
+                      className={`h-9 px-3 pr-8 rounded-xl text-sm font-medium border transition-all appearance-none bg-no-repeat bg-right cursor-pointer ${
+                        priceRange !== "all"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-secondary/50 text-foreground border-border/50 hover:border-primary/50"
+                      }`}
+                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='${priceRange !== "all" ? "white" : "%236b7280"}' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundPosition: "right 8px center" }}
+                    >
+                      <option value="all">Any Price</option>
+                      <option value="under5">Under $5</option>
+                      <option value="5to25">$5 – $25</option>
+                      <option value="25to100">$25 – $100</option>
+                      <option value="over100">$100+</option>
+                    </select>
+                  </div>
+
+                  {/* Rarity Filter */}
+                  {availableRarities.length > 1 && (
+                    <div className="flex-shrink-0">
+                      <select
+                        value={rarityFilter}
+                        onChange={(e) => setRarityFilter(e.target.value)}
+                        className={`h-9 px-3 pr-8 rounded-xl text-sm font-medium border transition-all appearance-none bg-no-repeat bg-right cursor-pointer max-w-[160px] truncate ${
+                          rarityFilter !== "all"
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-secondary/50 text-foreground border-border/50 hover:border-primary/50"
+                        }`}
+                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='${rarityFilter !== "all" ? "white" : "%236b7280"}' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`, backgroundPosition: "right 8px center" }}
+                      >
+                        <option value="all">All Rarities</option>
+                        {availableRarities.map(r => (<option key={r} value={r}>{r}</option>))}
                       </select>
                     </div>
                   )}
@@ -560,8 +655,8 @@ const ScanCard = () => {
                   <Button variant="ghost" size="sm" onClick={() => { setSearchQuery(""); setSearchResults([]); clearFilters(); }} className="text-xs">Clear</Button>
                 </div>
 
-                {/* Results Grid — responsive columns */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {/* Results Grid — responsive columns with stagger */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 stagger-enter">
                   {filteredResults.map((product, index) => (
                     <motion.div key={product.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: Math.min(index * 0.02, 0.3) }}
                       className="card-clean-elevated overflow-hidden group tap-scale cursor-pointer rounded-[20px]"

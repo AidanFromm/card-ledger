@@ -102,6 +102,7 @@ const AddItem = () => {
   const [duplicateWarning, setDuplicateWarning] = useState<{ exists: boolean; quantity: number } | null>(null);
   const [showSportsFields, setShowSportsFields] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [cardType, setCardType] = useState<'pokemon' | 'sports' | 'yugioh' | 'other'>('pokemon');
   
   // Quick add mode
   const [quickAddEnabled, setQuickAddEnabled] = useState(false);
@@ -189,9 +190,19 @@ const AddItem = () => {
         rookie: (selectedCard as any).rookie || false,
       }));
       
-      // If sports card, auto-expand the sports fields section
+      // Auto-detect card type
       if (isSportsCard) {
         setShowSportsFields(true);
+        setCardType('sports');
+      } else {
+        const combined = `${selectedCard.name} ${selectedCard.set_name || ''}`.toLowerCase();
+        if (/yu-?gi-?oh|dark magician|blue[- ]eyes|exodia/i.test(combined)) {
+          setCardType('yugioh');
+        } else if (/pokemon|pikachu|charizard|pok[eé]mon|trainer|vmax|vstar|ex\b/i.test(combined)) {
+          setCardType('pokemon');
+        } else {
+          setCardType('other');
+        }
       }
       
       if (selectedCard.image_url) {
@@ -575,6 +586,36 @@ const AddItem = () => {
                   exit={{ opacity: 0, x: 20 }}
                   className="space-y-6"
                 >
+                  {/* Card Type Selector */}
+                  <div className="space-y-2 mb-2">
+                    <Label className="text-sm font-medium">Card Type</Label>
+                    <div className="flex gap-2">
+                      {([
+                        { value: 'pokemon' as const, label: '⚡ Pokémon' },
+                        { value: 'sports' as const, label: '🏆 Sports' },
+                        { value: 'yugioh' as const, label: '🎴 Yu-Gi-Oh' },
+                        { value: 'other' as const, label: '🃏 Other' },
+                      ]).map(({ value, label }) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => {
+                            setCardType(value);
+                            if (value === 'sports') setShowSportsFields(true);
+                            else setShowSportsFields(false);
+                          }}
+                          className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold transition-all border ${
+                            cardType === value
+                              ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                              : 'bg-secondary/30 text-muted-foreground border-border/30 hover:border-primary/50'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Card Image Preview */}
                   <div className="flex gap-6">
                     {/* Image */}
@@ -708,7 +749,7 @@ const AddItem = () => {
                   <div className="space-y-4">
                     <button
                       type="button"
-                      onClick={() => setShowSportsFields(!showSportsFields)}
+                      onClick={() => { setShowSportsFields(!showSportsFields); if (!showSportsFields) setCardType('sports'); }}
                       className="flex items-center justify-between w-full p-4 glass-card rounded-xl hover:bg-secondary/30 transition-colors"
                     >
                       <div className="flex items-center gap-3">

@@ -19,6 +19,7 @@ import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { supabase } from "@/integrations/supabase/client";
 import { cleanCardName, getBaseName, cardNumbersMatch, getPlaceholderForItem } from "@/lib/cardNameUtils";
 import { getChartData, hasEnoughHistory, getFirstRecordedDate, formatSellingPrice } from "@/lib/priceHistory";
+import { recordItemPrice, getItemSparklineData } from "@/lib/localPriceHistory";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import {
   AlertDialog,
@@ -230,8 +231,15 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
       setEditItemMarketPrice(item.market_price?.toString() || "");
       setLocalImageUrl(item.card_image_url);
       setLocalCategory(item.category);
+      // Record price snapshot to localStorage
+      if (item.market_price && item.market_price > 0) {
+        recordItemPrice(item.id, item.market_price);
+      }
     }
   }, [item]);
+
+  // Get local sparkline data
+  const localSparkline = item ? getItemSparklineData(item.id, priceChartRange === '7D' ? 7 : priceChartRange === '30D' ? 30 : 90) : [];
 
   // Smart image fetch using products-search edge function (has caching & multiple sources)
   const fetchImageForItem = async () => {
@@ -856,7 +864,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
               <div className="h-[100px] flex items-center justify-center">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
               </div>
-            ) : hasEnoughHistory(priceHistory) ? (
+            ) : hasEnoughHistory(priceHistory) || localSparkline.length >= 2 ? (
               <div className="h-[100px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={getChartData(priceHistory, priceChartRange)}>
@@ -877,6 +885,28 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
                     <Line type="monotone" dataKey="price" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
                   </LineChart>
                 </ResponsiveContainer>
+              </div>
+            ) : localSparkline.length >= 2 ? (
+              <div className="h-[100px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={localSparkline.map((price, i) => ({ idx: i, price }))}>
+                    <XAxis dataKey="idx" hide />
+                    <YAxis hide domain={['auto', 'auto']} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: 'none',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                        fontSize: '11px',
+                        padding: '6px 10px',
+                      }}
+                      formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
+                    />
+                    <Line type="monotone" dataKey="price" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+                <p className="text-[10px] text-muted-foreground/50 text-center mt-1">Local price history</p>
               </div>
             ) : (
               <div className="h-[60px] flex items-center justify-center text-center">

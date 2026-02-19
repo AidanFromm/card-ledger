@@ -114,6 +114,12 @@ const Profile = () => {
   const { items: inventoryItems } = useInventoryDb();
   const { sales } = useSalesDb();
 
+  // Settings state from localStorage
+  const [defaultCurrency, setDefaultCurrency] = useState(() => localStorage.getItem('cl_currency') || 'USD');
+  const [preferredGrading, setPreferredGrading] = useState(() => localStorage.getItem('cl_grading') || 'psa');
+  const [defaultLocation, setDefaultLocation] = useState(() => localStorage.getItem('cl_location') || '');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => localStorage.getItem('cl_notifications') !== 'false');
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
   }, []);
@@ -340,6 +346,104 @@ const Profile = () => {
                   <span>{label}</span>
                 </button>
               ))}
+            </div>
+          </motion.div>
+
+          {/* Settings / Preferences */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12 }}
+            className="card-clean-elevated p-5 rounded-3xl mb-5"
+          >
+            <h3 className="label-metric mb-4">Preferences</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-[14px]">Default Currency</p>
+                  <p className="text-[12px] text-muted-foreground/50">For price display</p>
+                </div>
+                <select
+                  value={defaultCurrency}
+                  onChange={(e) => { setDefaultCurrency(e.target.value); localStorage.setItem('cl_currency', e.target.value); }}
+                  className="h-9 px-3 rounded-xl text-sm font-medium bg-secondary/30 border border-border/30"
+                >
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="GBP">GBP (£)</option>
+                  <option value="CAD">CAD (C$)</option>
+                  <option value="AUD">AUD (A$)</option>
+                  <option value="JPY">JPY (¥)</option>
+                </select>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-[14px]">Preferred Grading</p>
+                  <p className="text-[12px] text-muted-foreground/50">Default grading company</p>
+                </div>
+                <select
+                  value={preferredGrading}
+                  onChange={(e) => { setPreferredGrading(e.target.value); localStorage.setItem('cl_grading', e.target.value); }}
+                  className="h-9 px-3 rounded-xl text-sm font-medium bg-secondary/30 border border-border/30"
+                >
+                  <option value="psa">PSA</option>
+                  <option value="bgs">BGS</option>
+                  <option value="cgc">CGC</option>
+                  <option value="sgc">SGC</option>
+                  <option value="ace">ACE</option>
+                  <option value="tag">TAG</option>
+                </select>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-[14px]">Default Purchase Location</p>
+                  <p className="text-[12px] text-muted-foreground/50">Auto-fill when adding cards</p>
+                </div>
+                <Input
+                  value={defaultLocation}
+                  onChange={(e) => { setDefaultLocation(e.target.value); localStorage.setItem('cl_location', e.target.value); }}
+                  placeholder="e.g., Local Card Shop"
+                  className="h-9 w-40 text-sm rounded-xl"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-[14px]">Notifications</p>
+                  <p className="text-[12px] text-muted-foreground/50">Price alerts & updates</p>
+                </div>
+                <Switch
+                  checked={notificationsEnabled}
+                  onCheckedChange={(v) => { setNotificationsEnabled(v); localStorage.setItem('cl_notifications', String(v)); }}
+                />
+              </div>
+            </div>
+
+            {/* Data Management */}
+            <div className="mt-5 pt-4 border-t border-border/20">
+              <p className="label-metric mb-3">Data Management</p>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const keys = Object.keys(localStorage).filter(k => k.startsWith('cl_price_') || k === 'cl_portfolio_history');
+                    keys.forEach(k => localStorage.removeItem(k));
+                    toast({ title: "Cache cleared", description: `Removed ${keys.length} cached items` });
+                  }}
+                  className="flex-1 rounded-xl text-xs h-9"
+                >
+                  Clear Cache
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportAllData}
+                  className="flex-1 rounded-xl text-xs h-9"
+                >
+                  <Download className="h-3.5 w-3.5 mr-1" />
+                  Export All
+                </Button>
+              </div>
             </div>
           </motion.div>
 
