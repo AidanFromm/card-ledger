@@ -18,6 +18,7 @@ import { MiniSparkline } from "@/components/dashboard/Sparkline";
 import { PageTransition } from "@/components/PageTransition";
 import { calculatePerformanceMetrics, calculateROI } from "@/lib/analytics";
 import { recordPortfolioValue, getPortfolioChartData } from "@/lib/localPriceHistory";
+import { calculateAdjustedCollectionValue } from "@/lib/conditionPricing";
 
 type TabType = 'overview' | 'performance' | 'breakdown';
 
@@ -90,14 +91,22 @@ const Dashboard = () => {
 
   const unsoldItems = items.filter(item => !item.sale_price);
 
-  const totalValue = unsoldItems.reduce((sum, item) => {
-    const marketPrice = item.market_price || item.purchase_price;
-    return sum + marketPrice * item.quantity;
-  }, 0);
+  // Use condition-adjusted pricing for accurate valuations
+  const collectionStats = calculateAdjustedCollectionValue(
+    unsoldItems.map(item => ({
+      market_price: item.market_price,
+      purchase_price: item.purchase_price,
+      quantity: item.quantity,
+      condition: item.condition,
+      raw_condition: item.raw_condition,
+      grading_company: item.grading_company,
+    }))
+  );
 
-  const totalPaid = unsoldItems.reduce((sum, item) => sum + item.purchase_price * item.quantity, 0);
-  const unrealizedProfit = totalValue - totalPaid;
-  const unrealizedProfitPercent = totalPaid > 0 ? ((unrealizedProfit / totalPaid) * 100) : 0;
+  const totalValue = collectionStats.totalValue;
+  const totalPaid = collectionStats.totalCost;
+  const unrealizedProfit = collectionStats.profit;
+  const unrealizedProfitPercent = collectionStats.profitPercent;
 
   const { todayChange, todayChangePercent, hasHistoricalData, loading: todayChangeLoading } = useTodayChange(totalValue);
 
