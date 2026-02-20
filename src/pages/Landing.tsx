@@ -1666,10 +1666,19 @@ const Landing = () => {
             </div>
           </RevealOnScroll>
 
-          {/* 3D Floating Feature Showcase */}
+          {/* Hero Lifestyle Image */}
           <RevealOnScroll delay={0.55}>
-            <div className="mb-16">
-              <FloatingShowcase />
+            <div className="mb-16 relative">
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent z-10 pointer-events-none" />
+              <motion.img
+                src="/assets/hero-lifestyle.webp"
+                alt="Trading cards and CardLedger app"
+                className="w-full max-w-4xl mx-auto rounded-3xl shadow-2xl shadow-black/50 border border-[#1a1a1a]"
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+              />
             </div>
           </RevealOnScroll>
 
@@ -1970,6 +1979,63 @@ const Landing = () => {
               <span className="text-sm">Cancel anytime</span>
             </div>
           </RevealOnScroll>
+        </div>
+      </section>
+
+      {/* ============================================ */}
+      {/* Works Everywhere */}
+      {/* ============================================ */}
+      <section className="py-32 px-6 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          <RevealOnScroll className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+              Works{" "}
+              <span className="bg-gradient-to-r from-[#627d98] via-[#34d399] to-[#6ee7b7] bg-clip-text text-transparent">
+                everywhere
+              </span>
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Access your collection on any device. Desktop for power users, mobile for on-the-go.
+            </p>
+          </RevealOnScroll>
+
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            {/* Desktop Mockup */}
+            <RevealOnScroll delay={0.1}>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+                className="relative"
+              >
+                <img
+                  src="/assets/desktop-mockup.webp"
+                  alt="CardLedger on desktop"
+                  className="rounded-2xl shadow-2xl shadow-black/50 border border-[#1a1a1a]"
+                />
+                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-[#141414] border border-[#2a2a2a] text-sm text-gray-400">
+                  Full dashboard on desktop
+                </div>
+              </motion.div>
+            </RevealOnScroll>
+
+            {/* Phone Mockup */}
+            <RevealOnScroll delay={0.2}>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+                className="relative flex justify-center"
+              >
+                <img
+                  src="/assets/phone-mockup-1.webp"
+                  alt="CardLedger on mobile"
+                  className="w-64 rounded-[2rem] shadow-2xl shadow-black/50 border border-[#1a1a1a]"
+                />
+                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-[#141414] border border-[#2a2a2a] text-sm text-gray-400">
+                  Mobile-first design
+                </div>
+              </motion.div>
+            </RevealOnScroll>
+          </div>
         </div>
       </section>
 
