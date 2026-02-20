@@ -160,7 +160,15 @@ const ScanCard = () => {
           .limit(20);
 
         if (currentSearchRef.current !== queryAtStart) return;
-        if (!error && data) setSearchResults(data);
+        if (!error && data) {
+          // Sort results: items with images first, then items without
+          const sorted = [...data].sort((a, b) => {
+            const aHasImage = a.image_url && !a.image_url.includes('placehold') ? 1 : 0;
+            const bHasImage = b.image_url && !b.image_url.includes('placehold') ? 1 : 0;
+            return bHasImage - aHasImage;
+          });
+          setSearchResults(sorted);
+        }
       } catch (err) {
         console.error('Local search error:', err);
       } finally {
