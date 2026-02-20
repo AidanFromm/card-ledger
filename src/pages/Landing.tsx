@@ -1712,10 +1712,10 @@ const Landing = () => {
                 {/* App preview */}
                 <div className="aspect-[16/9] bg-gradient-to-br from-[#0f0f0f] to-[#0a0a0a] relative overflow-hidden">
                   <img 
-                    src="/assets/mockup-phones-floating.webp" 
-                    alt="CardLedger on multiple devices"
+                    src="/assets/hero-dashboard-v2.webp" 
+                    alt="CardLedger Dashboard — Track your card portfolio"
                     className="absolute inset-0 w-full h-full object-cover"
-                    loading="lazy"
+                    loading="eager"
                   />
                   {/* Subtle overlay for depth */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/60 via-transparent to-[#0a0a0a]/30" />
@@ -1824,6 +1824,94 @@ const Landing = () => {
             {features.map((feature, i) => (
               <FeatureCard key={feature.title} {...feature} delay={i * 0.05} />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================ */}
+      {/* FEATURE DEEP DIVES */}
+      {/* ============================================ */}
+      <section className="py-24 px-6 relative z-10">
+        <div className="max-w-6xl mx-auto space-y-24">
+          {/* Scan Feature */}
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <RevealOnScroll direction="left">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/30">
+                  <Camera className="w-3.5 h-3.5 text-rose-400" />
+                  <span className="text-xs font-semibold text-rose-400">AI-Powered</span>
+                </div>
+                <h3 className="text-3xl md:text-4xl font-bold">
+                  Scan any card.{" "}
+                  <span className="text-gray-500">Get instant pricing.</span>
+                </h3>
+                <p className="text-lg text-gray-400 leading-relaxed">
+                  Point your camera at any trading card and our AI identifies it instantly. 
+                  Get real-time market pricing, condition-based valuations, and add to your 
+                  collection in one tap.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  {["Pokémon", "Sports", "Yu-Gi-Oh!", "Magic", "One Piece"].map(game => (
+                    <span key={game} className="px-3 py-1.5 rounded-full bg-[#141414] border border-[#2a2a2a] text-sm text-gray-400">
+                      {game}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </RevealOnScroll>
+            <RevealOnScroll direction="right">
+              <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.3 }}>
+                <img 
+                  src="/assets/feature-scanning-v2.webp" 
+                  alt="AI card scanning feature"
+                  className="rounded-2xl shadow-2xl shadow-black/50 border border-[#1a1a1a]"
+                  loading="lazy"
+                />
+              </motion.div>
+            </RevealOnScroll>
+          </div>
+
+          {/* Grading Feature */}
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <RevealOnScroll direction="left" className="md:order-2">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30">
+                  <Award className="w-3.5 h-3.5 text-purple-400" />
+                  <span className="text-xs font-semibold text-purple-400">Grading Center</span>
+                </div>
+                <h3 className="text-3xl md:text-4xl font-bold">
+                  Know before you grade.{" "}
+                  <span className="text-gray-500">Maximize your ROI.</span>
+                </h3>
+                <p className="text-lg text-gray-400 leading-relaxed">
+                  Our centering tool analyzes your card's alignment before you submit. 
+                  Track submissions through PSA, BGS, and CGC. Calculate grading ROI 
+                  and population reports — all in one place.
+                </p>
+                <div className="grid grid-cols-3 gap-4">
+                  {[
+                    { label: "Centering Tool", value: "AI" },
+                    { label: "Pop Reports", value: "Live" },
+                    { label: "ROI Calc", value: "Built-in" },
+                  ].map(item => (
+                    <div key={item.label} className="text-center p-3 rounded-xl bg-[#111111] border border-[#1a1a1a]">
+                      <p className="text-sm font-bold text-purple-400">{item.value}</p>
+                      <p className="text-xs text-gray-500">{item.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </RevealOnScroll>
+            <RevealOnScroll direction="right" className="md:order-1">
+              <motion.div whileHover={{ scale: 1.02 }} transition={{ duration: 0.3 }}>
+                <img 
+                  src="/assets/feature-grading-v2.webp" 
+                  alt="Card grading and centering analysis"
+                  className="rounded-2xl shadow-2xl shadow-black/50 border border-[#1a1a1a]"
+                  loading="lazy"
+                />
+              </motion.div>
+            </RevealOnScroll>
           </div>
         </div>
       </section>
@@ -1962,8 +2050,8 @@ const Landing = () => {
                 className="relative"
               >
                 <img
-                  src="/assets/desktop-mockup.webp"
-                  alt="CardLedger on desktop"
+                  src="/assets/feature-analytics-v2.webp"
+                  alt="CardLedger analytics dashboard on desktop"
                   className="rounded-2xl shadow-2xl shadow-black/50 border border-[#1a1a1a]"
                 />
                 <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-[#141414] border border-[#2a2a2a] text-sm text-gray-400">
@@ -1980,9 +2068,9 @@ const Landing = () => {
                 className="relative flex justify-center"
               >
                 <img
-                  src="/assets/phone-mockup-1.webp"
-                  alt="CardLedger on mobile"
-                  className="w-64 rounded-[2rem] shadow-2xl shadow-black/50 border border-[#1a1a1a]"
+                  src="/assets/mockup-phones-floating.webp"
+                  alt="CardLedger on mobile devices"
+                  className="w-80 rounded-2xl shadow-2xl shadow-black/50"
                 />
                 <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-[#141414] border border-[#2a2a2a] text-sm text-gray-400">
                   Mobile-first design
