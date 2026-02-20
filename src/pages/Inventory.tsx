@@ -89,6 +89,15 @@ const Inventory = () => {
 
   const { isRunning: isFetchingImages, startBackgroundFetch } = useBackgroundImageFetch();
 
+  // Auto-fetch missing images on load
+  useEffect(() => {
+    if (loading || items.length === 0) return;
+    const missingImages = items.filter(item => !item.card_image_url && item.quantity > 0);
+    if (missingImages.length > 0) {
+      startBackgroundFetch();
+    }
+  }, [loading, items.length]);
+
   // Auto-refresh prices if stale (>24 hours since last update)
   useEffect(() => {
     if (loading || isRefreshing || items.length === 0) return;
