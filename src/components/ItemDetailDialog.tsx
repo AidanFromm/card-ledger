@@ -9,9 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Pencil, Trash2, Check, X, ImageOff, Package, Loader2, Save, ExternalLink, ShoppingCart, Share2, ZoomIn, Bell, BellOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, X, ImageOff, Package, Loader2, Save, ExternalLink, ShoppingCart, Share2, ZoomIn, Bell, BellOff, Crown, Lock } from "lucide-react";
 import { usePurchaseEntries } from "@/hooks/usePurchaseEntries";
 import { usePriceHistory } from "@/hooks/usePriceHistory";
+import { useSubscription } from "@/hooks/useSubscription";
 import { format } from "date-fns";
 import { AddToInventoryDialog } from "./AddToInventoryDialog";
 import { useToast } from "@/hooks/use-toast";
@@ -194,6 +195,7 @@ interface ItemDetailDialogProps {
 export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogProps) => {
   const { entries, loading, updateEntry, deleteEntry, refetch } = usePurchaseEntries(item?.id);
   const { updateItem, refetch: refetchInventory } = useInventoryDb();
+  const subscription = useSubscription();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editQuantity, setEditQuantity] = useState("");
@@ -985,26 +987,59 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
           </div>
 
           {/* Price History Chart */}
-          <div className="p-4 rounded-2xl bg-secondary/30 border border-border/20">
+          <div className="p-4 rounded-2xl bg-secondary/30 border border-border/20 relative">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="font-semibold text-sm text-muted-foreground">Price History</h4>
+              <h4 className="font-semibold text-sm text-muted-foreground flex items-center gap-2">
+                Price History
+                {!subscription.canViewHistory && (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-500 text-[9px] font-semibold">
+                    <Crown className="h-2.5 w-2.5" />
+                    PRO
+                  </span>
+                )}
+              </h4>
               <div className="flex gap-1">
                 {(['7D', '30D', '90D'] as const).map((range) => (
                   <button
                     key={range}
                     onClick={() => setPriceChartRange(range)}
+                    disabled={!subscription.canViewHistory}
                     className={`text-[10px] px-2 py-0.5 rounded-full font-medium transition-all ${
                       priceChartRange === range
                         ? 'bg-primary text-primary-foreground'
                         : 'text-muted-foreground hover:text-foreground'
-                    }`}
+                    } ${!subscription.canViewHistory ? 'opacity-50' : ''}`}
                   >
                     {range}
                   </button>
                 ))}
               </div>
             </div>
-            {priceHistoryLoading ? (
+            {!subscription.canViewHistory ? (
+              /* Locked state for free users */
+              <div className="h-[100px] relative">
+                {/* Blurred fake chart */}
+                <div className="absolute inset-0 blur-sm opacity-50">
+                  <div className="h-full w-full bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20 rounded-lg" />
+                </div>
+                {/* Upgrade overlay */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/50 rounded-lg">
+                  <Lock className="h-5 w-5 text-muted-foreground mb-2" />
+                  <p className="text-xs text-muted-foreground text-center mb-2">
+                    Price history is a Pro feature
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => window.location.href = '/settings'}
+                  >
+                    <Crown className="h-3 w-3" />
+                    Upgrade
+                  </Button>
+                </div>
+              </div>
+            ) : priceHistoryLoading ? (
               <div className="h-[100px] flex items-center justify-center">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
               </div>

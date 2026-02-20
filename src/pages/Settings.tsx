@@ -381,6 +381,24 @@ const Settings = () => {
 
   // Data management functions
   const handleExport = async (format: "json" | "csv") => {
+    // Check if user can export (Pro feature)
+    if (!subscription.canExportCSV) {
+      toast({
+        title: "Pro Feature",
+        description: "Upgrade to Pro to export your collection data.",
+        action: (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setActiveSheet("subscription")}
+          >
+            Upgrade
+          </Button>
+        ),
+      });
+      return;
+    }
+    
     setExporting(true);
     try {
       const data = inventory || [];
