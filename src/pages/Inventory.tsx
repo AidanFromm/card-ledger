@@ -89,6 +89,27 @@ const Inventory = () => {
 
   const { isRunning: isFetchingImages, startBackgroundFetch } = useBackgroundImageFetch();
 
+  // Auto-refresh prices if stale (>24 hours since last update)
+  useEffect(() => {
+    if (loading || isRefreshing || items.length === 0) return;
+    
+    const STALE_THRESHOLD = 24 * 60 * 60 * 1000; // 24 hours
+    const hasStaleItems = items.some(item => {
+      if (!item.last_price_update) return true;
+      return Date.now() - new Date(item.last_price_update).getTime() > STALE_THRESHOLD;
+    });
+    
+    if (hasStaleItems) {
+      const staleItems = items.filter(item => {
+        if (!item.last_price_update) return true;
+        return Date.now() - new Date(item.last_price_update).getTime() > STALE_THRESHOLD;
+      }).slice(0, 50); // Refresh max 50 at a time
+      
+      console.log(`Auto-refreshing prices for ${staleItems.length} stale items`);
+      refreshAllPrices(staleItems).then(() => refetch());
+    }
+  }, [loading, items.length]); // Only run once on load
+
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 400);
     window.addEventListener('scroll', handleScroll);

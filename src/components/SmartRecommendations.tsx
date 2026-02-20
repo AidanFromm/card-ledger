@@ -132,18 +132,18 @@ function analyzeCollection(inventory: InventoryItem[]): {
 
 // Mock card database for recommendations
 const POPULAR_CARDS: RecommendedCard[] = [
-  { name: 'Charizard ex', setName: '151', cardNumber: '6/165', estimatedPrice: 85, category: 'raw', imageUrl: '' },
-  { name: 'Pikachu VMAX', setName: 'Vivid Voltage', cardNumber: '44/185', estimatedPrice: 45, category: 'raw', imageUrl: '' },
-  { name: 'Umbreon VMAX (Alt Art)', setName: 'Evolving Skies', cardNumber: '215/203', estimatedPrice: 350, category: 'raw', imageUrl: '' },
-  { name: 'Mew ex', setName: '151', cardNumber: '151/165', estimatedPrice: 120, category: 'raw', imageUrl: '' },
-  { name: 'Mewtwo ex', setName: '151', cardNumber: '150/165', estimatedPrice: 75, category: 'raw', imageUrl: '' },
-  { name: 'Gengar ex', setName: '151', cardNumber: '94/165', estimatedPrice: 40, category: 'raw', imageUrl: '' },
-  { name: 'Rayquaza VMAX (Alt Art)', setName: 'Evolving Skies', cardNumber: '218/203', estimatedPrice: 280, category: 'raw', imageUrl: '' },
-  { name: 'Moonbreon (Umbreon V Alt)', setName: 'Evolving Skies', cardNumber: '188/203', estimatedPrice: 200, category: 'raw', imageUrl: '' },
-  { name: 'Blastoise ex', setName: '151', cardNumber: '9/165', estimatedPrice: 55, category: 'raw', imageUrl: '' },
-  { name: 'Lugia V (Alt Art)', setName: 'Silver Tempest', cardNumber: '186/195', estimatedPrice: 150, category: 'raw', imageUrl: '' },
-  { name: 'Giratina V (Alt Art)', setName: 'Lost Origin', cardNumber: '186/196', estimatedPrice: 120, category: 'raw', imageUrl: '' },
-  { name: 'Dragonite V (Alt Art)', setName: 'Pokemon GO', cardNumber: '76/78', estimatedPrice: 90, category: 'raw', imageUrl: '' },
+  { name: 'Charizard ex', setName: '151', cardNumber: '6/165', estimatedPrice: 85, category: 'raw', imageUrl: 'https://images.pokemontcg.io/sv3pt5/6_hires.png' },
+  { name: 'Pikachu VMAX', setName: 'Vivid Voltage', cardNumber: '44/185', estimatedPrice: 45, category: 'raw', imageUrl: 'https://images.pokemontcg.io/swsh4/44_hires.png' },
+  { name: 'Umbreon VMAX (Alt Art)', setName: 'Evolving Skies', cardNumber: '215/203', estimatedPrice: 350, category: 'raw', imageUrl: 'https://images.pokemontcg.io/swsh7/215_hires.png' },
+  { name: 'Mew ex', setName: '151', cardNumber: '151/165', estimatedPrice: 120, category: 'raw', imageUrl: 'https://images.pokemontcg.io/sv3pt5/151_hires.png' },
+  { name: 'Mewtwo ex', setName: '151', cardNumber: '150/165', estimatedPrice: 75, category: 'raw', imageUrl: 'https://images.pokemontcg.io/sv3pt5/150_hires.png' },
+  { name: 'Gengar ex', setName: '151', cardNumber: '94/165', estimatedPrice: 40, category: 'raw', imageUrl: 'https://images.pokemontcg.io/sv3pt5/94_hires.png' },
+  { name: 'Rayquaza VMAX (Alt Art)', setName: 'Evolving Skies', cardNumber: '218/203', estimatedPrice: 280, category: 'raw', imageUrl: 'https://images.pokemontcg.io/swsh7/218_hires.png' },
+  { name: 'Umbreon V (Alt Art)', setName: 'Evolving Skies', cardNumber: '188/203', estimatedPrice: 200, category: 'raw', imageUrl: 'https://images.pokemontcg.io/swsh7/188_hires.png' },
+  { name: 'Blastoise ex', setName: '151', cardNumber: '9/165', estimatedPrice: 55, category: 'raw', imageUrl: 'https://images.pokemontcg.io/sv3pt5/9_hires.png' },
+  { name: 'Lugia V (Alt Art)', setName: 'Silver Tempest', cardNumber: '186/195', estimatedPrice: 150, category: 'raw', imageUrl: 'https://images.pokemontcg.io/swsh12pt5/186_hires.png' },
+  { name: 'Giratina V (Alt Art)', setName: 'Lost Origin', cardNumber: '186/196', estimatedPrice: 120, category: 'raw', imageUrl: 'https://images.pokemontcg.io/swsh11/186_hires.png' },
+  { name: 'Dragonite V (Alt Art)', setName: 'Pokemon GO', cardNumber: '76/78', estimatedPrice: 90, category: 'raw', imageUrl: 'https://images.pokemontcg.io/pgo/76_hires.png' },
 ];
 
 function generateRecommendations(

@@ -35,8 +35,10 @@ type SearchMode = "inventory" | "pricecheck";
 
 // Skeleton card for loading state
 const SearchResultSkeleton = () => (
-  <div className="rounded-[20px] overflow-hidden bg-card" style={{ boxShadow: 'var(--shadow-card)' }}>
-    <Skeleton className="aspect-[3/4] w-full" />
+  <div className="rounded-[20px] overflow-hidden bg-card animate-pulse" style={{ boxShadow: 'var(--shadow-card)' }}>
+    <div className="aspect-[3/4] bg-gradient-to-br from-secondary/40 to-secondary/20 flex items-center justify-center">
+      <div className="w-10 h-10 rounded-xl bg-secondary/40" />
+    </div>
     <div className="p-3 space-y-2">
       <Skeleton className="h-4 w-3/4" />
       <Skeleton className="h-3 w-1/2" />
@@ -670,15 +672,30 @@ const ScanCard = () => {
                       onClick={() => handleProductClick(product)}
                     >
                       {/* Card Image — large aspect ratio */}
-                      <div className="relative aspect-[3/4] bg-secondary/30">
-                        {product.image_url ? (
+                      <div className="relative aspect-[3/4] bg-gradient-to-br from-secondary/40 to-secondary/20">
+                        {product.image_url && !product.image_url.includes('placehold') ? (
                           <img src={product.image_url} alt={product.name}
                             className="w-full h-full object-contain p-3 transition-transform duration-300 group-hover:scale-105"
-                            loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                            loading="lazy" 
+                            onError={(e) => { 
+                              // Replace with name-based fallback instead of hiding
+                              const parent = e.currentTarget.parentElement;
+                              if (parent) {
+                                e.currentTarget.style.display = 'none';
+                                // Show fallback is already handled by the sibling div
+                              }
+                            }}
                           />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30"><ImageIcon className="h-12 w-12" /></div>
-                        )}
+                        ) : null}
+                        {/* Always show name fallback behind image (visible when image fails/missing) */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+                          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
+                            <ImageIcon className="h-6 w-6 text-primary/40" />
+                          </div>
+                          <p className="text-xs font-semibold text-foreground/60 line-clamp-3 leading-tight">{product.name}</p>
+                          {product.set_name && <p className="text-[10px] text-muted-foreground/50 mt-1 line-clamp-1">{product.set_name}</p>}
+                          {product.card_number && <p className="text-[10px] text-primary/50 mt-0.5">#{product.card_number}</p>}
+                        </div>
 
                         {/* Category + Game Badge — top left */}
                         <div className="absolute top-2 left-2 flex flex-col gap-1">
