@@ -8,6 +8,8 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { WhatsNew } from "./components/WhatsNew";
+import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
+import { TrialBanner } from "./components/TrialBanner";
 import { useBackgroundImageFetch } from "./hooks/useBackgroundImageFetch";
 import { supabase } from "./integrations/supabase/client";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
@@ -122,6 +124,8 @@ const App = () => (
             <KeyboardShortcutsProvider>
               <OfflineIndicator />
               <WhatsNew />
+              <PWAInstallPrompt />
+              <TrialBanner />
               <BackgroundTasks />
               <ScreenReaderAnnouncer />
               <Suspense fallback={<PageLoader />}>
