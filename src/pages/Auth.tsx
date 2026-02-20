@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,10 +6,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowLeft, Check, TrendingUp, Shield, Zap } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
 type AuthMode = "signin" | "signup" | "reset";
+
+// Password strength calculator
+const getPasswordStrength = (password: string): { score: number; label: string; color: string } => {
+  let score = 0;
+  if (password.length >= 6) score++;
+  if (password.length >= 10) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+  
+  if (score <= 1) return { score: 1, label: 'Weak', color: 'bg-red-500' };
+  if (score <= 2) return { score: 2, label: 'Fair', color: 'bg-orange-500' };
+  if (score <= 3) return { score: 3, label: 'Good', color: 'bg-yellow-500' };
+  if (score <= 4) return { score: 4, label: 'Strong', color: 'bg-emerald-500' };
+  return { score: 5, label: 'Excellent', color: 'bg-emerald-600' };
+};
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -20,6 +36,9 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // Password strength
+  const passwordStrength = useMemo(() => getPasswordStrength(password), [password]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -282,6 +301,32 @@ const Auth = () => {
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
+                    {/* Password Strength Indicator */}
+                    {mode === "signup" && password.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-1.5"
+                      >
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((level) => (
+                            <div
+                              key={level}
+                              className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                                level <= passwordStrength.score ? passwordStrength.color : 'bg-muted/30'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <p className={`text-[11px] font-medium ${
+                          passwordStrength.score <= 2 ? 'text-red-500' : 
+                          passwordStrength.score <= 3 ? 'text-yellow-500' : 'text-emerald-500'
+                        }`}>
+                          {passwordStrength.label}
+                          {passwordStrength.score < 3 && ' — Try adding numbers or symbols'}
+                        </p>
+                      </motion.div>
+                    )}
                   </div>
 
                   <AnimatePresence>
@@ -343,13 +388,37 @@ const Auth = () => {
           )}
         </motion.div>
 
+        {/* Feature Highlights */}
+        {mode !== "reset" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-8 grid grid-cols-3 gap-3"
+          >
+            {[
+              { icon: TrendingUp, label: 'Track Profits', desc: 'Real-time P&L' },
+              { icon: Shield, label: 'Secure', desc: 'Your data safe' },
+              { icon: Zap, label: 'Fast', desc: 'Instant sync' },
+            ].map(({ icon: Icon, label, desc }) => (
+              <div key={label} className="text-center">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                  <Icon className="w-5 h-5 text-primary" />
+                </div>
+                <p className="text-xs font-semibold text-foreground">{label}</p>
+                <p className="text-[10px] text-muted-foreground">{desc}</p>
+              </div>
+            ))}
+          </motion.div>
+        )}
+
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
           className="text-center text-xs text-muted-foreground/50 mt-8"
         >
-          CardLedger v1.0.0
+          CardLedger v2.0
         </motion.p>
       </motion.div>
     </div>
