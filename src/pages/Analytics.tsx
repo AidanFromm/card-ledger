@@ -19,7 +19,10 @@ import {
   Activity,
   Layers,
   RefreshCw,
+  Crown,
+  Lock,
 } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
 import {
   LineChart,
   Line,
@@ -818,6 +821,7 @@ const AnalyticsSkeleton = () => (
 const Analytics = () => {
   const { items, loading: inventoryLoading, refetch, isSyncing } = useInventoryDb();
   const { sales, loading: salesLoading } = useSalesDb();
+  const subscription = useSubscription();
   const [timeRange, setTimeRange] = useState<TimeRange>('1M');
   const [allocationView, setAllocationView] = useState<AllocationView>('category');
   const [showCostBasis, setShowCostBasis] = useState(false);
@@ -1002,12 +1006,42 @@ const Analytics = () => {
               size="sm"
               onClick={() => refetch()}
               disabled={isSyncing}
-              className="gap-1.5 h-9 px-3 text-xs text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded-xl"
+              className="gap-1.5 h-9 px-3 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-xl"
             >
               <RefreshCw className={cn("h-3.5 w-3.5", isSyncing && "animate-spin")} />
               {isSyncing ? 'Syncing...' : 'Refresh'}
             </Button>
           </motion.div>
+
+          {/* Pro Banner for Free Users */}
+          {!subscription.canUseAdvancedAnalytics && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 to-primary/10 border border-amber-500/20"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-amber-500/20">
+                    <Crown className="h-5 w-5 text-amber-500" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Unlock Advanced Analytics</p>
+                    <p className="text-sm text-muted-foreground">
+                      Get detailed insights, ROI tracking, and performance comparisons
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => window.location.href = '/settings'}
+                  className="bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+                >
+                  Upgrade
+                </Button>
+              </div>
+            </motion.div>
+          )}
 
           {/* ================================ */}
           {/* Portfolio Summary Cards */}
