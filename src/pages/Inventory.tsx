@@ -114,7 +114,7 @@ const Inventory = () => {
         return Date.now() - new Date(item.last_price_update).getTime() > STALE_THRESHOLD;
       }).slice(0, 50); // Refresh max 50 at a time
       
-      console.log(`Auto-refreshing prices for ${staleItems.length} stale items`);
+      // Auto-refreshing stale prices
       refreshAllPrices(staleItems).then(() => refetch());
     }
   }, [loading, items.length]); // Only run once on load
