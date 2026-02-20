@@ -1671,8 +1671,8 @@ const Landing = () => {
             <div className="mb-16 relative">
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent z-10 pointer-events-none" />
               <motion.img
-                src="/assets/hero-dashboard-v2.webp"
-                alt="CardLedger dashboard showing portfolio analytics"
+                src="/assets/feature-analytics-v2.webp"
+                alt="CardLedger analytics and portfolio tracking"
                 className="w-full max-w-4xl mx-auto rounded-3xl shadow-2xl shadow-black/50 border border-[#1a1a1a]"
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
