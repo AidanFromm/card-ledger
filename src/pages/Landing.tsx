@@ -940,8 +940,11 @@ const PricingCard = ({
           >
             {displayPrice}
           </motion.span>
-          {price > 0 && (
+          {price > 0 && period !== "once" && (
             <span className="text-gray-500">/{isAnnual ? 'year' : 'month'}</span>
+          )}
+          {period === "once" && (
+            <span className="text-gray-500">one-time</span>
           )}
         </div>
         
@@ -1437,51 +1440,51 @@ const Landing = () => {
       monthlyPrice: 0,
       annualPrice: 0,
       period: "forever",
-      description: "Perfect for casual collectors",
+      description: "Perfect for getting started",
       features: [
         { text: "Track up to 100 cards", included: true },
+        { text: "5 AI scans per day", included: true },
+        { text: "Current prices only", included: true },
         { text: "Basic portfolio value", included: true },
-        { text: "Manual price lookup", included: true },
-        { text: "1 collection", included: true },
         { text: "Community support", included: true },
-        { text: "Real-time price tracking", included: false },
-        { text: "P&L analytics", included: false },
-        { text: "Price alerts", included: false },
+        { text: "Price history & trends", included: false },
+        { text: "Export & alerts", included: false },
+        { text: "Advanced analytics", included: false },
       ]
     },
     {
       name: "Pro",
-      monthlyPrice: 6.99,
-      annualPrice: 49.99,
+      monthlyPrice: 7.99,
+      annualPrice: 59.99,
       period: "mo",
       description: "For serious collectors",
       popular: true,
       features: [
-        { text: "Unlimited cards", included: true },
-        { text: "Real-time price tracking", included: true },
+        { text: "Unlimited cards & scans", included: true },
+        { text: "Full price history", included: true },
         { text: "P&L and ROI analytics", included: true },
         { text: "Price alerts", included: true },
-        { text: "Export to CSV/PDF", included: true },
-        { text: "Grading pipeline tracker", included: true },
+        { text: "Export to CSV", included: true },
+        { text: "Condition-based pricing", included: true },
         { text: "Unlimited collections", included: true },
         { text: "Priority support", included: true },
       ]
     },
     {
-      name: "Business",
-      monthlyPrice: 14.99,
-      annualPrice: 99.99,
-      period: "mo",
-      description: "For dealers & shops",
+      name: "Lifetime",
+      monthlyPrice: 149,
+      annualPrice: 149,
+      period: "once",
+      description: "Pay once, own forever",
       features: [
         { text: "Everything in Pro", included: true },
-        { text: "Wholesale client lists", included: true },
-        { text: "API access", included: true },
-        { text: "Team collaboration", included: true },
-        { text: "Custom branding", included: true },
-        { text: "Tax & inventory reports", included: true },
-        { text: "eBay integration", included: true },
-        { text: "Dedicated account manager", included: true },
+        { text: "All future updates", included: true },
+        { text: "Priority support forever", included: true },
+        { text: "Early access to features", included: true },
+        { text: "Founding member badge", included: true },
+        { text: "No recurring payments", included: true },
+        { text: "Best value", included: true },
+        { text: "Support indie dev ❤️", included: true },
       ]
     }
   ];
