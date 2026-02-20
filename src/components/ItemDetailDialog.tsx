@@ -905,33 +905,56 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
               <h4 className="font-semibold text-sm text-muted-foreground flex items-center gap-1.5">
                 <Bell className="w-3.5 h-3.5" />
                 Price Alert
+                {!subscription.canSetAlerts && (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-500 text-[9px] font-semibold">
+                    <Crown className="h-2.5 w-2.5" />
+                    PRO
+                  </span>
+                )}
               </h4>
-              {hasAlert(item.id) ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 text-[10px] gap-1 text-destructive"
-                  onClick={() => {
-                    const a = getAlertForItem(item.id);
-                    if (a) removeAlert(a.id);
-                  }}
-                >
-                  <BellOff className="w-3 h-3" />
-                  Remove Alert
-                </Button>
+              {subscription.canSetAlerts ? (
+                hasAlert(item.id) ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-[10px] gap-1 text-destructive"
+                    onClick={() => {
+                      const a = getAlertForItem(item.id);
+                      if (a) removeAlert(a.id);
+                    }}
+                  >
+                    <BellOff className="w-3 h-3" />
+                    Remove Alert
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 text-[10px] gap-1"
+                    onClick={() => setShowAlertForm(!showAlertForm)}
+                  >
+                    <Bell className="w-3 h-3" />
+                    {showAlertForm ? 'Cancel' : 'Set Alert'}
+                  </Button>
+                )
               ) : (
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-6 text-[10px] gap-1"
-                  onClick={() => setShowAlertForm(!showAlertForm)}
+                  onClick={() => window.location.href = '/settings'}
                 >
-                  <Bell className="w-3 h-3" />
-                  {showAlertForm ? 'Cancel' : 'Set Alert'}
+                  <Crown className="w-3 h-3" />
+                  Upgrade
                 </Button>
               )}
             </div>
-            {hasAlert(item.id) && (() => {
+            {!subscription.canSetAlerts && (
+              <p className="text-xs text-muted-foreground">
+                Get notified when prices change. Upgrade to Pro for price alerts.
+              </p>
+            )}
+            {subscription.canSetAlerts && hasAlert(item.id) && (() => {
               const a = getAlertForItem(item.id);
               return a ? (
                 <p className="text-xs text-muted-foreground">
@@ -939,7 +962,7 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
                 </p>
               ) : null;
             })()}
-            {showAlertForm && !hasAlert(item.id) && (
+            {subscription.canSetAlerts && showAlertForm && !hasAlert(item.id) && (
               <div className="flex items-center gap-2 mt-2">
                 <select
                   value={alertType}
