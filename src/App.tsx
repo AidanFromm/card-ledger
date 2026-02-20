@@ -65,12 +65,15 @@ const queryClient = new QueryClient({
   },
 });
 
-// Loading fallback for Suspense
+// Loading fallback for Suspense — premium branded loader
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
-    <div className="flex flex-col items-center gap-3">
-      <div className="w-8 h-8 border-2 border-muted border-t-primary rounded-full animate-spin" />
-      <p className="text-sm text-muted-foreground">Loading...</p>
+    <div className="flex flex-col items-center gap-4">
+      <div className="relative">
+        <div className="w-10 h-10 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+        <div className="absolute inset-0 w-10 h-10 border-2 border-transparent border-b-primary/30 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
+      </div>
+      <p className="text-xs text-muted-foreground/50 font-medium tracking-wide">CARDLEDGER</p>
     </div>
   </div>
 );

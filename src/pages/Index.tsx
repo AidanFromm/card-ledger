@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { Logo } from "@/components/Logo";
 import { hasCompletedOnboarding } from "@/components/OnboardingFlow";
+import { Layers, TrendingUp, Camera, PieChart } from "lucide-react";
 
 // Floating holographic card component
 const FloatingCard = ({ delay, x, y, rotation, size }: { delay: number; x: string; y: string; rotation: number; size: number }) => (
@@ -196,20 +197,14 @@ const Index = () => {
       >
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
           {[
-            { src: "/assets/feature-track.png", title: "Track Collection", desc: "Organize every card you own" },
-            { src: "/assets/feature-price.png", title: "Live Prices", desc: "Real-time market values" },
-            { src: "/assets/feature-scan.png", title: "Scan Cards", desc: "AI-powered card identification" },
-            { src: "/assets/feature-profit.png", title: "Track Profits", desc: "FIFO accounting built in" },
+            { icon: Layers, title: "Track Collection", desc: "Organize every card you own", color: "text-blue-400", bg: "bg-blue-500/10" },
+            { icon: TrendingUp, title: "Live Prices", desc: "Real-time market values", color: "text-emerald-400", bg: "bg-emerald-500/10" },
+            { icon: Camera, title: "Scan Cards", desc: "AI-powered identification", color: "text-violet-400", bg: "bg-violet-500/10" },
+            { icon: PieChart, title: "Track Profits", desc: "FIFO accounting built in", color: "text-amber-400", bg: "bg-amber-500/10" },
           ].map((feat) => (
             <div key={feat.title} className="text-center">
-              <div className="relative w-full aspect-square rounded-2xl overflow-hidden mb-3 bg-secondary/20">
-                <img
-                  src={feat.src}
-                  alt={feat.title}
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
+              <div className={`w-14 h-14 rounded-2xl ${feat.bg} flex items-center justify-center mx-auto mb-3`}>
+                <feat.icon className={`w-7 h-7 ${feat.color}`} strokeWidth={1.5} />
               </div>
               <h3 className="text-sm font-semibold text-foreground">{feat.title}</h3>
               <p className="text-xs text-muted-foreground mt-0.5">{feat.desc}</p>
