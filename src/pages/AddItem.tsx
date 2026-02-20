@@ -37,6 +37,8 @@ import Navbar from "@/components/Navbar";
 import BottomNav from "@/components/BottomNav";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { useFolders } from "@/hooks/useFolders";
+import { useSubscription } from "@/hooks/useSubscription";
+import Paywall from "@/components/Paywall";
 import { toast } from "sonner";
 import CardImage from "@/components/CardImage";
 import { 
@@ -85,8 +87,19 @@ const WIZARD_STEPS: { key: WizardStep; label: string }[] = [
 
 const AddItem = () => {
   const navigate = useNavigate();
-  const { addItem, uploadCardImage, checkForDuplicates } = useInventoryDb();
+  const { addItem, uploadCardImage, checkForDuplicates, items } = useInventoryDb();
   const { addItemToFolder } = useFolders();
+  const subscription = useSubscription();
+  
+  // Paywall state
+  const [showPaywall, setShowPaywall] = useState(false);
+  
+  // Update subscription with current card count
+  useEffect(() => {
+    if (items) {
+      subscription.updateCardCount(items.filter(i => !i.sale_price).length);
+    }
+  }, [items]);
   
   // Wizard state
   const [currentStep, setCurrentStep] = useState<WizardStep>('method');
@@ -269,6 +282,12 @@ const AddItem = () => {
   };
 
   const handleQuickAdd = async (card: CardSearchResult) => {
+    // Check card limit for free users
+    if (!subscription.canAddCards(quickAddDefaults.quantity)) {
+      setShowPaywall(true);
+      return;
+    }
+    
     setUploading(true);
     try {
       await addItem({
@@ -297,6 +316,13 @@ const AddItem = () => {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    
+    // Check card limit for free users
+    const quantityToAdd = parseInt(formData.quantity) || 1;
+    if (!subscription.canAddCards(quantityToAdd)) {
+      setShowPaywall(true);
+      return;
+    }
     
     if (!formData.name || !formData.set_name || !formData.purchase_price || !formData.quantity) {
       toast.error("Please fill in all required fields");
@@ -344,6 +370,15 @@ const AddItem = () => {
   };
 
   const handleBulkImport = async (cards: any[]) => {
+    // Calculate total cards to add
+    const totalCards = cards.reduce((sum, card) => sum + (card.quantity || 1), 0);
+    
+    // Check card limit for free users
+    if (!subscription.canAddCards(totalCards)) {
+      setShowPaywall(true);
+      return;
+    }
+    
     for (const card of cards) {
       await addItem({
         name: card.name,
@@ -1117,6 +1152,16 @@ const AddItem = () => {
         onViewInventory={() => navigate('/inventory')}
         onClose={() => setShowSuccess(false)}
       />
+      
+      {/* Card Limit Paywall */}
+      <Paywall
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        feature="cards"
+        title="Collection Limit Reached"
+        description={`You've reached ${subscription.cardLimit} cards on the free plan. Upgrade to Pro for unlimited cards!`}
+      />
+      
       <BottomNav />
     </div>
   );
