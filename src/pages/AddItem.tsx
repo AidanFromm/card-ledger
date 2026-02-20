@@ -60,6 +60,7 @@ import {
   CONDITIONS,
 } from "@/components/addcard";
 import { type SmartSearchResult } from "@/hooks/useSmartSearch";
+import SealedProductSearch from "@/components/SealedProductSearch";
 
 // Purchase sources
 const PURCHASE_SOURCES = [
@@ -242,8 +243,8 @@ const AddItem = () => {
       setCurrentStep('search');
     } else if (method === 'manual') {
       setCurrentStep('details');
-    } else if (method === 'bulk') {
-      // Stay on method step, show bulk import panel
+    } else if (method === 'bulk' || method === 'sealed') {
+      // Stay on method step, show inline panel
     }
   };
 
@@ -529,6 +530,13 @@ const AddItem = () => {
                   {addMethod === 'bulk' && (
                     <div className="mt-6">
                       <BulkImportPanel onImport={handleBulkImport} />
+                    </div>
+                  )}
+                  
+                  {/* Sealed Product Search (shown inline) */}
+                  {addMethod === 'sealed' && (
+                    <div className="mt-6">
+                      <SealedProductSearch />
                     </div>
                   )}
                 </motion.div>

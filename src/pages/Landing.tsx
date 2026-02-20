@@ -1671,8 +1671,8 @@ const Landing = () => {
             <div className="mb-16 relative">
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent z-10 pointer-events-none" />
               <motion.img
-                src="/assets/hero-lifestyle.webp"
-                alt="Trading cards and CardLedger app"
+                src="/assets/hero-dashboard-v2.webp"
+                alt="CardLedger dashboard showing portfolio analytics"
                 className="w-full max-w-4xl mx-auto rounded-3xl shadow-2xl shadow-black/50 border border-[#1a1a1a]"
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
@@ -1710,61 +1710,15 @@ const Landing = () => {
                 </div>
                 
                 {/* App preview */}
-                <div className="aspect-[16/9] bg-gradient-to-br from-[#0f0f0f] to-[#0a0a0a] flex items-center justify-center relative overflow-hidden">
-                  {/* Dashboard mockup */}
-                  <div className="absolute inset-4 md:inset-8 grid grid-cols-12 gap-4 opacity-80">
-                    {/* Sidebar */}
-                    <div className="col-span-2 bg-[#111111] rounded-xl border border-[#1a1a1a] p-3 hidden md:block">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#627d98] to-[#059669] mb-6" />
-                      {[1,2,3,4,5].map(i => (
-                        <div key={i} className={`h-8 rounded-lg mb-2 ${i === 1 ? 'bg-[#627d98]/20 border border-[#627d98]/30' : 'bg-[#1a1a1a]'}`} />
-                      ))}
-                    </div>
-                    
-                    {/* Main content */}
-                    <div className="col-span-12 md:col-span-10 space-y-4">
-                      {/* Header */}
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-2">
-                          <div className="h-8 w-48 bg-[#1a1a1a] rounded-lg" />
-                          <div className="h-4 w-32 bg-[#141414] rounded-lg" />
-                        </div>
-                        <div className="h-10 w-32 bg-gradient-to-r from-[#627d98] to-[#059669] rounded-xl" />
-                      </div>
-                      
-                      {/* Stats row */}
-                      <div className="grid grid-cols-4 gap-4">
-                        {[
-                          { label: 'Portfolio Value', value: '$24,847', change: '+12.4%', positive: true },
-                          { label: 'Total Cards', value: '847', change: '+23', positive: true },
-                          { label: "Today's P&L", value: '+$847', change: '+3.4%', positive: true },
-                          { label: 'ROI', value: '+127%', change: 'All time', positive: true },
-                        ].map((stat, i) => (
-                          <div key={i} className="bg-[#111111] rounded-xl border border-[#1a1a1a] p-4">
-                            <div className="text-xs text-gray-500 mb-1">{stat.label}</div>
-                            <div className="text-xl font-bold text-white">{stat.value}</div>
-                            <div className={`text-xs ${stat.positive ? 'text-[#627d98]' : 'text-red-400'}`}>{stat.change}</div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {/* Chart area */}
-                      <div className="bg-[#111111] rounded-xl border border-[#1a1a1a] p-4 h-48 flex items-end">
-                        <div className="w-full flex items-end gap-2">
-                          {[35, 45, 60, 40, 75, 55, 80, 65, 90, 70, 95, 85, 100].map((h, i) => (
-                            <motion.div
-                              key={i}
-                              initial={{ height: 0 }}
-                              whileInView={{ height: `${h}%` }}
-                              viewport={{ once: true }}
-                              transition={{ delay: 0.8 + i * 0.05, duration: 0.5 }}
-                              className="flex-1 bg-gradient-to-t from-[#627d98] to-[#34d399] rounded-t"
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <div className="aspect-[16/9] bg-gradient-to-br from-[#0f0f0f] to-[#0a0a0a] relative overflow-hidden">
+                  <img 
+                    src="/assets/mockup-phones-floating.webp" 
+                    alt="CardLedger on multiple devices"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                  {/* Subtle overlay for depth */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/60 via-transparent to-[#0a0a0a]/30" />
                 </div>
               </motion.div>
 

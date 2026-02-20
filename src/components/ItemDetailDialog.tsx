@@ -37,6 +37,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { PopulationReport } from "@/components/PopulationReport";
 
 // Quick Sell Slider Component
 const PERCENT_OPTIONS = [50, 60, 70, 80, 90, 100] as const;
@@ -1150,6 +1151,18 @@ export const ItemDetailDialog = ({ item, open, onOpenChange }: ItemDetailDialogP
               </a>
             </div>
           </div>
+
+          {/* Population Report (Graded Cards Only) */}
+          {item.grading_company && item.grading_company !== 'raw' && (
+            <PopulationReport
+              cardName={item.name}
+              setName={item.set_name}
+              cardNumber={item.card_number || undefined}
+              gradingCompany={item.grading_company as 'psa' | 'bgs' | 'cgc' | 'sgc' | 'raw'}
+              grade={item.grade || undefined}
+              compact
+            />
+          )}
 
           {/* Purchase Entries */}
           <div>

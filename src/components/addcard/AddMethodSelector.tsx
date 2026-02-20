@@ -5,10 +5,11 @@ import {
   Camera, 
   Edit3, 
   FileSpreadsheet,
+  Package,
   Sparkles 
 } from "lucide-react";
 
-export type AddMethod = 'search' | 'barcode' | 'camera' | 'manual' | 'bulk';
+export type AddMethod = 'search' | 'barcode' | 'camera' | 'manual' | 'bulk' | 'sealed';
 
 interface AddMethodOption {
   id: AddMethod;
@@ -44,6 +45,13 @@ const methods: AddMethodOption[] = [
     icon: <Edit3 className="h-6 w-6" />,
     label: 'Manual Entry',
     description: 'Enter card details yourself',
+  },
+  {
+    id: 'sealed',
+    icon: <Package className="h-6 w-6" />,
+    label: 'Sealed Products',
+    description: 'Track booster boxes, ETBs, and more',
+    badge: 'NEW',
   },
   {
     id: 'bulk',

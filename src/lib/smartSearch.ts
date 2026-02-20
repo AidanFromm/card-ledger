@@ -261,6 +261,45 @@ export function parseQuery(query: string): ParsedQuery {
 // ============================================
 
 // Common Pokemon misspellings
+// ============================================
+// Product Type Abbreviations
+// ============================================
+
+const PRODUCT_ABBREVIATIONS: Record<string, string> = {
+  'etb': 'elite trainer box',
+  'bb': 'booster box',
+  'cb': 'collection box',
+  'upc': 'ultra premium collection',
+  'pgo': 'pokemon go',
+  'sv': 'scarlet violet',
+  'swsh': 'sword shield',
+  'sm': 'sun moon',
+  'xy': 'xy',
+  'bw': 'black white',
+  'dp': 'diamond pearl',
+  'hf': 'hidden fates',
+  'sf': 'shining fates',
+  'es': 'evolving skies',
+  'bs': 'brilliant stars',
+  'ar': 'astral radiance',
+  'cz': 'crown zenith',
+  'pre': 'prismatic evolutions',
+  'ssp': 'surging sparks',
+  'twm': 'twilight masquerade',
+  'tef': 'temporal forces',
+  'par': 'paradox rift',
+  'obf': 'obsidian flames',
+  'pev': 'paldea evolved',
+  'brs': 'brilliant stars',
+  'vv': 'vivid voltage',
+  'cp': 'champions path',
+  'slb': 'slab',
+  'psa': 'psa',
+  'bgs': 'bgs',
+  'cgc': 'cgc',
+  'sgc': 'sgc',
+};
+
 const COMMON_CORRECTIONS: Record<string, string> = {
   'charzard': 'charizard',
   'charzrd': 'charizard',
@@ -316,6 +355,12 @@ const COMMON_CORRECTIONS: Record<string, string> = {
 export function correctTypos(query: string): string {
   let corrected = query.toLowerCase();
   
+  // Expand product abbreviations first (e.g., "etb" → "elite trainer box")
+  for (const [abbrev, expanded] of Object.entries(PRODUCT_ABBREVIATIONS)) {
+    corrected = corrected.replace(new RegExp(`\\b${abbrev}\\b`, 'gi'), expanded);
+  }
+  
+  // Then fix common typos
   for (const [typo, correct] of Object.entries(COMMON_CORRECTIONS)) {
     corrected = corrected.replace(new RegExp(`\\b${typo}\\b`, 'gi'), correct);
   }

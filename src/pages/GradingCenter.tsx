@@ -99,6 +99,7 @@ import {
 } from "recharts";
 import { cn } from "@/lib/utils";
 import CardImage from "@/components/CardImage";
+import CenteringTool from "@/components/CenteringTool";
 
 // ============================================================================
 // Glass Card Component
@@ -1321,6 +1322,7 @@ const GradingCenter = () => {
   const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState<ExtendedGradingSubmission | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showCenteringTool, setShowCenteringTool] = useState(false);
 
   // Handle drag and drop status update
   const handleDrop = useCallback(async (submissionId: string, newStatus: GradingStatus) => {
@@ -1416,6 +1418,10 @@ const GradingCenter = () => {
               <div className="flex gap-2">
                 <Button variant="outline" size="icon" onClick={() => refetch()}>
                   <RefreshCw className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" onClick={() => setShowCenteringTool(true)} className="gap-2">
+                  <Target className="h-4 w-4" />
+                  Centering
                 </Button>
                 <Button onClick={() => { setSelectedSubmission(null); setShowAddDialog(true); }} className="gap-2">
                   <Plus className="h-4 w-4" />
@@ -1652,6 +1658,13 @@ const GradingCenter = () => {
         onEdit={handleEdit}
         onUpdateStatus={handleStatusUpdate}
         onDelete={handleDelete}
+      />
+
+      {/* Centering Tool */}
+      <CenteringTool
+        open={showCenteringTool}
+        onOpenChange={setShowCenteringTool}
+        cardName={selectedSubmission?.card_name}
       />
     </div>
   );

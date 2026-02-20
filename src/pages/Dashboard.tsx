@@ -19,6 +19,7 @@ import { PageTransition } from "@/components/PageTransition";
 import { calculatePerformanceMetrics, calculateROI } from "@/lib/analytics";
 import { recordPortfolioValue, getPortfolioChartData } from "@/lib/localPriceHistory";
 import { calculateAdjustedCollectionValue } from "@/lib/conditionPricing";
+import SmartRecommendations from "@/components/SmartRecommendations";
 
 type TabType = 'overview' | 'performance' | 'breakdown';
 
@@ -794,6 +795,22 @@ const Dashboard = () => {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Smart Recommendations */}
+          {items.length >= 3 && (
+            <div className="mt-6">
+              <SmartRecommendations
+                inventory={items}
+                maxItems={6}
+                onAddToWishlist={(card) => {
+                  navigate('/wishlist');
+                }}
+                onAddToInventory={(card) => {
+                  navigate('/add');
+                }}
+              />
+            </div>
+          )}
         </main>
       </PageTransition>
       <BottomNav />

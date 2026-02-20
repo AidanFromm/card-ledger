@@ -124,30 +124,41 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Splash screen background */}
+      {/* Premium background image */}
       <img
-        src="/assets/splash-screen.png"
+        src="/assets/hero-dashboard-v2.webp"
         alt=""
         loading="lazy"
-        className="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none"
+        className="absolute inset-0 w-full h-full object-cover opacity-[0.07] pointer-events-none scale-110 blur-[2px]"
         onError={(e) => { e.currentTarget.style.display = 'none'; }}
       />
-      <div className="absolute inset-0 bg-background/70 pointer-events-none" />
-      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-background/80 pointer-events-none" />
+      {/* Futuristic animated gradient background */}
       <div className="absolute inset-0 pointer-events-none">
         <motion.div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full"
-          style={{ background: 'radial-gradient(circle, hsl(212 100% 49% / 0.1) 0%, transparent 65%)' }}
-          animate={{ scale: [1, 1.15, 1], x: [0, 30, 0] }}
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full"
+          style={{ background: 'radial-gradient(ellipse, hsl(212 100% 49% / 0.12) 0%, hsl(160 84% 39% / 0.06) 40%, transparent 70%)' }}
+          animate={{ scale: [1, 1.2, 1], x: [0, 40, 0], rotate: [0, 5, 0] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full"
+          style={{ background: 'radial-gradient(circle, hsl(220 60% 50% / 0.08) 0%, transparent 60%)' }}
+          animate={{ scale: [1.1, 0.85, 1.1], y: [0, -40, 0] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full"
-          style={{ background: 'radial-gradient(circle, hsl(260 80% 60% / 0.06) 0%, transparent 60%)' }}
-          animate={{ scale: [1.1, 0.9, 1.1], y: [0, -30, 0] }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/3 left-1/4 w-[300px] h-[300px] rounded-full"
+          style={{ background: 'radial-gradient(circle, hsl(160 84% 39% / 0.06) 0%, transparent 60%)' }}
+          animate={{ scale: [0.9, 1.15, 0.9], x: [0, -20, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         />
-        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-primary/3 to-transparent" />
+        {/* Grid lines overlay for futuristic feel */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: 'linear-gradient(hsl(212 100% 49% / 0.3) 1px, transparent 1px), linear-gradient(90deg, hsl(212 100% 49% / 0.3) 1px, transparent 1px)',
+          backgroundSize: '60px 60px'
+        }} />
+        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-primary/5 to-transparent" />
       </div>
 
       <motion.div

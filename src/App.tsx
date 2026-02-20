@@ -34,6 +34,27 @@ const Help = lazy(() => import("./pages/Help"));
 const Legal = lazy(() => import("./pages/Legal"));
 const GradingGuide = lazy(() => import("./pages/GradingGuide"));
 const OnboardingFlow = lazy(() => import("./components/OnboardingFlow"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const EbayConnect = lazy(() => import("./pages/EbayConnect"));
+const EbayListings = lazy(() => import("./pages/EbayListings"));
+const GoalsPage = lazy(() => import("./pages/GoalsPage"));
+const GradingCenter = lazy(() => import("./pages/GradingCenter"));
+const GradingTracker = lazy(() => import("./pages/GradingTracker"));
+const ImportPage = lazy(() => import("./pages/ImportPage"));
+const Leaderboards = lazy(() => import("./pages/Leaderboards"));
+const MarketData = lazy(() => import("./pages/MarketData"));
+const MarketTrends = lazy(() => import("./pages/MarketTrends"));
+const PublicProfile = lazy(() => import("./pages/PublicProfile"));
+const SetCompletion = lazy(() => import("./pages/SetCompletion"));
+const Settings = lazy(() => import("./pages/Settings"));
+const TaxReports = lazy(() => import("./pages/TaxReports"));
+const TradingHub = lazy(() => import("./pages/TradingHub"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
+const Alerts = lazy(() => import("./pages/Alerts"));
+const AchievementsPage = lazy(() => import("./pages/AchievementsPage"));
+const ClientLists = lazy(() => import("./pages/ClientLists"));
+const ClientListDetail = lazy(() => import("./pages/ClientListDetail"));
+const ShareView = lazy(() => import("./pages/ShareView"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -147,6 +168,27 @@ const App = () => (
                     <Route path="/client-list/:shareToken" element={<ClientListView />} />
                     <Route path="/onboarding" element={<OnboardingFlow />} />
                     <Route path="/help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
+                    <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+                    <Route path="/ebay/connect" element={<ProtectedRoute><EbayConnect /></ProtectedRoute>} />
+                    <Route path="/ebay/listings" element={<ProtectedRoute><EbayListings /></ProtectedRoute>} />
+                    <Route path="/goals" element={<ProtectedRoute><GoalsPage /></ProtectedRoute>} />
+                    <Route path="/grading" element={<ProtectedRoute><GradingCenter /></ProtectedRoute>} />
+                    <Route path="/grading/tracker" element={<ProtectedRoute><GradingTracker /></ProtectedRoute>} />
+                    <Route path="/import" element={<ProtectedRoute><ImportPage /></ProtectedRoute>} />
+                    <Route path="/leaderboards" element={<Leaderboards />} />
+                    <Route path="/market" element={<ProtectedRoute><MarketData /></ProtectedRoute>} />
+                    <Route path="/market/trends" element={<ProtectedRoute><MarketTrends /></ProtectedRoute>} />
+                    <Route path="/u/:username" element={<PublicProfile />} />
+                    <Route path="/sets" element={<ProtectedRoute><SetCompletion /></ProtectedRoute>} />
+                    <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                    <Route path="/tax" element={<ProtectedRoute><TaxReports /></ProtectedRoute>} />
+                    <Route path="/trading" element={<ProtectedRoute><TradingHub /></ProtectedRoute>} />
+                    <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+                    <Route path="/alerts" element={<ProtectedRoute><Alerts /></ProtectedRoute>} />
+                    <Route path="/achievements" element={<ProtectedRoute><AchievementsPage /></ProtectedRoute>} />
+                    <Route path="/clients" element={<ProtectedRoute><ClientLists /></ProtectedRoute>} />
+                    <Route path="/clients/:id" element={<ProtectedRoute><ClientListDetail /></ProtectedRoute>} />
+                    <Route path="/share/:id" element={<ShareView />} />
                     <Route path="/legal" element={<Legal />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
