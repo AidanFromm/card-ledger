@@ -40,6 +40,7 @@ import {
   AreaChart,
 } from "recharts";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import CardImage from "@/components/CardImage";
 import { PageTransition } from "@/components/PageTransition";
@@ -978,9 +979,12 @@ const Analytics = () => {
     return (
       <div className="min-h-screen bg-background pb-safe pt-safe">
         <Navbar />
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
-          <AnalyticsSkeleton />
-        </main>
+        <div className="flex">
+          <DesktopSidebar />
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 flex-1">
+            <AnalyticsSkeleton />
+          </main>
+        </div>
         <BottomNav />
       </div>
     );
@@ -989,8 +993,10 @@ const Analytics = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
-      <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
+      <div className="flex">
+        <DesktopSidebar />
+        <PageTransition>
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 flex-1">
           {/* Page Header */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -1254,11 +1260,13 @@ const Analytics = () => {
 
           {/* Bottom padding for mobile nav */}
           <div className="h-4 md:h-0" />
-        </main>
-      </PageTransition>
+          </main>
+        </PageTransition>
+      </div>
       <BottomNav />
     </div>
   );
+
 };
 
 export default Analytics;

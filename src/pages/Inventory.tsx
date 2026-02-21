@@ -269,14 +269,17 @@ const Inventory = () => {
     return (
       <div className="min-h-screen bg-background pb-safe pt-safe">
         <Navbar />
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
-          <div className="mb-8">
-            <div className="h-8 w-32 bg-muted/30 rounded-xl animate-pulse mb-3" />
-            <div className="h-12 w-48 bg-muted/40 rounded-xl animate-pulse" />
-          </div>
-          <p className="text-sm text-muted-foreground/50 text-center mb-4">Loading your collection...</p>
-          <SkeletonGrid count={12} />
-        </main>
+        <div className="flex">
+          <DesktopSidebar />
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 flex-1">
+            <div className="mb-8">
+              <div className="h-8 w-32 bg-muted/30 rounded-xl animate-pulse mb-3" />
+              <div className="h-12 w-48 bg-muted/40 rounded-xl animate-pulse" />
+            </div>
+            <p className="text-sm text-muted-foreground/50 text-center mb-4">Loading your collection...</p>
+            <SkeletonGrid count={12} />
+          </main>
+        </div>
         <BottomNav />
       </div>
     );
@@ -285,8 +288,10 @@ const Inventory = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
-      <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
+      <div className="flex">
+        <DesktopSidebar />
+        <PageTransition>
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -653,8 +658,9 @@ const Inventory = () => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        </main>
-      </PageTransition>
+          </main>
+        </PageTransition>
+      </div>
 
       {/* Floating Action Bar for Selected Items */}
       <AnimatePresence>

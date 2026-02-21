@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -273,8 +274,10 @@ const ScanCard = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
-      <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
+      <div className="flex">
+        <DesktopSidebar />
+        <PageTransition>
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
           {/* Hero Search Section */}
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
             {/* Welcome Header */}
@@ -778,8 +781,9 @@ const ScanCard = () => {
               )}
             </motion.div>
           )}
-        </main>
-      </PageTransition>
+          </main>
+        </PageTransition>
+      </div>
 
       <AddToInventoryDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} product={selectedProduct} />
 

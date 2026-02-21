@@ -208,14 +208,17 @@ const Dashboard = () => {
     return (
       <div className="min-h-screen bg-background pb-safe pt-safe">
         <Navbar />
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
-          <div className="mb-8">
-            <div className="h-6 w-24 bg-muted/30 rounded-lg animate-pulse mb-3" />
-            <div className="h-12 w-56 bg-muted/40 rounded-xl animate-pulse mb-2" />
-            <div className="h-5 w-40 bg-muted/25 rounded animate-pulse" />
-          </div>
-          <SkeletonChart className="mb-6" />
-        </main>
+        <div className="flex">
+          <DesktopSidebar />
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
+            <div className="mb-8">
+              <div className="h-6 w-24 bg-muted/30 rounded-lg animate-pulse mb-3" />
+              <div className="h-12 w-56 bg-muted/40 rounded-xl animate-pulse mb-2" />
+              <div className="h-5 w-40 bg-muted/25 rounded animate-pulse" />
+            </div>
+            <SkeletonChart className="mb-6" />
+          </main>
+        </div>
         <BottomNav />
       </div>
     );
@@ -224,8 +227,10 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
-      <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
+      <div className="flex">
+        <DesktopSidebar />
+        <PageTransition>
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
           {/* Hero Portfolio Value — Premium gradient card */}
           <motion.div
             initial={{ opacity: 0, y: -12 }}
@@ -811,8 +816,9 @@ const Dashboard = () => {
               />
             </div>
           )}
-        </main>
-      </PageTransition>
+          </main>
+        </PageTransition>
+      </div>
       <BottomNav />
     </div>
   );

@@ -34,6 +34,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import { PageTransition } from "@/components/PageTransition";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
@@ -220,8 +221,10 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
-      <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28">
+      <div className="flex">
+        <DesktopSidebar />
+        <PageTransition>
+          <main className="container mx-auto px-4 py-6 pb-28 flex-1">
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
             <h1 className="ios-title-large">Profile</h1>
@@ -501,8 +504,9 @@ const Profile = () => {
             </div>
             <p className="text-[11px] text-muted-foreground/30 tracking-wider">CardLedger v1.0.0</p>
           </motion.div>
-        </main>
-      </PageTransition>
+          </main>
+        </PageTransition>
+      </div>
 
       {/* Sheets */}
       <BottomSheet isOpen={activeSheet === "notifications"} onClose={() => setActiveSheet(null)} title="Notifications">

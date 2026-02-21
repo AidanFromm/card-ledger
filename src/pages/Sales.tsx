@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import { useSalesDb } from "@/hooks/useSalesDb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -521,12 +522,15 @@ const Sales = () => {
     return (
       <div className="min-h-screen bg-background pb-safe pt-safe">
         <Navbar />
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <div className="h-8 w-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-            <p className="text-sm text-muted-foreground">Loading sales...</p>
-          </div>
-        </main>
+        <div className="flex">
+          <DesktopSidebar />
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
+            <div className="flex flex-col items-center justify-center py-20 gap-3">
+              <div className="h-8 w-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              <p className="text-sm text-muted-foreground">Loading sales...</p>
+            </div>
+          </main>
+        </div>
         <BottomNav />
       </div>
     );
@@ -535,8 +539,10 @@ const Sales = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
-      <PageTransition>
-      <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
+      <div className="flex">
+        <DesktopSidebar />
+        <PageTransition>
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
         {/* Compact Stats Grid - Robinhood Style */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -1426,8 +1432,9 @@ const Sales = () => {
           <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
         </AlertDialogContent>
       </AlertDialog>
-      </main>
-      </PageTransition>
+          </main>
+        </PageTransition>
+      </div>
       <BottomNav />
     </div>
   );
