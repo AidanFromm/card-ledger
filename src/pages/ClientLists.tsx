@@ -68,6 +68,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { QRCodeSVG } from "qrcode.react";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import { PageTransition } from "@/components/PageTransition";
 import { useClientLists, ClientList, ListVisibility } from "@/hooks/useClientLists";
@@ -175,6 +176,8 @@ const ClientLists = () => {
     <PageTransition>
       <div className="min-h-screen bg-background pb-24 md:pb-0">
         <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
         
         <main className="container mx-auto px-4 py-6 space-y-6">
           {/* Header */}
@@ -570,7 +573,8 @@ const ClientLists = () => {
           )}
         </main>
 
-        <BottomNav />
+        </div>
+      <BottomNav />
 
         {/* Create List Dialog */}
         <CreateListDialog 

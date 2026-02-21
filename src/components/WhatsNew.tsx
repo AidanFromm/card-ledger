@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Sparkles, TrendingUp, Search, Palette, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const APP_VERSION = "1.1.0";
+const APP_VERSION = "2.0.0";
 const WHATS_NEW_KEY = "cardledger_whats_new_seen";
 
 interface ChangelogEntry {
@@ -15,23 +15,23 @@ interface ChangelogEntry {
 const changelog: ChangelogEntry[] = [
   {
     icon: <Palette className="w-5 h-5 text-primary" />,
-    title: "Premium UI Overhaul",
-    description: "New splash screen, redesigned auth, and polished animations throughout the app.",
+    title: "Complete Desktop Redesign",
+    description: "New sidebar navigation, contextual top bar, and proper desktop layouts on every page.",
   },
   {
     icon: <Search className="w-5 h-5 text-emerald-500" />,
-    title: "Multi-TCG Search",
-    description: "Search Pokemon, One Piece, Yu-Gi-Oh, MTG, and sports cards from one place.",
+    title: "Smarter Search",
+    description: "Better image fallbacks, priority sorting, and condition-based pricing from JustTCG.",
   },
   {
     icon: <TrendingUp className="w-5 h-5 text-amber-500" />,
-    title: "Enhanced Analytics",
-    description: "Better portfolio charts, animated stats, and improved P&L visualization.",
+    title: "Auto Price Refresh",
+    description: "Prices update automatically when stale. No more manually refreshing — your portfolio stays current.",
   },
   {
     icon: <Zap className="w-5 h-5 text-purple-500" />,
-    title: "Micro-Interactions",
-    description: "Premium button presses, card springs, and celebration effects for valuable cards.",
+    title: "AI Recommendations",
+    description: "Personalized card suggestions based on your collection with real images and market data.",
   },
 ];
 

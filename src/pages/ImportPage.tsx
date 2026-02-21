@@ -41,6 +41,7 @@ import {
   Download,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import { PageTransition } from "@/components/PageTransition";
 import { useToast } from "@/hooks/use-toast";
@@ -330,6 +331,8 @@ const ImportPage = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
+      <div className="flex">
+        <DesktopSidebar />
       <PageTransition>
         <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-4xl">
           {/* Header */}
@@ -907,6 +910,7 @@ const ImportPage = () => {
           </AnimatePresence>
         </main>
       </PageTransition>
+      </div>
       <BottomNav />
     </div>
   );

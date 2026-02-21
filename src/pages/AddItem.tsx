@@ -34,6 +34,7 @@ import {
   Camera as CameraIcon
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { useFolders } from "@/hooks/useFolders";
@@ -448,6 +449,8 @@ const AddItem = () => {
   return (
     <div className="min-h-screen bg-background pt-safe pb-24">
       <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
       <main className="container mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
@@ -1170,6 +1173,7 @@ const AddItem = () => {
         description={`You've reached ${subscription.cardLimit} cards on the free plan. Upgrade to Pro for unlimited cards!`}
       />
       
+      </div>
       <BottomNav />
     </div>
   );

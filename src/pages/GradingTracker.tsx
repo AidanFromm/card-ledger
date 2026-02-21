@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow } from "date-fns";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import CardImage from "@/components/CardImage";
 import { PageTransition } from "@/components/PageTransition";
@@ -429,6 +430,8 @@ const GradingTracker = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-safe pt-safe">
       <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
       <PageTransition>
         <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
           {/* Header */}
@@ -525,6 +528,7 @@ const GradingTracker = () => {
           )}
         </main>
       </PageTransition>
+      </div>
       <BottomNav />
 
       {/* Add/Edit Dialog */}

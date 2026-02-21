@@ -83,6 +83,7 @@ import {
 } from "@/components/ui/collapsible";
 import { QRCodeSVG } from "qrcode.react";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import { PageTransition } from "@/components/PageTransition";
 import {
@@ -318,12 +319,15 @@ const ClientListDetail = () => {
       <PageTransition>
         <div className="min-h-screen bg-background pb-24 md:pb-0">
           <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
           <main className="container mx-auto px-4 py-6 space-y-6">
             <Skeleton className="h-10 w-48" />
             <Skeleton className="h-32 w-full" />
             <Skeleton className="h-64 w-full" />
           </main>
-          <BottomNav />
+          </div>
+      <BottomNav />
         </div>
       </PageTransition>
     );
@@ -350,6 +354,8 @@ const ClientListDetail = () => {
     <PageTransition>
       <div className="min-h-screen bg-background pb-24 md:pb-0">
         <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
 
         <main className="container mx-auto px-4 py-6 space-y-6">
           {/* Header */}
@@ -915,7 +921,8 @@ const ClientListDetail = () => {
           </Tabs>
         </main>
 
-        <BottomNav />
+        </div>
+      <BottomNav />
 
         {/* QR Code Dialog */}
         <Dialog open={isQrOpen} onOpenChange={setIsQrOpen}>

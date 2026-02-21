@@ -1,4 +1,6 @@
 import { Goals } from "@/components/Goals";
+import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import { useInventoryDb } from "@/hooks/useInventoryDb";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useDailyLogin } from "@/hooks/useDailyLogin";

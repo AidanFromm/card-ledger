@@ -39,6 +39,7 @@ import { useSalesDb } from "@/hooks/useSalesDb";
 import { useToast } from "@/hooks/use-toast";
 import { PageTransition } from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import {
   generateTaxSummary,
@@ -304,13 +305,16 @@ const TaxReports = () => {
     return (
       <div className="min-h-screen bg-background pb-safe pt-safe">
         <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
         <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <div className="h-8 w-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
             <p className="text-sm text-muted-foreground">Loading tax data...</p>
           </div>
         </main>
-        <BottomNav />
+        </div>
+      <BottomNav />
       </div>
     );
   }
@@ -318,6 +322,8 @@ const TaxReports = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
       <PageTransition>
         <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
           {/* Header */}
@@ -807,6 +813,7 @@ const TaxReports = () => {
           </Tabs>
         </main>
       </PageTransition>
+      </div>
       <BottomNav />
     </div>
   );
