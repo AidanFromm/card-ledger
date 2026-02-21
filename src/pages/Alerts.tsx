@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Bell, BellOff, BellRing, Trash2, TrendingUp, TrendingDown, Filter, Plus, RefreshCw } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import CardImage from "@/components/CardImage";
 import { usePriceAlerts, PriceAlert } from "@/hooks/usePriceAlerts";
@@ -99,21 +100,24 @@ const Alerts = () => {
     return (
       <div className="min-h-screen bg-background pb-safe pt-safe">
         <Navbar />
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 w-32 bg-muted/30 rounded" />
-            <div className="flex gap-2">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="h-10 w-20 bg-muted/20 rounded-full" />
-              ))}
+        <div className="flex">
+          <DesktopSidebar />
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 w-32 bg-muted/30 rounded" />
+              <div className="flex gap-2">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="h-10 w-20 bg-muted/20 rounded-full" />
+                ))}
+              </div>
+              <div className="space-y-3">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="h-24 bg-muted/20 rounded-xl" />
+                ))}
+              </div>
             </div>
-            <div className="space-y-3">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="h-24 bg-muted/20 rounded-xl" />
-              ))}
-            </div>
-          </div>
-        </main>
+          </main>
+        </div>
         <BottomNav />
       </div>
     );
@@ -122,8 +126,10 @@ const Alerts = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
-      <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
+      <div className="flex">
+        <DesktopSidebar />
+        <PageTransition>
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -226,8 +232,9 @@ const Alerts = () => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        </main>
-      </PageTransition>
+          </main>
+        </PageTransition>
+      </div>
       <BottomNav />
     </div>
   );

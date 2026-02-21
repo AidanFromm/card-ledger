@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, memo } from "react";
 import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { format } from "date-fns";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import { PageTransition } from "@/components/PageTransition";
 import { Button } from "@/components/ui/button";
@@ -1399,8 +1400,10 @@ const GradingCenter = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-safe pt-safe">
       <Navbar />
-      <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
+      <div className="flex">
+        <DesktopSidebar />
+        <PageTransition>
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -1634,8 +1637,9 @@ const GradingCenter = () => {
               </GlassCard>
             </TabsContent>
           </Tabs>
-        </main>
-      </PageTransition>
+          </main>
+        </PageTransition>
+      </div>
       <BottomNav />
 
       {/* Add/Edit Dialog */}

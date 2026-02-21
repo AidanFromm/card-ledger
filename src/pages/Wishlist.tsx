@@ -31,6 +31,7 @@ import {
   Check,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import CardImage from "@/components/CardImage";
 import { useWishlistDb, WishlistItem } from "@/hooks/useWishlistDb";
@@ -374,6 +375,8 @@ const Wishlist = () => {
     return (
       <div className="min-h-screen bg-background pb-safe pt-safe">
         <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
         <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
           <div className="animate-pulse space-y-4">
             <div className="h-8 w-32 bg-muted/30 rounded" />
@@ -394,7 +397,8 @@ const Wishlist = () => {
             </div>
           </div>
         </main>
-        <BottomNav />
+        </div>
+      <BottomNav />
       </div>
     );
   }
@@ -402,6 +406,8 @@ const Wishlist = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
       <PageTransition>
         <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
           {/* Header */}
@@ -852,6 +858,7 @@ const Wishlist = () => {
           </Dialog>
         </main>
       </PageTransition>
+      </div>
       <BottomNav />
     </div>
   );

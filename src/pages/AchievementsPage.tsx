@@ -3,6 +3,7 @@ import { Trophy, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import { PageTransition } from "@/components/PageTransition";
 import { AchievementsPanel } from "@/components/Achievements";
@@ -11,8 +12,12 @@ const AchievementsPage = () => {
   const navigate = useNavigate();
 
   return (
-    <PageTransition>
-      <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24">
+      <Navbar />
+      <div className="flex">
+        <DesktopSidebar />
+        <PageTransition>
+          <div className="flex-1">
         {/* Header */}
         <motion.header
           initial={{ y: -20, opacity: 0 }}
@@ -48,8 +53,10 @@ const AchievementsPage = () => {
         </div>
 
         <BottomNav />
+          </div>
+        </PageTransition>
       </div>
-    </PageTransition>
+    </div>
   );
 };
 

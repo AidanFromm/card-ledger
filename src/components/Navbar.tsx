@@ -1,10 +1,33 @@
 import { Link, useLocation } from "react-router-dom";
-import { Search, Package, LayoutDashboard, Receipt, UserCircle2 } from "lucide-react";
+import { Search, Package, LayoutDashboard, Receipt, UserCircle2, Command } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NotificationCenter } from "./NotificationCenter";
+
+// Page title mapping
+const PAGE_TITLES: Record<string, string> = {
+  "/dashboard": "Dashboard",
+  "/scan": "Search Cards",
+  "/inventory": "Inventory",
+  "/sales": "Sales & P&L",
+  "/analytics": "Analytics",
+  "/stats": "Statistics",
+  "/trends": "Market Trends",
+  "/market-trends": "Price Tracker",
+  "/wishlist": "Watchlist",
+  "/grading": "Grading Center",
+  "/trading": "Trading Hub",
+  "/achievements": "Achievements",
+  "/alerts": "Price Alerts",
+  "/profile": "Profile",
+  "/settings": "Settings",
+  "/help": "Help & Support",
+  "/leaderboards": "Leaderboards",
+  "/import": "Import Cards",
+  "/add-item": "Add Card",
+};
 
 const Navbar = () => {
   const location = useLocation();
@@ -15,91 +38,90 @@ const Navbar = () => {
     setScrolled(latest > 20);
   });
 
-  const navItems = [
-    { path: "/scan", label: "Search", icon: Search },
-    { path: "/inventory", label: "Inventory", icon: Package },
-    { path: "/dashboard", label: "Analytics", icon: LayoutDashboard },
-    { path: "/sales", label: "Sales", icon: Receipt },
-    { path: "/profile", label: "Profile", icon: UserCircle2 },
-  ];
+  const pageTitle = PAGE_TITLES[location.pathname] || "CardLedger";
+
+  // Mobile bottom nav items (only shown on mobile via BottomNav)
+  // Desktop uses DesktopSidebar instead
 
   return (
-    <motion.nav
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
-      className="hidden md:block sticky top-0 z-50 transition-all duration-300"
-      style={{
-        background: scrolled
-          ? 'hsl(var(--glass-bg))'
-          : 'transparent',
-        backdropFilter: scrolled ? 'blur(28px) saturate(180%)' : 'none',
-        WebkitBackdropFilter: scrolled ? 'blur(28px) saturate(180%)' : 'none',
-        borderBottom: scrolled
-          ? '0.5px solid hsl(var(--glass-border))'
-          : '0.5px solid transparent',
-      }}
-    >
-      <div className="container mx-auto px-6">
-        <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link to="/scan" className="flex items-center" aria-label="Home">
-              <motion.div
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              >
-                <Logo size={28} showText={true} />
-              </motion.div>
-            </Link>
+    <>
+      {/* Desktop Top Bar — contextual header, not navigation */}
+      <motion.header
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+        className="hidden md:block sticky top-0 z-40 transition-all duration-300"
+        style={{
+          background: scrolled ? "hsl(var(--glass-bg))" : "hsl(var(--background) / 0.8)",
+          backdropFilter: scrolled ? "blur(28px) saturate(180%)" : "blur(12px)",
+          WebkitBackdropFilter: scrolled ? "blur(28px) saturate(180%)" : "blur(12px)",
+          borderBottom: scrolled
+            ? "0.5px solid hsl(var(--glass-border))"
+            : "0.5px solid transparent",
+        }}
+      >
+        <div className="px-6">
+          <div className="flex h-14 items-center justify-between">
+            {/* Page Title */}
+            <div className="flex items-center gap-3">
+              <h1 className="text-lg font-semibold text-foreground">
+                {pageTitle}
+              </h1>
+            </div>
 
-            <div className="hidden md:flex gap-1 bg-secondary/30 p-1.5 rounded-2xl">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
-                return (
-                  <Link key={item.path} to={item.path}>
-                    <motion.div
-                      className="relative"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      {isActive && (
-                        <motion.div
-                          layoutId="activeNavTab"
-                          className="absolute inset-0 bg-card rounded-xl"
-                          style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
-                          transition={{ type: "spring", stiffness: 450, damping: 30 }}
-                        />
-                      )}
-                      <Button
-                        variant="ghost"
-                        className={`relative z-10 gap-2 h-10 px-4 font-medium transition-colors rounded-xl ${
-                          isActive
-                            ? "text-primary hover:bg-transparent"
-                            : "text-muted-foreground hover:text-foreground hover:bg-transparent"
-                        }`}
-                      >
-                        <Icon className="h-[18px] w-[18px]" strokeWidth={isActive ? 2.2 : 1.75} />
-                        {item.label}
-                      </Button>
-                    </motion.div>
-                  </Link>
-                );
-              })}
+            {/* Right Actions */}
+            <div className="flex items-center gap-2">
+              {/* Quick Search */}
+              <button
+                onClick={() => {
+                  // Dispatch keyboard shortcut event to open CommandPalette
+                  window.dispatchEvent(
+                    new KeyboardEvent("keydown", { key: "k", metaKey: true })
+                  );
+                }}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/30 hover:bg-secondary/50 border border-border/10 text-muted-foreground/50 hover:text-muted-foreground text-sm transition-colors"
+              >
+                <Search className="h-3.5 w-3.5" />
+                <span className="text-xs">Search...</span>
+                <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-secondary/50 text-[10px] font-medium text-muted-foreground/40">
+                  <Command className="h-2.5 w-2.5" />K
+                </kbd>
+              </button>
+
+              {/* Notifications */}
+              <NotificationCenter />
             </div>
           </div>
+        </div>
+      </motion.header>
 
-          {/* Right side — notifications + shortcuts hint */}
-          <div className="flex items-center gap-2">
-            <NotificationCenter />
-            <kbd className="hidden lg:inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-secondary/40 text-[11px] text-muted-foreground/50 font-mono border border-border/20" aria-label="Press Command+K for quick search">
-              ⌘K
-            </kbd>
+      {/* Mobile Top Bar — shows logo + minimal nav */}
+      <motion.nav
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+        className="md:hidden sticky top-0 z-50 transition-all duration-300"
+        style={{
+          background: scrolled ? "hsl(var(--glass-bg))" : "transparent",
+          backdropFilter: scrolled ? "blur(28px) saturate(180%)" : "none",
+          WebkitBackdropFilter: scrolled ? "blur(28px) saturate(180%)" : "none",
+          borderBottom: scrolled
+            ? "0.5px solid hsl(var(--glass-border))"
+            : "0.5px solid transparent",
+        }}
+      >
+        <div className="px-4">
+          <div className="flex h-12 items-center justify-between">
+            <Link to="/dashboard">
+              <Logo size={24} showText={true} />
+            </Link>
+            <div className="flex items-center gap-2">
+              <NotificationCenter />
+            </div>
           </div>
         </div>
-      </div>
-    </motion.nav>
+      </motion.nav>
+    </>
   );
 };
 

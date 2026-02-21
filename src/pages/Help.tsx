@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import { PageTransition } from "@/components/PageTransition";
 
@@ -148,6 +149,8 @@ const Help = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
+      <div className="flex">
+        <DesktopSidebar />
       <PageTransition>
         <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
           {/* Header */}
@@ -313,6 +316,7 @@ const Help = () => {
           </motion.div>
         </main>
       </PageTransition>
+      </div>
       <BottomNav />
     </div>
   );

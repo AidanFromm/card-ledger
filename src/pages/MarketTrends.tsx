@@ -5,6 +5,7 @@ import {
   ArrowUpRight, ArrowDownRight, Package, Star, Sparkles, Filter
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import CardImage from "@/components/CardImage";
 import { PageTransition } from "@/components/PageTransition";
@@ -295,8 +296,10 @@ const MarketTrends = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-safe pt-safe">
       <Navbar />
-      <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
+      <div className="flex">
+        <DesktopSidebar />
+        <PageTransition>
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -532,8 +535,9 @@ const MarketTrends = () => {
 
           {/* Bottom padding */}
           <div className="h-4" />
-        </main>
-      </PageTransition>
+          </main>
+        </PageTransition>
+      </div>
       <BottomNav />
     </div>
   );

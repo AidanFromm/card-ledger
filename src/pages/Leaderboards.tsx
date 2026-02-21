@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import Navbar from '@/components/Navbar';
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from '@/components/BottomNav';
 
 // Mock leaderboard data - will be replaced with Supabase later
@@ -202,6 +203,8 @@ const Leaderboards = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
       
       <main className="container mx-auto px-4 py-6 max-w-2xl">
         {/* Header */}
@@ -324,6 +327,7 @@ const Leaderboards = () => {
         </motion.div>
       </main>
 
+      </div>
       <BottomNav />
     </div>
   );

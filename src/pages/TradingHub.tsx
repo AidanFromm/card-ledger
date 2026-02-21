@@ -33,6 +33,7 @@ import {
   Mail
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import CardImage from "@/components/CardImage";
 import { useTradingLocal, type TradeCard, type TradePartner, type TradeProposal, type TradeHistoryEntry, type TradeStatus } from "@/hooks/useTradingLocal";
@@ -351,6 +352,8 @@ const TradingHub = () => {
     return (
       <div className="min-h-screen bg-background pb-safe pt-safe">
         <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
         <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
           <div className="animate-pulse space-y-4">
             <div className="h-8 w-48 bg-muted/30 rounded" />
@@ -362,7 +365,8 @@ const TradingHub = () => {
             <div className="h-96 bg-muted/20 rounded-xl" />
           </div>
         </main>
-        <BottomNav />
+        </div>
+      <BottomNav />
       </div>
     );
   }
@@ -370,6 +374,8 @@ const TradingHub = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
       <PageTransition>
         <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
           {/* Header */}
@@ -1294,6 +1300,7 @@ const TradingHub = () => {
           </Sheet>
         </main>
       </PageTransition>
+      </div>
       <BottomNav />
     </div>
   );

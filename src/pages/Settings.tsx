@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import {
   User,
   Moon,
@@ -614,8 +616,11 @@ const Settings = () => {
 
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
-      <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-4xl">
+      <Navbar />
+      <div className="flex">
+        <DesktopSidebar />
+        <PageTransition>
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-4xl flex-1">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -1251,6 +1256,7 @@ const Settings = () => {
         <NotificationSettings />
       </BottomSheet>
 
+      </div>
       <BottomNav />
     </div>
   );
