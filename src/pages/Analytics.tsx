@@ -981,7 +981,7 @@ const Analytics = () => {
         <Navbar />
         <div className="flex">
           <DesktopSidebar />
-          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 flex-1">
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-7xl flex-1">
             <AnalyticsSkeleton />
           </main>
         </div>
@@ -996,7 +996,7 @@ const Analytics = () => {
       <div className="flex">
         <DesktopSidebar />
         <PageTransition>
-          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 flex-1">
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-7xl flex-1">
           {/* Page Header */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}

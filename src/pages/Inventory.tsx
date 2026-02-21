@@ -59,7 +59,10 @@ const Inventory = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isImportExportOpen, setIsImportExportOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  // Default to table view on desktop, grid on mobile
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>(() => 
+    window.innerWidth >= 768 ? 'table' : 'grid'
+  );
   const [isCompareOpen, setIsCompareOpen] = useState(false);
   const [isPrintOpen, setIsPrintOpen] = useState(false);
   const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);

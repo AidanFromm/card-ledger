@@ -2252,13 +2252,9 @@ const Landing = () => {
             <div>
               <h4 className="font-semibold text-white mb-4">Legal</h4>
               <ul className="space-y-3">
-                {['Privacy', 'Terms', 'Security', 'Cookies'].map(item => (
-                  <li key={item}>
-                    <a href="#" className="text-sm text-gray-500 hover:text-white transition-colors">
-                      {item}
-                    </a>
-                  </li>
-                ))}
+                <li><a href="/privacy" className="text-sm text-gray-500 hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="/terms" className="text-sm text-gray-500 hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="mailto:cardledger.llc@gmail.com" className="text-sm text-gray-500 hover:text-white transition-colors">Contact</a></li>
               </ul>
             </div>
           </div>

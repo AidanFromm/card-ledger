@@ -1,7 +1,50 @@
 # CardLedger Builder Log
 
-## 2026-02-21 2:35 AM MST
-**Task:** Add DesktopSidebar navigation to all core pages
-**Changes:** Modified 6 pages (Dashboard, Inventory, ScanCard, Sales, Profile, Analytics) to render the `DesktopSidebar` component on md+ screens. Previously only Stats and Trends had it — meaning desktop users had no sidebar navigation on the most important pages. Also created `AppLayout.tsx` wrapper component for future use.
-**Impact:** Desktop users now have consistent sidebar navigation across all core pages. This is a major UX fix — previously desktop users could only navigate via the mobile bottom nav or URL bar on 6 out of 8 main pages.
-**Next suggestion:** Add DesktopSidebar to remaining secondary pages (Wishlist, Settings, Help, MarketData, GradingCenter, etc.) or migrate all pages to use the AppLayout wrapper for consistency.
+## 2026-02-21 02:30 MST — Overnight Overhaul Session
+**Task:** Complete website overhaul - desktop-first redesign, all pages, head to toe
+
+**Changes made:**
+### Commit 1: Landing page mockups + feature deep dives
+- 5 new AI-generated product images via Replicate FLUX 1.1 Pro
+- Feature deep dive section (scanning + grading) with real images
+- Works Everywhere section updated
+
+### Commit 2: Major overhaul - search, onboarding, prices, recommendations
+- Search: Card name/set/number fallback for missing images
+- Onboarding: Complete redesign with animated icon compositions
+- Recommendations: Real Pokemon TCG API image URLs for all 12 cards
+- Inventory: Auto-refresh stale prices (>24hr) on load
+- Auto image fetch for missing card images
+
+### Commit 3: Search results prioritize images
+- Sort results so cards with images appear first
+
+### Commit 4: Splash page + premium loader
+- Icon-based features (no broken image refs)
+- Branded double-ring spinner
+
+### Commit 5: Stripe integration (ready for API keys)
+- src/lib/stripe.ts — Full plans config, checkout, portal, feature gating
+- src/hooks/useSubscription.ts — React hook with 5-min cache
+- 3 Supabase Edge Functions (checkout, webhook, portal)
+- DB migration for subscriptions table
+- STRIPE-SETUP.md step-by-step guide
+
+### Commit 6: Desktop layout overhaul
+- DesktopSidebar: 4 sections, 16 nav items, upgrade CTA, version badge
+- Navbar: Desktop = contextual top bar (page title, Cmd+K search, notifications)
+- Navbar: Mobile = minimal (logo + notifications)
+- Added sidebar to ALL 9 pages that were missing it
+
+### Commit 7: Desktop grid upgrades
+- Dashboard, Sales, Stats: 2→4 col grids on desktop
+
+### Commit 8: Admin Dashboard
+- /admin route (email whitelist protected)
+- User stats, MRR, system health, setup checklist
+- Quick links to all external services
+
+**Impact:** App now looks like a proper desktop web app, not a mobile app stretched wide
+**Next:** Continue page-by-page polish, add more desktop-specific layouts
+
+---
