@@ -151,8 +151,8 @@ const Help = () => {
       <Navbar />
       <div className="flex">
         <DesktopSidebar />
-      <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
+        <PageTransition>
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -314,8 +314,8 @@ const Help = () => {
               cardledger.llc@gmail.com
             </a>
           </motion.div>
-        </main>
-      </PageTransition>
+          </main>
+        </PageTransition>
       </div>
       <BottomNav />
     </div>

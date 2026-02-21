@@ -55,6 +55,7 @@ const AchievementsPage = lazy(() => import("./pages/AchievementsPage"));
 const ClientLists = lazy(() => import("./pages/ClientLists"));
 const ClientListDetail = lazy(() => import("./pages/ClientListDetail"));
 const ShareView = lazy(() => import("./pages/ShareView"));
+const Admin = lazy(() => import("./pages/Admin"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -192,6 +193,7 @@ const App = () => (
                     <Route path="/clients" element={<ProtectedRoute><ClientLists /></ProtectedRoute>} />
                     <Route path="/clients/:id" element={<ProtectedRoute><ClientListDetail /></ProtectedRoute>} />
                     <Route path="/share/:id" element={<ShareView />} />
+                    <Route path="/admin" element={<Admin />} />
                     <Route path="/legal" element={<Legal />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
