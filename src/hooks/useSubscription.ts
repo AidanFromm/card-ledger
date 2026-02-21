@@ -1,233 +1,174 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+/**
+ * Subscription Hook
+ * 
+ * Provides subscription state and feature gating throughout the app.
+ * Caches subscription data for 5 minutes to avoid excessive DB reads.
+ */
 
-export type PlanType = "free" | "trial" | "pro" | "lifetime";
+import { useState, useEffect, useCallback } from 'react';
+import { 
+  getUserSubscription, 
+  hasFeatureAccess, 
+  isWithinCardLimit, 
+  isWithinScanLimit,
+  createCheckoutSession,
+  createPortalSession,
+  PLANS,
+  type UserSubscription, 
+  type PlanId,
+  type SubscriptionPlan
+} from '@/lib/stripe';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
-export interface SubscriptionState {
-  isPro: boolean;
-  plan: PlanType;
-  trialDaysLeft: number | null;
-  scanCount: number;
-  scanLimit: number;
-  cardCount: number;
-  cardLimit: number;
-  loading: boolean;
-  // Feature flags
-  canExportCSV: boolean;
-  canViewHistory: boolean;
-  canSetAlerts: boolean;
-  canUseAdvancedAnalytics: boolean;
+const CACHE_KEY = 'cl_subscription_cache';
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+interface CachedSub {
+  data: UserSubscription;
+  timestamp: number;
 }
 
-// Limits per tier (based on competitor research)
-const LIMITS: Record<PlanType, {
-  scans: number;
-  cards: number;
-  exportCSV: boolean;
-  viewHistory: boolean;
-  setAlerts: boolean;
-  advancedAnalytics: boolean;
-}> = {
-  free: {
-    scans: 5,        // 5 scans per day
-    cards: 100,      // 100 cards max
-    exportCSV: false,
-    viewHistory: false,  // Only current prices
-    setAlerts: false,
-    advancedAnalytics: false,
-  },
-  trial: {
-    scans: 25,       // 25 scans per day during trial
-    cards: 500,      // 500 cards during trial
-    exportCSV: true,
-    viewHistory: true,
-    setAlerts: true,
-    advancedAnalytics: true,
-  },
-  pro: {
-    scans: Infinity,
-    cards: Infinity,
-    exportCSV: true,
-    viewHistory: true,
-    setAlerts: true,
-    advancedAnalytics: true,
-  },
-  lifetime: {
-    scans: Infinity,
-    cards: Infinity,
-    exportCSV: true,
-    viewHistory: true,
-    setAlerts: true,
-    advancedAnalytics: true,
-  },
-};
-
-// Pricing info for UI
+// Legacy PRICING export for Paywall component compatibility
 export const PRICING = {
   pro: {
     monthly: 7.99,
-    annual: 59.99,      // ~$5/mo
-    annualSavings: 40,  // 40% savings
+    annual: 59.99,
+    annualSavings: 37,
   },
-  lifetime: {
-    price: 149,
+  lifetime: 149,
+  free: {
+    maxCards: 100,
+    maxScansPerDay: 5,
   },
 };
 
-export const useSubscription = () => {
-  const [state, setState] = useState<SubscriptionState>({
-    isPro: false,
-    plan: "free",
-    trialDaysLeft: null,
-    scanCount: 0,
-    scanLimit: LIMITS.free.scans,
-    cardCount: 0,
-    cardLimit: LIMITS.free.cards,
-    loading: true,
-    canExportCSV: LIMITS.free.exportCSV,
-    canViewHistory: LIMITS.free.viewHistory,
-    canSetAlerts: LIMITS.free.setAlerts,
-    canUseAdvancedAnalytics: LIMITS.free.advancedAnalytics,
-  });
+export function useSubscription() {
+  const [subscription, setSubscription] = useState<UserSubscription>({ plan: 'free', status: 'none' });
+  const [loading, setLoading] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const { toast } = useToast();
 
-  useEffect(() => {
-    loadSubscription();
+  const fetchSubscription = useCallback(async (forceRefresh = false) => {
+    // Check cache first
+    if (!forceRefresh) {
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const parsed: CachedSub = JSON.parse(cached);
+          if (Date.now() - parsed.timestamp < CACHE_TTL) {
+            setSubscription(parsed.data);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch {}
+    }
+
+    try {
+      const sub = await getUserSubscription();
+      setSubscription(sub);
+      
+      // Cache the result
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
+        data: sub,
+        timestamp: Date.now(),
+      }));
+    } catch (err) {
+      console.error('Failed to fetch subscription:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const loadSubscription = async () => {
+  useEffect(() => {
+    fetchSubscription();
+
+    // Listen for auth changes
+    const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(() => {
+      fetchSubscription(true);
+    });
+
+    return () => authSub.unsubscribe();
+  }, [fetchSubscription]);
+
+  // Feature checks
+  const canUseFeature = useCallback((feature: keyof SubscriptionPlan['limits']): boolean => {
+    return hasFeatureAccess(subscription, feature);
+  }, [subscription]);
+
+  const canAddCard = useCallback((currentCount: number): boolean => {
+    return isWithinCardLimit(subscription, currentCount);
+  }, [subscription]);
+
+  const canScan = useCallback((todayScans: number): boolean => {
+    return isWithinScanLimit(subscription, todayScans);
+  }, [subscription]);
+
+  const isPro = subscription.status === 'active' && subscription.plan !== 'free';
+  const isLifetime = subscription.plan === 'lifetime' && subscription.status === 'active';
+  const isFree = subscription.plan === 'free' || subscription.status === 'none';
+
+  // Checkout
+  const checkout = useCallback(async (planId: PlanId) => {
+    setCheckoutLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setState(prev => ({ ...prev, loading: false }));
-        return;
-      }
-
-      // Get scan count from localStorage (resets daily)
-      const scanKey = `ai_scan_count_${user.id}`;
-      const scanResetKey = `ai_scan_reset_${user.id}`;
-      
-      // Reset scan count daily
-      const lastReset = localStorage.getItem(scanResetKey);
-      const now = new Date();
-      const today = now.toISOString().split('T')[0];
-      
-      if (lastReset !== today) {
-        localStorage.setItem(scanResetKey, today);
-        localStorage.setItem(scanKey, "0");
-      }
-      
-      const scanCount = parseInt(localStorage.getItem(scanKey) || "0");
-
-      // Check trial status (7 days from account creation)
-      const createdAt = new Date(user.created_at);
-      const trialEnd = new Date(createdAt);
-      trialEnd.setDate(trialEnd.getDate() + 7);
-      
-      const isTrialActive = now < trialEnd;
-      const trialDaysLeft = isTrialActive 
-        ? Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-        : 0;
-
-      // Check for stored subscription (would be Stripe in production)
-      const storedPlan = localStorage.getItem(`subscription_plan_${user.id}`) as PlanType | null;
-      
-      let plan: PlanType;
-      if (storedPlan === "pro" || storedPlan === "lifetime") {
-        plan = storedPlan;
-      } else if (isTrialActive) {
-        plan = "trial";
+      const url = await createCheckoutSession(planId);
+      if (url) {
+        window.location.href = url;
       } else {
-        plan = "free";
+        toast({
+          variant: 'destructive',
+          title: 'Checkout Error',
+          description: 'Could not create checkout session. Stripe may not be configured yet.',
+        });
       }
-
-      const limits = LIMITS[plan];
-      const isPro = plan === "pro" || plan === "lifetime";
-      
-      setState({
-        isPro,
-        plan,
-        trialDaysLeft: plan === "trial" ? trialDaysLeft : null,
-        scanCount,
-        scanLimit: limits.scans,
-        cardCount: 0, // Will be updated by inventory hook
-        cardLimit: limits.cards,
-        loading: false,
-        canExportCSV: limits.exportCSV,
-        canViewHistory: limits.viewHistory,
-        canSetAlerts: limits.setAlerts,
-        canUseAdvancedAnalytics: limits.advancedAnalytics,
+    } catch (err) {
+      toast({
+        variant: 'destructive',
+        title: 'Checkout Error',
+        description: 'Something went wrong. Please try again.',
       });
-    } catch (error) {
-      console.error("Error loading subscription:", error);
-      setState(prev => ({ ...prev, loading: false }));
+    } finally {
+      setCheckoutLoading(false);
     }
-  };
+  }, [toast]);
 
-  const updateCardCount = (count: number) => {
-    setState(prev => ({ ...prev, cardCount: count }));
-  };
-
-  const incrementScanCount = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const scanKey = `ai_scan_count_${user.id}`;
-    const newCount = state.scanCount + 1;
-    localStorage.setItem(scanKey, newCount.toString());
-    setState(prev => ({ ...prev, scanCount: newCount }));
-  };
-
-  const canScan = () => {
-    return state.scanCount < state.scanLimit;
-  };
-
-  const scansRemaining = () => {
-    if (state.scanLimit === Infinity) return Infinity;
-    return Math.max(0, state.scanLimit - state.scanCount);
-  };
-
-  const canAddCards = (count: number = 1) => {
-    if (state.cardLimit === Infinity) return true;
-    return state.cardCount + count <= state.cardLimit;
-  };
-
-  const cardsRemaining = () => {
-    if (state.cardLimit === Infinity) return Infinity;
-    return Math.max(0, state.cardLimit - state.cardCount);
-  };
-
-  // Simulate upgrade (in production, this would call Stripe)
-  const upgradeToPro = async (annual: boolean = true) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return false;
-    
-    // In production: redirect to Stripe checkout
-    // For now, just simulate upgrade
-    localStorage.setItem(`subscription_plan_${user.id}`, "pro");
-    await loadSubscription();
-    return true;
-  };
-
-  const upgradeToLifetime = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return false;
-    
-    localStorage.setItem(`subscription_plan_${user.id}`, "lifetime");
-    await loadSubscription();
-    return true;
-  };
+  // Portal (manage subscription)
+  const manageSubscription = useCallback(async () => {
+    try {
+      const url = await createPortalSession();
+      if (url) {
+        window.location.href = url;
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Could not open subscription management.',
+        });
+      }
+    } catch {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Something went wrong. Please try again.',
+      });
+    }
+  }, [toast]);
 
   return {
-    ...state,
-    incrementScanCount,
+    subscription,
+    loading,
+    checkoutLoading,
+    isPro,
+    isLifetime,
+    isFree,
+    canUseFeature,
+    canAddCard,
     canScan,
-    scansRemaining,
-    canAddCards,
-    cardsRemaining,
-    updateCardCount,
-    upgradeToPro,
-    upgradeToLifetime,
-    refresh: loadSubscription,
-    pricing: PRICING,
+    checkout,
+    manageSubscription,
+    refresh: () => fetchSubscription(true),
+    plans: PLANS,
   };
-};
+}

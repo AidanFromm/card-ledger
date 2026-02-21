@@ -224,7 +224,7 @@ const Profile = () => {
       <div className="flex">
         <DesktopSidebar />
         <PageTransition>
-          <main className="container mx-auto px-4 py-6 pb-28 flex-1">
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-4xl flex-1">
           {/* Header */}
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
             <h1 className="ios-title-large">Profile</h1>
@@ -261,7 +261,7 @@ const Profile = () => {
             className="card-clean-elevated p-5 rounded-3xl mb-5"
           >
             <h3 className="label-metric mb-3">Collection Summary</h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="text-center p-3 bg-secondary/20 rounded-2xl">
                 <p className="text-lg font-bold">{totalCards.toLocaleString()}</p>
                 <p className="text-[10px] text-muted-foreground">Total Cards</p>

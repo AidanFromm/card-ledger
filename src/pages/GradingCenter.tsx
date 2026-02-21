@@ -1400,7 +1400,7 @@ const GradingCenter = () => {
     <div className="min-h-screen bg-[#0a0a0a] pb-safe pt-safe">
       <Navbar />
       <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
+        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}

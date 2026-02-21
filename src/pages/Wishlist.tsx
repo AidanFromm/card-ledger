@@ -374,7 +374,7 @@ const Wishlist = () => {
     return (
       <div className="min-h-screen bg-background pb-safe pt-safe">
         <Navbar />
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
+        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
           <div className="animate-pulse space-y-4">
             <div className="h-8 w-32 bg-muted/30 rounded" />
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -403,7 +403,7 @@ const Wishlist = () => {
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
       <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
+        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">

@@ -615,7 +615,7 @@ const Settings = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28">
+        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-4xl">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
