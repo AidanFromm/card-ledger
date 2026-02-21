@@ -23,6 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AddToInventoryDialog } from "@/components/AddToInventoryDialog";
 import { PageTransition } from "@/components/PageTransition";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import CardImage from "@/components/CardImage";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -205,6 +206,8 @@ const ScanAI = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
       <PageTransition>
         <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
           {/* Header */}
@@ -729,6 +732,7 @@ const ScanAI = () => {
         product={productForDialog}
       />
 
+      </div>
       <BottomNav />
     </div>
   );

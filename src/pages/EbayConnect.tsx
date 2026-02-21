@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import {
   Link2,
@@ -172,6 +173,8 @@ const EbayConnect = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
       
       <div className="container max-w-2xl mx-auto px-4 pt-6">
         {/* Back button */}
@@ -353,6 +356,7 @@ const EbayConnect = () => {
         </motion.div>
       </div>
 
+      </div>
       <BottomNav />
     </div>
   );

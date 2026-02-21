@@ -6,6 +6,7 @@ import {
   Settings, ChevronDown, Percent, Calendar
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import CardImage from "@/components/CardImage";
 import { useSetCompletion, SetProgress, SetInfo, SetCard, SortOption, CardVariantFilter } from "@/hooks/useSetCompletion";
@@ -438,6 +439,8 @@ const SetCompletion = () => {
     return (
       <div className="min-h-screen bg-background pb-safe pt-safe">
         <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
         <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
           <div className="animate-pulse space-y-4">
             <div className="h-8 w-40 bg-muted/30 rounded" />
@@ -448,7 +451,8 @@ const SetCompletion = () => {
             </div>
           </div>
         </main>
-        <BottomNav />
+        </div>
+      <BottomNav />
       </div>
     );
   }
@@ -456,6 +460,8 @@ const SetCompletion = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
       <PageTransition>
         <main className="container mx-auto px-4 py-6 pb-28 md:pb-8">
           {/* Header */}
@@ -780,6 +786,7 @@ const SetCompletion = () => {
           </Dialog>
         </main>
       </PageTransition>
+      </div>
       <BottomNav />
     </div>
   );

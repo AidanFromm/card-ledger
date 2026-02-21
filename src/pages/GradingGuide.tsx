@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import BottomNav from "@/components/BottomNav";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import { PageTransition } from "@/components/PageTransition";
 
 type Company = "PSA" | "BGS" | "CGC";
@@ -121,6 +122,8 @@ const GradingGuide = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
       <PageTransition>
         <main className="container mx-auto px-4 py-6 pb-28 max-w-2xl">
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
@@ -226,6 +229,7 @@ const GradingGuide = () => {
           </motion.div>
         </main>
       </PageTransition>
+      </div>
       <BottomNav />
     </div>
   );

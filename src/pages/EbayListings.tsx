@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
+import { DesktopSidebar } from "@/components/DesktopSidebar";
 import BottomNav from "@/components/BottomNav";
 import CardImage from "@/components/CardImage";
 import { supabase } from "@/integrations/supabase/client";
@@ -158,6 +159,8 @@ const EbayListings = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <Navbar />
+        <div className="flex">
+          <DesktopSidebar />
       
       <div className="container max-w-4xl mx-auto px-4 pt-6">
         {/* Header */}
@@ -347,6 +350,7 @@ const EbayListings = () => {
         </div>
       </div>
 
+      </div>
       <BottomNav />
     </div>
   );
