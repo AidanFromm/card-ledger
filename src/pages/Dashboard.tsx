@@ -439,7 +439,7 @@ const Dashboard = () => {
                 exit={{ opacity: 0, y: -12 }}
                 className="space-y-3"
               >
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div className="card-clean-elevated p-4 rounded-2xl">
                     <div className="flex items-center gap-1.5 mb-2">
                       <p className="label-metric">Invested</p>

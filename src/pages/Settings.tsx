@@ -918,8 +918,9 @@ const Settings = () => {
               />
             </div>
           </motion.div>
-        </main>
-      </PageTransition>
+          </main>
+        </PageTransition>
+      </div>
 
       {/* Profile Sheet */}
       <BottomSheet
@@ -1256,7 +1257,6 @@ const Settings = () => {
         <NotificationSettings />
       </BottomSheet>
 
-      </div>
       <BottomNav />
     </div>
   );

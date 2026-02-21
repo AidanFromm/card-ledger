@@ -354,19 +354,19 @@ const TradingHub = () => {
         <Navbar />
         <div className="flex">
           <DesktopSidebar />
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 w-48 bg-muted/30 rounded" />
-            <div className="flex gap-2">
-              {[1, 2, 3, 4, 5].map(i => (
-                <div key={i} className="h-10 w-24 bg-muted/20 rounded-full" />
-              ))}
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 w-48 bg-muted/30 rounded" />
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div key={i} className="h-10 w-24 bg-muted/20 rounded-full" />
+                ))}
+              </div>
+              <div className="h-96 bg-muted/20 rounded-xl" />
             </div>
-            <div className="h-96 bg-muted/20 rounded-xl" />
-          </div>
-        </main>
+          </main>
         </div>
-      <BottomNav />
+        <BottomNav />
       </div>
     );
   }
@@ -374,10 +374,10 @@ const TradingHub = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
-        <div className="flex">
-          <DesktopSidebar />
-      <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
+      <div className="flex">
+        <DesktopSidebar />
+        <PageTransition>
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -1298,8 +1298,8 @@ const TradingHub = () => {
               )}
             </SheetContent>
           </Sheet>
-        </main>
-      </PageTransition>
+          </main>
+        </PageTransition>
       </div>
       <BottomNav />
     </div>

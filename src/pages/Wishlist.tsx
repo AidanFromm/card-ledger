@@ -377,28 +377,28 @@ const Wishlist = () => {
         <Navbar />
         <div className="flex">
           <DesktopSidebar />
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 w-32 bg-muted/30 rounded" />
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="h-24 bg-muted/20 rounded-xl" />
-              ))}
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 w-32 bg-muted/30 rounded" />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="h-24 bg-muted/20 rounded-xl" />
+                ))}
+              </div>
+              <div className="flex gap-2">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="h-10 w-24 bg-muted/20 rounded-full" />
+                ))}
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {[1, 2, 3, 4, 5, 6].map(i => (
+                  <div key={i} className="aspect-[3/4] bg-muted/20 rounded-xl" />
+                ))}
+              </div>
             </div>
-            <div className="flex gap-2">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="h-10 w-24 bg-muted/20 rounded-full" />
-              ))}
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="aspect-[3/4] bg-muted/20 rounded-xl" />
-              ))}
-            </div>
-          </div>
-        </main>
+          </main>
         </div>
-      <BottomNav />
+        <BottomNav />
       </div>
     );
   }
@@ -406,10 +406,10 @@ const Wishlist = () => {
   return (
     <div className="min-h-screen bg-background pb-safe pt-safe">
       <Navbar />
-        <div className="flex">
-          <DesktopSidebar />
-      <PageTransition>
-        <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl">
+      <div className="flex">
+        <DesktopSidebar />
+        <PageTransition>
+          <main className="container mx-auto px-4 py-6 pb-28 md:pb-8 max-w-6xl flex-1">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -856,8 +856,8 @@ const Wishlist = () => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-        </main>
-      </PageTransition>
+          </main>
+        </PageTransition>
       </div>
       <BottomNav />
     </div>

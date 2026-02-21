@@ -547,7 +547,7 @@ const Sales = () => {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-2 gap-3 mb-5"
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5"
         >
           {/* Profit Card - Primary */}
           <motion.div
