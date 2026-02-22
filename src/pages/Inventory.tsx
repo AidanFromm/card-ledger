@@ -337,10 +337,29 @@ const Inventory = () => {
                 </p>
               </div>
 
-              {/* Slider */}
+              {/* Stats Row */}
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                <div className="text-center p-2.5 rounded-xl bg-secondary/20">
+                  <p className="text-[10px] text-muted-foreground/50 font-medium mb-0.5">{totalItems === 1 ? 'Card' : 'Cards'}</p>
+                  <p className="text-sm font-bold font-mono" style={{ fontVariantNumeric: 'tabular-nums' }}>{totalItems.toLocaleString()}</p>
+                </div>
+                <div className="text-center p-2.5 rounded-xl bg-secondary/20">
+                  <p className="text-[10px] text-muted-foreground/50 font-medium mb-0.5">Cost Basis</p>
+                  <p className="text-sm font-bold font-mono" style={{ fontVariantNumeric: 'tabular-nums' }}>${formatPrice(totalCost)}</p>
+                </div>
+                <div className="text-center p-2.5 rounded-xl bg-secondary/20">
+                  <p className="text-[10px] text-muted-foreground/50 font-medium mb-0.5">Unrealized P&L</p>
+                  <p className={`text-sm font-bold font-mono ${totalValue - totalCost >= 0 ? 'text-emerald-500' : 'text-red-500'}`} style={{ fontVariantNumeric: 'tabular-nums' }}>
+                    {totalValue - totalCost >= 0 ? '+' : ''}${formatPrice(Math.abs(totalValue - totalCost))}
+                  </p>
+                </div>
+              </div>
+
+              {/* Liquidation Slider */}
               <div className="space-y-1.5">
-                <div className="flex justify-between text-[10px] text-muted-foreground/40 px-0.5 font-medium">
-                  <span>10%</span><span>30%</span><span>50%</span><span>70%</span><span>90%</span><span>100%</span>
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-[10px] text-muted-foreground/40 font-medium">Liquidation estimate</p>
+                  <p className="text-[10px] text-muted-foreground/40 font-medium">{portfolioPercent}% of market</p>
                 </div>
                 <div className="relative h-1.5 bg-secondary/40 rounded-full">
                   <div
@@ -354,12 +373,6 @@ const Inventory = () => {
                     onChange={(e) => setPortfolioPercent(Number(e.target.value))}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-                  <div
-                    className="absolute -top-7 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-md pointer-events-none"
-                    style={{ left: `${((portfolioPercent - 10) / 90) * 100}%` }}
-                  >
-                    {portfolioPercent}%
-                  </div>
                   <div
                     className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-primary rounded-full shadow-lg shadow-primary/30 border-2 border-white dark:border-card pointer-events-none"
                     style={{ left: `${((portfolioPercent - 10) / 90) * 100}%` }}
@@ -690,6 +703,11 @@ const Inventory = () => {
                 <Button onClick={() => setIsBulkEditOpen(true)} size="sm" variant="outline" className="flex-1 gap-1.5 rounded-xl text-xs h-9">
                   <Edit3 className="h-3.5 w-3.5" /> Grade
                 </Button>
+                {selectedItems.size >= 2 && selectedItems.size <= 4 && (
+                  <Button onClick={() => setIsCompareOpen(true)} size="sm" variant="outline" className="flex-1 gap-1.5 rounded-xl text-xs h-9 border-primary/30 text-primary hover:bg-primary/10">
+                    <GitCompareArrows className="h-3.5 w-3.5" /> Compare
+                  </Button>
+                )}
                 <Button onClick={() => setIsImportExportOpen(true)} size="sm" variant="outline" className="flex-1 gap-1.5 rounded-xl text-xs h-9">
                   <FileDown className="h-3.5 w-3.5" /> Export
                 </Button>

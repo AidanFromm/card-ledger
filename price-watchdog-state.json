@@ -1,0 +1,45 @@
+{
+  "lastRun": "2026-02-21T18:00:00-07:00",
+  "prices": {
+    "Charizard ex (FRLG)": {
+      "name": "Charizard ex",
+      "set": "FireRed & LeafGreen",
+      "number": "105/112",
+      "price": 831.25,
+      "change24h": null,
+      "id": "pokemon-firered-leafgreen-charizard-ex-ultra-rare"
+    },
+    "Umbreon VMAX Alt Art": {
+      "name": "Umbreon VMAX (Alternate Art Secret)",
+      "set": "SWSH07: Evolving Skies",
+      "number": "215/203",
+      "price": 1738.17,
+      "change24h": 0,
+      "id": "pokemon-swsh07-evolving-skies-umbreon-vmax-alternate-art-secret-secret-rare"
+    },
+    "Pikachu VMAX": {
+      "name": "Celebrations Premium Figure Collection [Pikachu VMAX]",
+      "set": "Celebrations",
+      "number": "N/A",
+      "price": 187.94,
+      "change24h": 0,
+      "id": "pokemon-celebrations-celebrations-premium-figure-collection-pikachu-vmax"
+    },
+    "Mew ex": {
+      "name": "Mew EX (120 Full Art)",
+      "set": "Dragons Exalted",
+      "number": "120/124",
+      "price": 519.99,
+      "change24h": 0,
+      "id": "pokemon-dragons-exalted-mew-ex-120-full-art-ultra-rare"
+    },
+    "Mewtwo EX": {
+      "name": "Mewtwo EX - 54/99",
+      "set": "Jumbo Cards",
+      "number": "054/099",
+      "price": 24.99,
+      "change24h": 0,
+      "id": "pokemon-jumbo-cards-mewtwo-ex-54-99-promo"
+    }
+  }
+}
