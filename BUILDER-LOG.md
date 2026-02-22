@@ -48,3 +48,10 @@
 **Next:** Continue page-by-page polish, add more desktop-specific layouts
 
 ---
+
+## [2026-02-22 2:34 PM MST]
+**Task:** Add inventory stats summary row and compare button
+**Changes:** 
+- `src/pages/Inventory.tsx` — Added compact 3-column stats row (Total Cards, Cost Basis, Unrealized P&L) inside the portfolio value card, with color-coded P&L. Added "Compare" button to floating bulk action bar when 2-4 items are selected (connects to existing CompareCards dialog). Cleaned up liquidation slider with descriptive labels.
+**Impact:** Users can now see their investment performance (cost basis vs market value, P&L) at a glance directly on the Inventory page — previously this was only on the Dashboard. The Compare button makes an existing but hidden feature discoverable.
+**Next suggestion:** Add a "Create Client List" button to the floating action bar, or improve the table view with inline editing for condition/grade fields.

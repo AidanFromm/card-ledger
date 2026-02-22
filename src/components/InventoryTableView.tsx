@@ -140,6 +140,33 @@ export const InventoryTableView = ({ items, selectionMode, selectedItems, onTogg
             );
           })}
         </tbody>
+        {sorted.length > 0 && (
+          <tfoot>
+            <tr className="border-t-2 border-border/30 bg-secondary/10">
+              {selectionMode && <td className="px-3 py-3" />}
+              <td className="px-3 py-3 sticky left-0 z-10 bg-secondary/10 backdrop-blur-sm font-bold text-xs uppercase tracking-wider text-muted-foreground" colSpan={1}>
+                Totals
+              </td>
+              <td className="px-3 py-3 hidden sm:table-cell" />
+              <td className="px-3 py-3" />
+              <td className="px-3 py-3 text-right font-bold">
+                {sorted.reduce((s, i) => s + i.quantity, 0)}
+              </td>
+              <td className="px-3 py-3 text-right font-bold text-muted-foreground">
+                ${fmt(sorted.reduce((s, i) => s + i.purchase_price * i.quantity, 0))}
+              </td>
+              <td className="px-3 py-3 text-right font-bold">
+                ${fmt(sorted.reduce((s, i) => s + (i.market_price || i.purchase_price) * i.quantity, 0))}
+              </td>
+              <td className={`px-3 py-3 text-right font-bold ${
+                (() => { const t = sorted.reduce((s, i) => s + ((i.market_price || i.purchase_price) - i.purchase_price) * i.quantity, 0); return t >= 0 ? 'text-success' : 'text-destructive'; })()
+              }`}>
+                {(() => { const t = sorted.reduce((s, i) => s + ((i.market_price || i.purchase_price) - i.purchase_price) * i.quantity, 0); return `${t >= 0 ? '+' : ''}$${fmt(Math.abs(t))}`; })()}
+              </td>
+              <td className="px-3 py-3 hidden lg:table-cell" />
+            </tr>
+          </tfoot>
+        )}
       </table>
       {sorted.length === 0 && (
         <div className="text-center py-12 text-muted-foreground/50 text-sm">No items to display</div>

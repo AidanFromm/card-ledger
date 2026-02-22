@@ -684,14 +684,14 @@ const Dashboard = () => {
                           <div key={m.label} className="card-clean-elevated p-4 rounded-2xl">
                             <div className="flex items-center gap-1.5 mb-2">
                               <p className="label-metric">{m.label}</p>
-                              <Tooltip>
+                              <UITooltip>
                                 <TooltipTrigger asChild>
                                   <Info className="w-3 h-3 text-muted-foreground/40 cursor-help" />
                                 </TooltipTrigger>
                                 <TooltipContent side="top" className="max-w-[200px] text-xs">
                                   {m.tip}
                                 </TooltipContent>
-                              </Tooltip>
+                              </UITooltip>
                             </div>
                             <p className={`text-display-xs ${m.positive !== undefined ? (m.positive ? 'change-positive' : 'change-negative') : ''}`}>
                               {m.value}
